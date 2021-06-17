@@ -167,7 +167,7 @@ Represents the context variable of the coroutine, and the supported functions in
 + `Del() (v interface{})`: Delete the context variable value of the current coroutine and return the deleted old value.
 + `Clear()`: Thoroughly clean up the old value of this context variable saved in all coroutines.
 
-# 垃圾回收
+# Garbage Collection
 
 The `routine` library internally maintains the global `storages`, which stores all the variable values of all
 coroutines, and performs data unique mapping based on the `goid` and `LocalStorage` of `goroutine` when reading and
