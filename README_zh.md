@@ -9,7 +9,7 @@
 如果你使用过其他语言如`C++/Java`等，那么你一定很熟悉`ThreadLocal`，而在开始使用`Golang`之后，你一定会为缺少类似`ThreadLocal`的便捷功能而深感困惑与苦恼。 当然你可以选择使用`Context`
 ，让它携带着全部上下文信息，在所有函数的第一个输入参数中出现，然后在你的系统中到处穿梭。
 
-而`routine`的核心目标就是开辟另一条路：将`goroutine local storage`引入`Golang`世界，同时也将协程信息暴露出来，以满足某些人人可能有的需求。
+而`routine`的核心目标就是开辟另一条路：将`goroutine local storage`引入`Golang`世界，同时也将协程信息暴露出来，以满足某些人可能有的需求。
 
 # 使用演示
 
@@ -71,17 +71,17 @@ func main() {
 	nameVar.Set("hello world")
 	fmt.Println("name: ", nameVar.Get())
 
-	// other goroutine cannot read nameVar
+	// 其他协程不能读取前面Set的"hello world"
 	go func() {
 		fmt.Println("name1: ", nameVar.Get())
 	}()
 
-	// but, the new goroutine could inherit/copy all local data from the current goroutine like this:
+	// 但是可以通过Go函数启动新协程，并将当前main协程的全部协程上下文变量赋值过去
 	routine.Go(func() {
 		fmt.Println("name2: ", nameVar.Get())
 	})
 
-	// or, you could copy all local data manually
+	// 或者，你也可以手动copy当前协程上下文至新协程，Go()函数的内部实现也是如此
 	ic := routine.BackupContext()
 	go func() {
 		routine.InheritContext(ic)
@@ -109,9 +109,9 @@ name2:  hello world
 
 获取当前`goroutine`的`goid`。
 
-在正常情况下，`Goid()`优先尝试通过`go_tls`的方式直接获取，此操作极快，耗时通常只相当于`rand.Int()`的五分之一。
+在正常情况下，`Goid()`优先尝试通过`go_tls`的方式直接获取，此操作性能极高，耗时通常只相当于`rand.Int()`的五分之一。
 
-若出现版本不兼容等错误时，`Goid()`会尝试从`runtime.Stack`信息中解析获取，此时性能会出现指数级的损耗，即变慢约一千倍，但可以保证功能正常可用。
+若出现版本不兼容等错误时，`Goid()`会尝试降级，即从`runtime.Stack`信息中解析获取，此时性能会急剧下降约千倍，但它可以保证功能正常可用。
 
 ## `AllGoids() (ids []int64)`
 
@@ -146,14 +146,15 @@ name2:  hello world
 + `Del() (v interface{})`：删除当前协程的上下文变量值，返回已删除的旧值
 + `Clear()`：彻底清理此上下文变量在所有协程中保存的旧值
 
+**提示：`Get/Set/Del`的内部实现采用无锁设计，在大部分情况下，它的性能表现都应该非常稳定且高效。**
+
 # 垃圾回收
 
-`routine`库内部维护了全局的`storages`，它存储了全部协程的全部变量值，在读写时基于`goroutine`的`goid`和`LocalStorage`进行数据唯一映射。
+`routine`库内部维护了全局的`storages`变量，它存储了全部协程的上下文变量信息，在读写时基于协程的`goid`和协程变量的`ptr`进行变量寻址映射。
 
-在进程的整个生命周期中，可能出现有无数个协程的创建与销毁，
-因此有必要主动清理`dead`协程在全局`storages`中缓存的上下文数据。
-这个工作由`routine`库中的一个全局定时器执行，它会在必要的时候，
-每隔一段时间扫描并清理`dead`协程的相关信息，以避免可能出现的内存泄露隐患。
+在进程的整个生命周期中，它可能会创建于销毁无数个协程，那么这些协程的上下文变量如何清理呢？
+
+为解决这个问题，`routine`内部分配了一个全局的`GCTimer`，此定时器会在`storages`需要被清理时启动，定时扫描并清理`dead`协程在`storages`中缓存的上下文变量，从而避免可能出现的内存泄露隐患。
 
 # License
 

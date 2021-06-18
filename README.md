@@ -120,12 +120,12 @@ functions and implementation methods.
 
 Get the `goid` of the current `goroutine`.
 
-Under normal circumstances, `Goid()` first tries to get it directly through `go_tls`. This operation is extremely fast,
-and the time-consuming is usually only one-fifth of `rand.Int()`.
+Under normal circumstances, `Goid()` first tries to obtain it directly through `go_tls`. This operation has extremely
+high performance and the time-consuming is usually only one-fifth of `rand.Int()`.
 
-If an error such as version incompatibility occurs, `Goid()` will try to parse it from the `runtime.Stack` information.
-At this time, the performance will suffer exponential loss, which is about a thousand times slower, but the function can
-be guaranteed to be normal Available.
+If an error such as version incompatibility occurs, `Goid()` will try to downgrade, that is, parse it from
+the `runtime.Stack` information. At this time, the performance will drop sharply by about a thousand times, but it can
+ensure that the function is normally available.
 
 ## `AllGoids() (ids []int64)`
 
@@ -169,16 +169,21 @@ Represents the context variable of the coroutine, and the supported functions in
 + `Del() (v interface{})`: Delete the context variable value of the current coroutine and return the deleted old value.
 + `Clear()`: Thoroughly clean up the old value of this context variable saved in all coroutines.
 
+**Tip: The internal implementation of `Get/Set/Del` adopts a lock-free design. In most cases, its performance should be
+very stable and efficient.**
+
 # Garbage Collection
 
-The `routine` library internally maintains the global `storages`, which stores all the variable values of all
-coroutines, and performs data unique mapping based on the `goid` and `LocalStorage` of `goroutine` when reading and
-writing.
+The `routine` library internally maintains the global `storages` variable, which stores all the context variable
+information of the coroutine, and performs variable addressing mapping based on the `goid` of the coroutine and
+the `ptr` of the coroutine variable when reading and writing.
 
-In the entire life cycle of a process, there may be countless creation and destruction of coroutines, so it is necessary
-to actively clean up the context data cached by the `dead` coroutine in the global `storages`. This work is performed by
-a global timer in the `routine` library, which will, when necessary, Scan and clean up the relevant information of
-the `dead` coroutine at regular intervals to avoid potential memory leaks.
+In the entire life cycle of a process, it may be created by destroying countless coroutines, so how to clean up the
+context variables of these `dead` coroutines?
+
+To solve this problem, a global `GCTimer` is allocated internally by `routine`. This timer will be started
+when `storages` needs to be cleaned up. It scans and cleans up the context variables cached by `dead` coroutine
+in `storages` at regular intervals, so as to avoid possible hidden dangers of memory leaks.
 
 # License
 
