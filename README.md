@@ -63,7 +63,7 @@ all goids: [1 18]
 
 ## Use `LocalStorage`
 
-The following code simply demonstrates the creation, setting, acquisition, and cross-coroutine propagation
+The following code simply demonstrates `NewLocalStorage()`, `Set()`, `Get()`, and cross-coroutine propagation
 of `LocalStorage`:
 
 ```go
