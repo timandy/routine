@@ -38,8 +38,8 @@ func TestStorage(t *testing.T) {
 }
 
 func TestStorageConcurrency(t *testing.T) {
-	const concurrency = 200
-	const loopTimes = 1000000
+	const concurrency = 100
+	const loopTimes = 100000
 
 	var s storage
 

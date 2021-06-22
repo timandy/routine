@@ -1,5 +1,7 @@
 # routine
 
+[![Build Status](https://travis-ci.com/go-eden/routine.svg?branch=main)](https://travis-ci.com/github/go-eden/routine)
+
 [中文版](README_zh.md)
 
 `routine` encapsulates and provides some easy-to-use, high-performance `goroutine` context access interfaces, which can
