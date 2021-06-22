@@ -1,5 +1,11 @@
 # routine
 
+[![Build Status](https://travis-ci.com/go-eden/routine.svg?branch=main)](https://travis-ci.com/github/go-eden/routine)
+[![codecov](https://codecov.io/gh/go-eden/routine/branch/main/graph/badge.svg?token=R4GC2IuGoh)](https://codecov.io/gh/go-eden/routine)
+[![Go doc](https://img.shields.io/badge/go.dev-reference-brightgreen?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/go-eden/routine)
+
+> [English Version](README_zh.md)
+
 `routine`封装并提供了一些易用、高性能的`goroutine`上下文访问接口，它可以帮助你更优雅地访问协程上下文信息，但你也可能就此打开了潘多拉魔盒。
 
 # 介绍

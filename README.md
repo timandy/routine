@@ -1,8 +1,10 @@
 # routine
 
 [![Build Status](https://travis-ci.com/go-eden/routine.svg?branch=main)](https://travis-ci.com/github/go-eden/routine)
+[![codecov](https://codecov.io/gh/go-eden/routine/branch/main/graph/badge.svg?token=R4GC2IuGoh)](https://codecov.io/gh/go-eden/routine)
+[![Go doc](https://img.shields.io/badge/go.dev-reference-brightgreen?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/go-eden/routine)
 
-[中文版](README_zh.md)
+> [中文版](README_zh.md)
 
 `routine` encapsulates and provides some easy-to-use, high-performance `goroutine` context access interfaces, which can
 help you access coroutine context information more elegantly, but you may also open Pandora's Box.
