@@ -3,6 +3,7 @@ package routine
 import (
 	"github.com/stretchr/testify/assert"
 	"math/rand"
+	"sync"
 	"testing"
 	"time"
 )
@@ -34,6 +35,28 @@ func TestStorage(t *testing.T) {
 	s.Clear()
 	v = s.Get()
 	assert.True(t, v == nil)
+}
+
+func TestStorageConcurrency(t *testing.T) {
+	const concurrency = 200
+	const loopTimes = 1000000
+
+	var s storage
+
+	waiter := new(sync.WaitGroup)
+	waiter.Add(concurrency)
+	for i := 0; i < concurrency; i++ {
+		go func() {
+			v := rand.Uint64()
+			for i := 0; i < loopTimes; i++ {
+				s.Set(v)
+				tmp := s.Get()
+				assert.True(t, tmp.(uint64) == v)
+			}
+			waiter.Done()
+		}()
+	}
+	waiter.Wait()
 }
 
 func TestStorageGC(t *testing.T) {
