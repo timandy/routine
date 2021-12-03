@@ -1,4 +1,4 @@
-module github.com/go-eden/routine
+module github.com/timandy/routine
 
 go 1.17
 

@@ -1,8 +1,8 @@
 # routine
 
-[![Build Status](https://travis-ci.com/go-eden/routine.svg?branch=main)](https://travis-ci.com/github/go-eden/routine)
-[![codecov](https://codecov.io/gh/go-eden/routine/branch/main/graph/badge.svg?token=R4GC2IuGoh)](https://codecov.io/gh/go-eden/routine)
-[![Go doc](https://img.shields.io/badge/go.dev-reference-brightgreen?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/go-eden/routine)
+[![Build Status](https://travis-ci.com/timandy/routine.svg?branch=main)](https://travis-ci.com/github/timandy/routine)
+[![codecov](https://codecov.io/gh/timandy/routine/branch/main/graph/badge.svg?token=R4GC2IuGoh)](https://codecov.io/gh/timandy/routine)
+[![Go doc](https://img.shields.io/badge/go.dev-reference-brightgreen?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/timandy/routine)
 
 > [中文版](README_zh.md)
 
@@ -30,7 +30,7 @@ This chapter briefly introduces how to install and use the `routine` library.
 ## Install
 
 ```bash
-go get github.com/go-eden/routine
+go get github.com/timandy/routine
 ```
 
 ## Use `goid`
@@ -42,7 +42,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/go-eden/routine"
+	"github.com/timandy/routine"
 	"time"
 )
 
@@ -75,7 +75,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/go-eden/routine"
+	"github.com/timandy/routine"
 	"time"
 )
 
@@ -192,3 +192,7 @@ in `storages` at regular intervals, so as to avoid possible hidden dangers of me
 # License
 
 MIT
+
+# Thanks
+
+This lib is forked from [go-eden/routine](https://github.com/go-eden/routine). Thank go-eden for his great work!

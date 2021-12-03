@@ -2,7 +2,7 @@ package routine
 
 import (
 	"fmt"
-	"github.com/go-eden/routine/g"
+	"github.com/timandy/routine/g"
 	"runtime"
 	"strings"
 	"sync"
