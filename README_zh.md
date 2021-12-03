@@ -1,7 +1,7 @@
 # routine
 
-[![Build Status](https://travis-ci.com/timandy/routine.svg?branch=main)](https://travis-ci.com/github/timandy/routine)
-[![codecov](https://codecov.io/gh/timandy/routine/branch/main/graph/badge.svg?token=R4GC2IuGoh)](https://codecov.io/gh/timandy/routine)
+[![Build Status](https://github.com/timandy/routine/actions/workflows/build.yml/badge.svg)](https://github.com/timandy/routine/actions)
+[![Codecov](https://codecov.io/gh/timandy/routine/branch/main/graph/badge.svg)](https://codecov.io/gh/timandy/routine)
 [![Go doc](https://img.shields.io/badge/go.dev-reference-brightgreen?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/timandy/routine)
 
 > [English Version](README_zh.md)
