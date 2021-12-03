@@ -1,0 +1,39 @@
+on:
+  push:
+    branches:
+      - main
+      - feature/*
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ macos-latest, ubuntu-latest, windows-latest ]
+        go: [ 1.13, 1.14, 1.15, 1.16, 1.17 ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout scm
+        uses: actions/checkout@v2.4.0
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go }}
+
+      - name: Get dependencies
+        run: go get -t -v ./...
+
+      - name: Test sources
+        run: |
+          set GOMAXPROCS=4
+          set GORACE=halt_on_error=1
+          go test -race -v -coverprofile='coverage.txt' -covermode=atomic ./...
+
+      - name: Codecov
+        uses: codecov/codecov-action@v2.1.0
+        with:
+          name: Codecov on go${{ matrix.go }}
+          fail_ci_if_error: false

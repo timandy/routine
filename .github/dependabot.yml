@@ -1,0 +1,20 @@
+# Configuration file of Github Dependabot
+
+version: 2
+updates:
+
+  # Maintain dependencies for maven
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "08:00"
+      timezone: "Asia/Shanghai"
+
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "08:00"
+      timezone: "Asia/Shanghai"
