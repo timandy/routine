@@ -79,7 +79,7 @@ func Goid() (id int64) {
 func AllGoids() (ids []int64) {
 	var err error
 	if ids, err = getAllGoidByNative(); err != nil {
-		fmt.Println("[WARNING] cannot get all goid from runtime natively, now fallover to stack info, this will be very inefficient!!!")
+		fmt.Println("[WARNING] cannot get all goids from runtime natively, now fall over to stack info, this will be very inefficient!!!")
 		ids = getAllGoidByStack()
 	}
 	return
