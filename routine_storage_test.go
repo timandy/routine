@@ -13,7 +13,7 @@ func init() {
 }
 
 func TestStorage(t *testing.T) {
-	var s storage
+	s := NewLocalStorage()
 
 	for i := 0; i < 100; i++ {
 		src := "hello"
@@ -41,7 +41,7 @@ func TestStorageConcurrency(t *testing.T) {
 	const concurrency = 100
 	const loopTimes = 100000
 
-	var s storage
+	s := NewLocalStorage()
 
 	waiter := new(sync.WaitGroup)
 	waiter.Add(concurrency)
@@ -60,7 +60,11 @@ func TestStorageConcurrency(t *testing.T) {
 }
 
 func TestStorageGC(t *testing.T) {
-	var s1, s2, s3, s4, s5 storage
+	s1 := NewLocalStorage()
+	s2 := NewLocalStorage()
+	s3 := NewLocalStorage()
+	s4 := NewLocalStorage()
+	s5 := NewLocalStorage()
 
 	// use LocalStorage in multi goroutines
 	for i := 0; i < 10; i++ {
@@ -87,8 +91,8 @@ func TestStorageGC(t *testing.T) {
 
 // BenchmarkLoadCurrentStore-12    	 9630090	       118.2 ns/op	      16 B/op	       1 allocs/op
 func BenchmarkStorage(b *testing.B) {
-	var s storage
-	var variable = "hello world"
+	s := NewLocalStorage()
+	variable := "hello world"
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
