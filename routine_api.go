@@ -1,6 +1,9 @@
 package routine
 
-import "fmt"
+import (
+	"fmt"
+	"unsafe"
+)
 
 // LocalStorage provides goroutine-local variables.
 type LocalStorage interface {
@@ -56,7 +59,8 @@ func InheritContext(ic *ImmutableContext) {
 
 // NewLocalStorage create and return an new LocalStorage instance.
 func NewLocalStorage() LocalStorage {
-	t := new(storage)
+	t := &storage{}
+	t.id = uintptr(unsafe.Pointer(t))
 	t.Clear()
 	return t
 }

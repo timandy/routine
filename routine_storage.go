@@ -4,7 +4,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-	"unsafe"
 )
 
 var (
@@ -31,17 +30,18 @@ type store struct {
 }
 
 type storage struct {
+	id uintptr
 }
 
 func (t *storage) Get() (v interface{}) {
 	s := loadCurrentStore()
-	id := uintptr(unsafe.Pointer(t))
+	id := t.id
 	return s.values[id]
 }
 
 func (t *storage) Set(v interface{}) (oldValue interface{}) {
 	s := loadCurrentStore()
-	id := uintptr(unsafe.Pointer(t))
+	id := t.id
 	oldValue = s.values[id]
 	s.values[id] = v
 	atomic.StoreUint32(&s.count, uint32(len(s.values)))
@@ -59,7 +59,7 @@ func (t *storage) Set(v interface{}) (oldValue interface{}) {
 
 func (t *storage) Del() (v interface{}) {
 	s := loadCurrentStore()
-	id := uintptr(unsafe.Pointer(t))
+	id := t.id
 	v = s.values[id]
 	delete(s.values, id)
 	atomic.StoreUint32(&s.count, uint32(len(s.values)))
