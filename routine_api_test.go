@@ -6,6 +6,15 @@ import (
 	"time"
 )
 
+func TestMultiStorage(t *testing.T) {
+	context1 := NewLocalStorage()
+	context2 := NewLocalStorage()
+	context1.Set("hello")
+	context2.Set(22)
+	assert.Equal(t, 22, context2.Get())
+	assert.Equal(t, "hello", context1.Get())
+}
+
 func TestGoid(t *testing.T) {
 	t.Log(Goid())
 }
