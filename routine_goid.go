@@ -68,6 +68,9 @@ func getGoidByNative() (int64, bool) {
 		return 0, false
 	}
 	p := (*int64)(unsafe.Pointer(uintptr(tmp) + goidOffset))
+	if p == nil {
+		return 0, false
+	}
 	return *p, true
 }
 
