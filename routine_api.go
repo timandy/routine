@@ -38,7 +38,10 @@ func Go(f func()) {
 
 // BackupContext copy all local storages into an ImmutableContext instance.
 func BackupContext() *ImmutableContext {
-	s := loadCurrentStore()
+	s := loadCurrentStore(false)
+	if s == nil || s.values == nil || len(s.values) == 0 {
+		return nil
+	}
 	data := make(map[uintptr]interface{}, len(s.values))
 	for k, v := range s.values {
 		data[k] = v
@@ -48,10 +51,10 @@ func BackupContext() *ImmutableContext {
 
 // InheritContext load the specified ImmutableContext instance into the local storage of current goroutine.
 func InheritContext(ic *ImmutableContext) {
-	if ic == nil || ic.values == nil {
+	if ic == nil || ic.values == nil || len(ic.values) == 0 {
 		return
 	}
-	s := loadCurrentStore()
+	s := loadCurrentStore(true)
 	for k, v := range ic.values {
 		s.values[k] = v
 	}

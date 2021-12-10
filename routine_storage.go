@@ -34,13 +34,16 @@ type storage struct {
 }
 
 func (t *storage) Get() (v interface{}) {
-	s := loadCurrentStore()
+	s := loadCurrentStore(false)
+	if s == nil {
+		return nil
+	}
 	id := t.id
 	return s.values[id]
 }
 
 func (t *storage) Set(v interface{}) (oldValue interface{}) {
-	s := loadCurrentStore()
+	s := loadCurrentStore(true)
 	id := t.id
 	oldValue = s.values[id]
 	s.values[id] = v
@@ -58,7 +61,10 @@ func (t *storage) Set(v interface{}) (oldValue interface{}) {
 }
 
 func (t *storage) Del() (v interface{}) {
-	s := loadCurrentStore()
+	s := loadCurrentStore(false)
+	if s == nil {
+		return nil
+	}
 	id := t.id
 	v = s.values[id]
 	delete(s.values, id)
@@ -67,16 +73,19 @@ func (t *storage) Del() (v interface{}) {
 }
 
 func (t *storage) Clear() {
-	s := loadCurrentStore()
+	s := loadCurrentStore(false)
+	if s == nil {
+		return
+	}
 	s.values = map[uintptr]interface{}{}
 	atomic.StoreUint32(&s.count, 0)
 }
 
 // loadCurrentStore load the store of current goroutine.
-func loadCurrentStore() (s *store) {
+func loadCurrentStore(create bool) (s *store) {
 	gid := Goid()
 	storeMap := storages.Load().(map[int64]*store)
-	if s = storeMap[gid]; s == nil {
+	if s = storeMap[gid]; s == nil && create {
 		storageLock.Lock()
 		oldStoreMap := storages.Load().(map[int64]*store)
 		if s = oldStoreMap[gid]; s == nil {
