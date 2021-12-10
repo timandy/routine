@@ -2,6 +2,7 @@ package routine
 
 import (
 	"github.com/stretchr/testify/assert"
+	"sync"
 	"testing"
 	"time"
 )
@@ -33,15 +34,17 @@ func TestAllGoid(t *testing.T) {
 }
 
 func TestGoStorage(t *testing.T) {
+	waiter := &sync.WaitGroup{}
+	waiter.Add(1)
 	variable := "hello world"
 	stg := NewLocalStorage()
 	stg.Set(variable)
 	Go(func() {
 		v := stg.Get()
 		assert.Equal(t, variable, v.(string))
+		waiter.Done()
 	})
-	time.Sleep(time.Millisecond)
-	stg.Clear()
+	waiter.Wait()
 }
 
 // BenchmarkGoid-12    	278801190	         4.586 ns/op	       0 B/op	       0 allocs/op
