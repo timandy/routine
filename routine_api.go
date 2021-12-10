@@ -39,7 +39,7 @@ type ImmutableContext struct {
 func Go(f func()) {
 	ic := BackupContext()
 	go func() {
-		InheritContext(ic)
+		RestoreContext(ic)
 		f()
 	}()
 }
@@ -57,8 +57,8 @@ func BackupContext() *ImmutableContext {
 	return &ImmutableContext{gid: s.gid, count: atomic.LoadUint32(&s.count), values: data}
 }
 
-// InheritContext load the specified ImmutableContext instance into the local storage of current goroutine.
-func InheritContext(ic *ImmutableContext) {
+// RestoreContext load the specified ImmutableContext instance into the local storage of current goroutine.
+func RestoreContext(ic *ImmutableContext) {
 	if ic == nil || ic.values == nil || len(ic.values) == 0 {
 		Clear()
 		return

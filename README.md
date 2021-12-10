@@ -98,7 +98,7 @@ func main() {
 	// or, you could copy all local data manually
 	ic := routine.BackupContext()
 	go func() {
-		routine.InheritContext(ic)
+		routine.RestoreContext(ic)
 		fmt.Println("name3: ", nameVar.Get())
 	}()
 
@@ -153,7 +153,7 @@ languages.
 Back up the `local storage` data of the current coroutine context. It is just an immutable structure that facilitates
 the transfer of context data.
 
-## `InheritContext(ic *ImmutableContext)`
+## `RestoreContext(ic *ImmutableContext)`
 
 Actively inherit the backed-up context `local storage` data, it will copy the data of other coroutines `BackupContext()`
 into the current coroutine context, thus supporting the contextual data propagation across coroutines.
@@ -161,7 +161,7 @@ into the current coroutine context, thus supporting the contextual data propagat
 ## `Go(f func())`
 
 Start a new coroutine and automatically copy all the context `local storage` data of the current coroutine to the new
-coroutine. Its internal implementation consists of `BackupContext()` and `InheritContext()`.
+coroutine. Its internal implementation consists of `BackupContext()` and `RestoreContext()`.
 
 ## `LocalStorage`
 

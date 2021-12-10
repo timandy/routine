@@ -25,7 +25,7 @@ func main() {
 	// or, you could copy all local data manually
 	ic := routine.BackupContext()
 	go func() {
-		routine.InheritContext(ic)
+		routine.RestoreContext(ic)
 		fmt.Println("name3: ", nameVar.Get())
 	}()
 

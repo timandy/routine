@@ -90,7 +90,7 @@ func main() {
 	// 或者，你也可以手动copy当前协程上下文至新协程，Go()函数的内部实现也是如此
 	ic := routine.BackupContext()
 	go func() {
-		routine.InheritContext(ic)
+		routine.RestoreContext(ic)
 		fmt.Println("name3: ", nameVar.Get())
 	}()
 
@@ -135,13 +135,13 @@ name2:  hello world
 
 备份当前协程上下文的`local storage`数据，它只是一个便于上下文数据传递的不可变结构体。
 
-## `InheritContext(ic *ImmutableContext)`
+## `RestoreContext(ic *ImmutableContext)`
 
 主动继承备份到的上下文`local storage`数据，它会将其他协程`BackupContext()`的数据复制入当前协程上下文中，从而支持**跨协程的上下文数据传播**。
 
 ## `Go(f func())`
 
-启动一个新的协程，同时自动将当前协程的全部上下文`local storage`数据复制至新协程，它的内部实现由`BackupContext()`和`InheritContext()`组成。
+启动一个新的协程，同时自动将当前协程的全部上下文`local storage`数据复制至新协程，它的内部实现由`BackupContext()`和`RestoreContext()`组成。
 
 ## `LocalStorage`
 

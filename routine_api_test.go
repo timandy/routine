@@ -38,10 +38,10 @@ func TestBackupContext(t *testing.T) {
 		assert.Equal(t, "hello", s.Get())
 		icLocalBackup := BackupContext()
 		//
-		InheritContext(ic)
+		RestoreContext(ic)
 		assert.Nil(t, s.Get())
 		//
-		InheritContext(icLocalBackup)
+		RestoreContext(icLocalBackup)
 		assert.Equal(t, "hello", s.Get())
 		//
 		waiter.Done()
