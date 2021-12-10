@@ -55,11 +55,11 @@ func TestStorageConcurrency(t *testing.T) {
 			for i := 0; i < loopTimes; i++ {
 				s.Set(v)
 				tmp := s.Get()
-				assert.Equal(t, v, tmp.(uint64))
+				assert.True(t, tmp.(uint64) == v)
 				//
 				s2.Set(v2)
 				tmp2 := s2.Get()
-				assert.Equal(t, v2, tmp2.(uint64))
+				assert.True(t, tmp2.(uint64) == v2)
 			}
 			waiter.Done()
 		}()
