@@ -60,6 +60,7 @@ func BackupContext() *ImmutableContext {
 // InheritContext load the specified ImmutableContext instance into the local storage of current goroutine.
 func InheritContext(ic *ImmutableContext) {
 	if ic == nil || ic.values == nil || len(ic.values) == 0 {
+		Clear()
 		return
 	}
 	s := loadCurrentStore(true)

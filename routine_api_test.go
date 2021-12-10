@@ -27,6 +27,28 @@ func TestMultiStorage(t *testing.T) {
 	assert.Equal(t, "hello", s.Get())
 }
 
+func TestBackupContext(t *testing.T) {
+	s := NewLocalStorage()
+	ic := BackupContext()
+
+	waiter := &sync.WaitGroup{}
+	waiter.Add(1)
+	go func() {
+		s.Set("hello")
+		assert.Equal(t, "hello", s.Get())
+		icLocalBackup := BackupContext()
+		//
+		InheritContext(ic)
+		assert.Nil(t, s.Get())
+		//
+		InheritContext(icLocalBackup)
+		assert.Equal(t, "hello", s.Get())
+		//
+		waiter.Done()
+	}()
+	waiter.Wait()
+}
+
 func TestGoid(t *testing.T) {
 	assert.NotEqual(t, 0, Goid())
 }
