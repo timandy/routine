@@ -2,6 +2,7 @@ package routine
 
 import (
 	"fmt"
+	"sync/atomic"
 	"unsafe"
 )
 
@@ -24,6 +25,7 @@ type LocalStorage interface {
 // ImmutableContext represents all local storages of one goroutine.
 type ImmutableContext struct {
 	gid    int64
+	count  uint32
 	values map[uintptr]interface{}
 }
 
@@ -46,7 +48,7 @@ func BackupContext() *ImmutableContext {
 	for k, v := range s.values {
 		data[k] = v
 	}
-	return &ImmutableContext{gid: s.gid, values: data}
+	return &ImmutableContext{gid: s.gid, count: atomic.LoadUint32(&s.count), values: data}
 }
 
 // InheritContext load the specified ImmutableContext instance into the local storage of current goroutine.
@@ -58,6 +60,7 @@ func InheritContext(ic *ImmutableContext) {
 	for k, v := range ic.values {
 		s.values[k] = v
 	}
+	atomic.StoreUint32(&s.count, ic.count)
 }
 
 // NewLocalStorage create and return an new LocalStorage instance.
