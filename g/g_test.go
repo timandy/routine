@@ -4,25 +4,17 @@
 package g
 
 import (
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestG(t *testing.T) {
 	gp1 := G()
-
-	if gp1 == nil {
-		t.Fatalf("fail to get G.")
-	}
+	assert.NotNil(t, gp1, "fail to get G.")
 
 	t.Run("G in another goroutine", func(t *testing.T) {
 		gp2 := G()
-
-		if gp2 == nil {
-			t.Fatalf("fail to get G.")
-		}
-
-		if gp2 == gp1 {
-			t.Fatalf("every living G must be different. [gp1:%p] [gp2:%p]", gp1, gp2)
-		}
+		assert.NotNil(t, gp2, "fail to get G.")
+		assert.NotEqual(t, gp1, gp2, "every living G must be different. [gp1:%p] [gp2:%p]", gp1, gp2)
 	})
 }

@@ -12,12 +12,12 @@ func TestGetGoid(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		nid, _ := getGoidByNative()
 		sid := getGoidByStack()
-		assert.True(t, nid == sid)
+		assert.Equal(t, sid, nid)
 
 		if id == 0 {
 			id = sid
 		} else {
-			assert.True(t, id == sid)
+			assert.Equal(t, sid, id)
 		}
 	}
 	t.Log(getGoidByStack())

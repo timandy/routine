@@ -7,16 +7,16 @@ import (
 )
 
 func TestMultiStorage(t *testing.T) {
-	context1 := NewLocalStorage()
-	context2 := NewLocalStorage()
-	context1.Set("hello")
-	context2.Set(22)
-	assert.Equal(t, 22, context2.Get())
-	assert.Equal(t, "hello", context1.Get())
+	s := NewLocalStorage()
+	s2 := NewLocalStorage()
+	s.Set("hello")
+	s2.Set(22)
+	assert.Equal(t, 22, s2.Get())
+	assert.Equal(t, "hello", s.Get())
 }
 
 func TestGoid(t *testing.T) {
-	t.Log(Goid())
+	assert.NotEqual(t, 0, Goid())
 }
 
 func TestAllGoid(t *testing.T) {
@@ -33,12 +33,12 @@ func TestAllGoid(t *testing.T) {
 }
 
 func TestGoStorage(t *testing.T) {
-	var variable = "hello world"
+	variable := "hello world"
 	stg := NewLocalStorage()
 	stg.Set(variable)
 	Go(func() {
 		v := stg.Get()
-		assert.True(t, v != nil && v.(string) == variable)
+		assert.Equal(t, variable, v.(string))
 	})
 	time.Sleep(time.Millisecond)
 	stg.Clear()

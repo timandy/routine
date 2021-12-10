@@ -19,22 +19,22 @@ func TestStorage(t *testing.T) {
 		src := "hello"
 		s.Set(src)
 		p := s.Get()
-		assert.True(t, p.(string) == src)
+		assert.Equal(t, src, p.(string))
 	}
 
 	for i := 0; i < 1000; i++ {
 		num := rand.Int()
 		s.Set(num)
 		num2 := s.Get()
-		assert.True(t, num2.(int) == num)
+		assert.Equal(t, num, num2.(int))
 	}
 
 	v := s.Del()
-	assert.True(t, v != nil)
+	assert.NotNil(t, v)
 
 	s.Clear()
 	v = s.Get()
-	assert.True(t, v == nil)
+	assert.Nil(t, v)
 }
 
 func TestStorageConcurrency(t *testing.T) {
@@ -55,11 +55,11 @@ func TestStorageConcurrency(t *testing.T) {
 			for i := 0; i < loopTimes; i++ {
 				s.Set(v)
 				tmp := s.Get()
-				assert.True(t, tmp.(uint64) == v)
+				assert.Equal(t, v, tmp.(uint64))
 				//
 				s2.Set(v2)
 				tmp2 := s2.Get()
-				assert.True(t, tmp2.(uint64) == v2)
+				assert.Equal(t, v2, tmp2.(uint64))
 			}
 			waiter.Done()
 		}()
@@ -94,7 +94,7 @@ func TestStorageGC(t *testing.T) {
 		time.Sleep(storageGCInterval + time.Second)
 		assert.False(t, gcRunning(), "#%v, timer not stoped?", i)
 		storeMap := storages.Load().(map[int64]*store)
-		assert.True(t, len(storeMap) == 0, "#%v, storeMap not empty - %d", i, len(storeMap))
+		assert.Equal(t, 0, len(storeMap), "#%v, storeMap not empty - %d", i, len(storeMap))
 	}
 }
 
