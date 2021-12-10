@@ -73,15 +73,6 @@ func (t *storage) Del() (oldValue interface{}) {
 	return
 }
 
-func (t *storage) Clear() {
-	s := loadCurrentStore(false)
-	if s == nil {
-		return
-	}
-	s.values = map[uintptr]interface{}{}
-	atomic.StoreUint32(&s.count, 0)
-}
-
 // loadCurrentStore load the store of current goroutine.
 func loadCurrentStore(create bool) (s *store) {
 	gid := Goid()

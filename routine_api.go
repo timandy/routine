@@ -8,7 +8,6 @@ import (
 
 // LocalStorage provides goroutine-local variables.
 type LocalStorage interface {
-
 	// Get returns the value in the current goroutine's local storage, if it was set before.
 	Get() (value interface{})
 
@@ -17,9 +16,16 @@ type LocalStorage interface {
 
 	// Del delete the value from the current goroutine's local storage, and return it.
 	Del() (oldValue interface{})
+}
 
-	// Clear delete values from all goroutine's local storages.
-	Clear()
+// Clear delete values from all goroutine's local storages.
+func Clear() {
+	s := loadCurrentStore(false)
+	if s == nil {
+		return
+	}
+	s.values = map[uintptr]interface{}{}
+	atomic.StoreUint32(&s.count, 0)
 }
 
 // ImmutableContext represents all local storages of one goroutine.

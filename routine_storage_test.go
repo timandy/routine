@@ -14,12 +14,18 @@ func init() {
 
 func TestStorage(t *testing.T) {
 	s := NewLocalStorage()
+	s2 := NewLocalStorage()
 
 	for i := 0; i < 100; i++ {
 		src := "hello"
 		s.Set(src)
 		p := s.Get()
 		assert.Equal(t, src, p.(string))
+		//
+		src2 := "world"
+		s2.Set(src2)
+		p2 := s2.Get()
+		assert.Equal(t, src2, p2.(string))
 	}
 
 	for i := 0; i < 1000; i++ {
@@ -32,9 +38,12 @@ func TestStorage(t *testing.T) {
 	v := s.Del()
 	assert.NotNil(t, v)
 
-	s.Clear()
-	v = s.Get()
-	assert.Nil(t, v)
+	Clear()
+	vv1 := s.Get()
+	assert.Nil(t, vv1)
+	//
+	vv2 := s2.Get()
+	assert.Nil(t, vv2)
 }
 
 func TestStorageConcurrency(t *testing.T) {
