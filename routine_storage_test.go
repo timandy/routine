@@ -38,20 +38,28 @@ func TestStorage(t *testing.T) {
 }
 
 func TestStorageConcurrency(t *testing.T) {
-	const concurrency = 100
-	const loopTimes = 100000
+	const concurrency = 1000
+	const loopTimes = 1000
 
 	s := NewLocalStorage()
+	s2 := NewLocalStorage()
 
-	waiter := new(sync.WaitGroup)
+	waiter := &sync.WaitGroup{}
 	waiter.Add(concurrency)
 	for i := 0; i < concurrency; i++ {
 		go func() {
 			v := rand.Uint64()
+			v2 := rand.Uint64()
+			assert.True(t, v != 0)
+			assert.True(t, v2 != 0)
 			for i := 0; i < loopTimes; i++ {
 				s.Set(v)
 				tmp := s.Get()
 				assert.True(t, tmp.(uint64) == v)
+				//
+				s2.Set(v2)
+				tmp2 := s2.Get()
+				assert.True(t, tmp2.(uint64) == v2)
 			}
 			waiter.Done()
 		}()
