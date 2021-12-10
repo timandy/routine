@@ -33,20 +33,21 @@ type storage struct {
 	id uintptr
 }
 
-func (t *storage) Get() (v interface{}) {
+func (t *storage) Get() (value interface{}) {
 	s := loadCurrentStore(false)
 	if s == nil {
 		return nil
 	}
 	id := t.id
-	return s.values[id]
+	value = s.values[id]
+	return
 }
 
-func (t *storage) Set(v interface{}) (oldValue interface{}) {
+func (t *storage) Set(value interface{}) (oldValue interface{}) {
 	s := loadCurrentStore(true)
 	id := t.id
 	oldValue = s.values[id]
-	s.values[id] = v
+	s.values[id] = value
 	atomic.StoreUint32(&s.count, uint32(len(s.values)))
 
 	// try restart gc timer if Set for the first time
@@ -60,13 +61,13 @@ func (t *storage) Set(v interface{}) (oldValue interface{}) {
 	return
 }
 
-func (t *storage) Del() (v interface{}) {
+func (t *storage) Del() (oldValue interface{}) {
 	s := loadCurrentStore(false)
 	if s == nil {
 		return nil
 	}
 	id := t.id
-	v = s.values[id]
+	oldValue = s.values[id]
 	delete(s.values, id)
 	atomic.StoreUint32(&s.count, uint32(len(s.values)))
 	return
@@ -120,8 +121,8 @@ func clearDeadStore() {
 	// scan global storeMap check the dead and live store count.
 	var storeMap = storages.Load().(map[int64]*store)
 	var deadCnt, liveCnt int
-	for id, s := range storeMap {
-		if _, ok := gidMap[id]; ok {
+	for gid, s := range storeMap {
+		if _, ok := gidMap[gid]; ok {
 			if atomic.LoadUint32(&s.count) > 0 {
 				liveCnt++
 			}
@@ -134,9 +135,9 @@ func clearDeadStore() {
 	// clean dead store of dead goroutine if need.
 	if deadCnt > 0 {
 		newStoreMap := make(map[int64]*store, len(storeMap)-deadCnt)
-		for id, s := range storeMap {
-			if _, ok := gidMap[id]; ok {
-				newStoreMap[id] = s
+		for gid, s := range storeMap {
+			if _, ok := gidMap[gid]; ok {
+				newStoreMap[gid] = s
 			}
 		}
 		storages.Store(newStoreMap)
