@@ -61,7 +61,7 @@ func (t *storage) Set(value interface{}) (oldValue interface{}) {
 	return
 }
 
-func (t *storage) Del() (oldValue interface{}) {
+func (t *storage) Remove() (oldValue interface{}) {
 	s := loadCurrentStore(false)
 	if s == nil {
 		return nil

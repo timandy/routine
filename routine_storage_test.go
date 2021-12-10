@@ -35,7 +35,7 @@ func TestStorage(t *testing.T) {
 		assert.Equal(t, num, num2.(int))
 	}
 
-	v := s.Del()
+	v := s.Remove()
 	assert.NotNil(t, v)
 
 	Clear()
@@ -116,6 +116,6 @@ func BenchmarkStorage(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_ = s.Get()
 		s.Set(variable)
-		s.Del()
+		s.Remove()
 	}
 }

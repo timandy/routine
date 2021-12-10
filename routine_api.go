@@ -14,8 +14,8 @@ type LocalStorage interface {
 	// Set copy the value into the current goroutine's local storage, and return the old value.
 	Set(value interface{}) (oldValue interface{})
 
-	// Del delete the value from the current goroutine's local storage, and return it.
-	Del() (oldValue interface{})
+	// Remove delete the value from the current goroutine's local storage, and return it.
+	Remove() (oldValue interface{})
 }
 
 // Clear delete values from all goroutine's local storages.

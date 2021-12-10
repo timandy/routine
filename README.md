@@ -168,13 +168,11 @@ coroutine. Its internal implementation consists of `BackupContext()` and `Restor
 Represents the context variable of the coroutine, and the supported functions include:
 
 + `Get() (value interface{})`: Get the variable value that has been set by the current coroutine.
-+ `Set(v interface{}) interface{}`: Set the value of the context variable of the current coroutine, and return the old
-  value that has been set before.
-+ `Del() (v interface{})`: Delete the context variable value of the current coroutine and return the deleted old value.
++ `Set(v interface{}) interface{}`: Set the value of the context variable of the current coroutine, and return the old value that has been set before.
++ `Remove() (v interface{})`: Delete the context variable value of the current coroutine and return the deleted old value.
 + `Clear()`: Thoroughly clean up the old value of this context variable saved in all coroutines.
 
-**Tip: The internal implementation of `Get/Set/Del` adopts a lock-free design. In most cases, its performance should be
-very stable and efficient.**
+**Tip: The internal implementation of `Get/Set/Remove` adopts a lock-free design. In most cases, its performance should be very stable and efficient.**
 
 # Garbage Collection
 
