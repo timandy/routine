@@ -67,7 +67,6 @@ func InheritContext(ic *ImmutableContext) {
 func NewLocalStorage() LocalStorage {
 	t := &storage{}
 	t.id = uintptr(unsafe.Pointer(t))
-	t.Clear()
 	return t
 }
 

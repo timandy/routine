@@ -7,6 +7,17 @@ import (
 	"time"
 )
 
+func TestNewLocalStorage(t *testing.T) {
+	s := NewLocalStorage()
+	s.Set("hello")
+	assert.Equal(t, "hello", s.Get())
+	//
+	s2 := NewLocalStorage()
+	assert.Equal(t, "hello", s.Get())
+	s2.Set(22)
+	assert.Equal(t, 22, s2.Get())
+}
+
 func TestMultiStorage(t *testing.T) {
 	s := NewLocalStorage()
 	s2 := NewLocalStorage()
