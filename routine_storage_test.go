@@ -76,25 +76,26 @@ func TestStorageGC(t *testing.T) {
 
 	// use LocalStorage in multi goroutines
 	for i := 0; i < 10; i++ {
+		waiter := &sync.WaitGroup{}
 		for i := 0; i < 1000; i++ {
+			waiter.Add(1)
 			go func() {
 				s1.Set("hello world")
 				s2.Set(true)
 				s3.Set(&s3)
 				s4.Set(rand.Int())
 				s5.Set(time.Now())
+				waiter.Done()
 			}()
 		}
 		assert.True(t, gcRunning(), "#%v, timer not running?", i)
-
+		waiter.Wait()
 		// wait for a while
 		time.Sleep(storageGCInterval + time.Second)
-		assert.True(t, !gcRunning(), "#%v, timer not stoped?", i)
+		assert.False(t, gcRunning(), "#%v, timer not stoped?", i)
 		storeMap := storages.Load().(map[int64]*store)
 		assert.True(t, len(storeMap) == 0, "#%v, storeMap not empty - %d", i, len(storeMap))
 	}
-
-	//time.Sleep(time.Minute)
 }
 
 // BenchmarkLoadCurrentStore-12    	 9630090	       118.2 ns/op	      16 B/op	       1 allocs/op
