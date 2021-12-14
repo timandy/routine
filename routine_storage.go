@@ -74,18 +74,17 @@ type storage struct {
 	id int
 }
 
-func (t *storage) Get() (value interface{}) {
+func (t *storage) Get() interface{} {
 	s := loadCurrentStore(false)
 	if s == nil {
 		return nil
 	}
-	value = s.get(t.id)
-	return
+	return s.get(t.id)
 }
 
-func (t *storage) Set(value interface{}) (oldValue interface{}) {
+func (t *storage) Set(value interface{}) interface{} {
 	s := loadCurrentStore(true)
-	oldValue = s.set(t.id, value)
+	oldValue := s.set(t.id, value)
 
 	// try restart gc timer if Set for the first time
 	if oldValue == nil {
@@ -95,22 +94,22 @@ func (t *storage) Set(value interface{}) (oldValue interface{}) {
 		}
 		storageLock.Unlock()
 	}
-	return
+	return oldValue
 }
 
-func (t *storage) Remove() (oldValue interface{}) {
+func (t *storage) Remove() interface{} {
 	s := loadCurrentStore(false)
 	if s == nil {
 		return nil
 	}
-	oldValue = s.remove(t.id)
-	return
+	return s.remove(t.id)
 }
 
 // loadCurrentStore load the store of current goroutine.
-func loadCurrentStore(create bool) (s *store) {
+func loadCurrentStore(create bool) *store {
 	gid := Goid()
 	storeMap := storages.Load().(map[int64]*store)
+	var s *store
 	if s = storeMap[gid]; s == nil && create {
 		storageLock.Lock()
 		oldStoreMap := storages.Load().(map[int64]*store)
@@ -128,7 +127,7 @@ func loadCurrentStore(create bool) (s *store) {
 		}
 		storageLock.Unlock()
 	}
-	return
+	return s
 }
 
 // clearDeadStore clear all data of dead goroutine.

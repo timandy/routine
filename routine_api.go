@@ -8,13 +8,13 @@ import (
 // LocalStorage provides goroutine-local variables.
 type LocalStorage interface {
 	// Get returns the value in the current goroutine's local storage, if it was set before.
-	Get() (value interface{})
+	Get() interface{}
 
 	// Set copy the value into the current goroutine's local storage, and return the old value.
-	Set(value interface{}) (oldValue interface{})
+	Set(value interface{}) interface{}
 
 	// Remove delete the value from the current goroutine's local storage, and return it.
-	Remove() (oldValue interface{})
+	Remove() interface{}
 }
 
 // Clear delete values from all goroutine's local storages.
@@ -76,23 +76,20 @@ func NewLocalStorage() LocalStorage {
 // Goid return the current goroutine's unique id.
 // It will try get gid by native cgo/asm for better performance,
 // and could parse gid from stack for failover supporting.
-func Goid() (id int64) {
-	var succ bool
-	if id, succ = getGoidByNative(); !succ {
-		// no need to warning
-		id = getGoidByStack()
+func Goid() int64 {
+	if goid, success := getGoidByNative(); success {
+		return goid
 	}
-	return
+	return getGoidByStack()
 }
 
 // AllGoids return all goroutine's goid in the current golang process.
 // It will try load all goid from runtime natively for better performance,
 // and fallover to runtime.Stack, which is realy inefficient.
-func AllGoids() (ids []int64) {
-	var err error
-	if ids, err = getAllGoidByNative(); err != nil {
-		fmt.Println("[WARNING] cannot get all goids from runtime natively, now fall over to stack info, this will be very inefficient!!!")
-		ids = getAllGoidByStack()
+func AllGoids() []int64 {
+	if goids, err := getAllGoidByNative(); err == nil {
+		return goids
 	}
-	return
+	fmt.Println("[WARNING] cannot get all goids from runtime natively, now fall over to stack info, this will be very inefficient!!!")
+	return getAllGoidByStack()
 }
