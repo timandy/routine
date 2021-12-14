@@ -145,18 +145,16 @@ func clearDeadStore() {
 
 	// scan global storeMap check the dead and live store count.
 	var storeMap = storages.Load().(map[int64]*store)
-	var deadCnt, liveCnt int
+	var liveCnt int
 	for gid := range storeMap {
 		if _, ok := gidMap[gid]; ok {
 			liveCnt++
-		} else {
-			deadCnt++
 		}
 	}
 
-	// clean dead store of dead goroutine if need.
-	if deadCnt > 0 {
-		newStoreMap := make(map[int64]*store, len(storeMap)-deadCnt)
+	// clean dead store of dead goroutine if needed.
+	if liveCnt != len(storeMap) {
+		newStoreMap := make(map[int64]*store, liveCnt)
 		for gid, s := range storeMap {
 			if _, ok := gidMap[gid]; ok {
 				newStoreMap[gid] = s
