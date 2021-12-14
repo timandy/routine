@@ -3,7 +3,6 @@ package routine
 import (
 	"fmt"
 	"sync/atomic"
-	"unsafe"
 )
 
 // LocalStorage provides goroutine-local variables.
@@ -24,15 +23,13 @@ func Clear() {
 	if s == nil {
 		return
 	}
-	s.values = map[uintptr]interface{}{}
-	atomic.StoreUint32(&s.count, 0)
+	s.clear()
 }
 
 // ImmutableContext represents all local storages of one goroutine.
 type ImmutableContext struct {
 	gid    int64
-	count  uint32
-	values map[uintptr]interface{}
+	values []interface{}
 }
 
 // Go start an new goroutine, and copy all local storages from current goroutine.
@@ -47,34 +44,33 @@ func Go(f func()) {
 // BackupContext copy all local storages into an ImmutableContext instance.
 func BackupContext() *ImmutableContext {
 	s := loadCurrentStore(false)
-	if s == nil || s.values == nil || len(s.values) == 0 {
+	if s == nil || s.values == nil {
 		return nil
 	}
-	data := make(map[uintptr]interface{}, len(s.values))
-	for k, v := range s.values {
-		data[k] = v
-	}
-	return &ImmutableContext{gid: s.gid, count: atomic.LoadUint32(&s.count), values: data}
+	data := make([]interface{}, len(s.values))
+	copy(data, s.values)
+	return &ImmutableContext{gid: s.gid, values: data}
 }
 
 // RestoreContext load the specified ImmutableContext instance into the local storage of current goroutine.
 func RestoreContext(ic *ImmutableContext) {
-	if ic == nil || ic.values == nil || len(ic.values) == 0 {
+	if ic == nil || ic.values == nil {
 		Clear()
 		return
 	}
+	icLength := len(ic.values)
 	s := loadCurrentStore(true)
-	for k, v := range ic.values {
-		s.values[k] = v
+	if len(s.values) != icLength {
+		s.values = make([]interface{}, icLength)
 	}
-	atomic.StoreUint32(&s.count, ic.count)
+	copy(s.values, ic.values)
 }
 
-// NewLocalStorage create and return an new LocalStorage instance.
+var storageIndex int32 = -1
+
+// NewLocalStorage create and return a new LocalStorage instance.
 func NewLocalStorage() LocalStorage {
-	t := &storage{}
-	t.id = uintptr(unsafe.Pointer(t))
-	return t
+	return &storage{id: int(atomic.AddInt32(&storageIndex, 1))}
 }
 
 // Goid return the current goroutine's unique id.

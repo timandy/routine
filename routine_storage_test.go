@@ -107,7 +107,7 @@ func TestStorageGC(t *testing.T) {
 	}
 }
 
-// BenchmarkStorage-8   	 5349307	       192.3 ns/op	       8 B/op	       0 allocs/op
+// BenchmarkStorage-8   	10183446	        99.28 ns/op	       8 B/op	       0 allocs/op
 func BenchmarkStorage(b *testing.B) {
 	localStorageCount := 100
 	localStorages := make([]LocalStorage, localStorageCount)

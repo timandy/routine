@@ -25,12 +25,53 @@ func gcRunning() bool {
 
 type store struct {
 	gid    int64
-	count  uint32
-	values map[uintptr]interface{}
+	values []interface{}
+}
+
+func (s *store) get(index int) interface{} {
+	if index < len(s.values) {
+		return s.values[index]
+	}
+	return nil
+}
+
+func (s *store) set(index int, value interface{}) interface{} {
+	if index < len(s.values) {
+		oldValue := s.values[index]
+		s.values[index] = value
+		return oldValue
+	}
+
+	newCapacity := index
+	newCapacity |= newCapacity >> 1
+	newCapacity |= newCapacity >> 2
+	newCapacity |= newCapacity >> 4
+	newCapacity |= newCapacity >> 8
+	newCapacity |= newCapacity >> 16
+	newCapacity++
+
+	newValues := make([]interface{}, newCapacity)
+	copy(newValues, s.values)
+	newValues[index] = value
+	s.values = newValues
+	return nil
+}
+
+func (s *store) remove(index int) interface{} {
+	if index < len(s.values) {
+		oldValue := s.values[index]
+		s.values[index] = nil
+		return oldValue
+	}
+	return nil
+}
+
+func (s *store) clear() {
+	s.values = []interface{}{}
 }
 
 type storage struct {
-	id uintptr
+	id int
 }
 
 func (t *storage) Get() (value interface{}) {
@@ -38,17 +79,13 @@ func (t *storage) Get() (value interface{}) {
 	if s == nil {
 		return nil
 	}
-	id := t.id
-	value = s.values[id]
+	value = s.get(t.id)
 	return
 }
 
 func (t *storage) Set(value interface{}) (oldValue interface{}) {
 	s := loadCurrentStore(true)
-	id := t.id
-	oldValue = s.values[id]
-	s.values[id] = value
-	atomic.StoreUint32(&s.count, uint32(len(s.values)))
+	oldValue = s.set(t.id, value)
 
 	// try restart gc timer if Set for the first time
 	if oldValue == nil {
@@ -66,10 +103,7 @@ func (t *storage) Remove() (oldValue interface{}) {
 	if s == nil {
 		return nil
 	}
-	id := t.id
-	oldValue = s.values[id]
-	delete(s.values, id)
-	atomic.StoreUint32(&s.count, uint32(len(s.values)))
+	oldValue = s.remove(t.id)
 	return
 }
 
@@ -83,7 +117,7 @@ func loadCurrentStore(create bool) (s *store) {
 		if s = oldStoreMap[gid]; s == nil {
 			s = &store{
 				gid:    gid,
-				values: map[uintptr]interface{}{},
+				values: make([]interface{}, 8),
 			}
 			newStoreMap := make(map[int64]*store, len(oldStoreMap)+1)
 			for k, v := range oldStoreMap {
@@ -112,11 +146,8 @@ func clearDeadStore() {
 	// scan global storeMap check the dead and live store count.
 	var storeMap = storages.Load().(map[int64]*store)
 	var deadCnt, liveCnt int
-	for gid, s := range storeMap {
+	for gid := range storeMap {
 		if _, ok := gidMap[gid]; ok {
-			if atomic.LoadUint32(&s.count) > 0 {
-				liveCnt++
-			}
 			liveCnt++
 		} else {
 			deadCnt++
