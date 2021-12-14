@@ -107,15 +107,22 @@ func TestStorageGC(t *testing.T) {
 	}
 }
 
-// BenchmarkLoadCurrentStore-12    	 9630090	       118.2 ns/op	      16 B/op	       1 allocs/op
+// BenchmarkStorage-8   	 5349307	       192.3 ns/op	       8 B/op	       0 allocs/op
 func BenchmarkStorage(b *testing.B) {
-	s := NewLocalStorage()
-	variable := "hello world"
+	localStorageCount := 100
+	localStorages := make([]LocalStorage, localStorageCount)
+	for i := 0; i < localStorageCount; i++ {
+		localStorages[i] = NewLocalStorage()
+	}
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = s.Get()
-		s.Set(variable)
-		s.Remove()
+		index := i % localStorageCount
+		localStorage := localStorages[index]
+		localStorage.Set(i)
+		if localStorage.Get() != i {
+			b.Fail()
+		}
+		localStorage.Remove()
 	}
 }
