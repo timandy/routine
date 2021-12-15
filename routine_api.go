@@ -17,7 +17,7 @@ type LocalStorage interface {
 	Remove() interface{}
 }
 
-// Clear delete values from all goroutine's local storages.
+// Clear clean up all context variables of the current coroutine.
 func Clear() {
 	s := loadCurrentStore(false)
 	if s == nil {
