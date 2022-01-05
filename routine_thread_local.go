@@ -28,17 +28,17 @@ type threadLocalMap struct {
 	values []interface{}
 }
 
-func (s *threadLocalMap) get(index int) interface{} {
-	if index < len(s.values) {
-		return s.values[index]
+func (mp *threadLocalMap) get(index int) interface{} {
+	if index < len(mp.values) {
+		return mp.values[index]
 	}
 	return nil
 }
 
-func (s *threadLocalMap) set(index int, value interface{}) interface{} {
-	if index < len(s.values) {
-		oldValue := s.values[index]
-		s.values[index] = value
+func (mp *threadLocalMap) set(index int, value interface{}) interface{} {
+	if index < len(mp.values) {
+		oldValue := mp.values[index]
+		mp.values[index] = value
 		return oldValue
 	}
 
@@ -51,40 +51,40 @@ func (s *threadLocalMap) set(index int, value interface{}) interface{} {
 	newCapacity++
 
 	newValues := make([]interface{}, newCapacity)
-	copy(newValues, s.values)
+	copy(newValues, mp.values)
 	newValues[index] = value
-	s.values = newValues
+	mp.values = newValues
 	return nil
 }
 
-func (s *threadLocalMap) remove(index int) interface{} {
-	if index < len(s.values) {
-		oldValue := s.values[index]
-		s.values[index] = nil
+func (mp *threadLocalMap) remove(index int) interface{} {
+	if index < len(mp.values) {
+		oldValue := mp.values[index]
+		mp.values[index] = nil
 		return oldValue
 	}
 	return nil
 }
 
-func (s *threadLocalMap) clear() {
-	s.values = []interface{}{}
+func (mp *threadLocalMap) clear() {
+	mp.values = []interface{}{}
 }
 
 type threadLocalImpl struct {
 	id int
 }
 
-func (t *threadLocalImpl) Get() interface{} {
-	s := getMap(false)
-	if s == nil {
+func (tls *threadLocalImpl) Get() interface{} {
+	mp := getMap(false)
+	if mp == nil {
 		return nil
 	}
-	return s.get(t.id)
+	return mp.get(tls.id)
 }
 
-func (t *threadLocalImpl) Set(value interface{}) interface{} {
-	s := getMap(true)
-	oldValue := s.set(t.id, value)
+func (tls *threadLocalImpl) Set(value interface{}) interface{} {
+	mp := getMap(true)
+	oldValue := mp.set(tls.id, value)
 
 	// try restart gc timer if Set for the first time
 	if oldValue == nil {
@@ -97,37 +97,37 @@ func (t *threadLocalImpl) Set(value interface{}) interface{} {
 	return oldValue
 }
 
-func (t *threadLocalImpl) Remove() interface{} {
-	s := getMap(false)
-	if s == nil {
+func (tls *threadLocalImpl) Remove() interface{} {
+	mp := getMap(false)
+	if mp == nil {
 		return nil
 	}
-	return s.remove(t.id)
+	return mp.remove(tls.id)
 }
 
 // getMap load the threadLocalMap of current goroutine.
 func getMap(create bool) *threadLocalMap {
 	gid := Goid()
-	storeMap := globalMap.Load().(map[int64]*threadLocalMap)
-	var s *threadLocalMap
-	if s = storeMap[gid]; s == nil && create {
+	gMap := globalMap.Load().(map[int64]*threadLocalMap)
+	var lMap *threadLocalMap
+	if lMap = gMap[gid]; lMap == nil && create {
 		globalMapLock.Lock()
-		oldStoreMap := globalMap.Load().(map[int64]*threadLocalMap)
-		if s = oldStoreMap[gid]; s == nil {
-			s = &threadLocalMap{
+		oldGMap := globalMap.Load().(map[int64]*threadLocalMap)
+		if lMap = oldGMap[gid]; lMap == nil {
+			lMap = &threadLocalMap{
 				gid:    gid,
 				values: make([]interface{}, 8),
 			}
-			newStoreMap := make(map[int64]*threadLocalMap, len(oldStoreMap)+1)
-			for k, v := range oldStoreMap {
-				newStoreMap[k] = v
+			newGMap := make(map[int64]*threadLocalMap, len(oldGMap)+1)
+			for k, v := range oldGMap {
+				newGMap[k] = v
 			}
-			newStoreMap[gid] = s
-			globalMap.Store(newStoreMap)
+			newGMap[gid] = lMap
+			globalMap.Store(newGMap)
 		}
 		globalMapLock.Unlock()
 	}
-	return s
+	return lMap
 }
 
 // gc clear all data of dead goroutine.
@@ -142,24 +142,24 @@ func gc() {
 		gidMap[gid] = struct{}{}
 	}
 
-	// scan global storeMap check the dead and live threadLocalMap count.
-	var storeMap = globalMap.Load().(map[int64]*threadLocalMap)
+	// scan globalMap check the dead and live threadLocalMap count.
+	var gMap = globalMap.Load().(map[int64]*threadLocalMap)
 	var liveCnt int
-	for gid := range storeMap {
+	for gid := range gMap {
 		if _, ok := gidMap[gid]; ok {
 			liveCnt++
 		}
 	}
 
 	// clean dead threadLocalMap of dead goroutine if needed.
-	if liveCnt != len(storeMap) {
-		newStoreMap := make(map[int64]*threadLocalMap, liveCnt)
-		for gid, s := range storeMap {
+	if liveCnt != len(gMap) {
+		newGMap := make(map[int64]*threadLocalMap, liveCnt)
+		for gid, lMap := range gMap {
 			if _, ok := gidMap[gid]; ok {
-				newStoreMap[gid] = s
+				newGMap[gid] = lMap
 			}
 		}
-		globalMap.Store(newStoreMap)
+		globalMap.Store(newGMap)
 	}
 
 	// setup next round timer if need. TODO it's ok?

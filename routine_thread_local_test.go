@@ -13,36 +13,36 @@ func init() {
 }
 
 func TestThreadLocal(t *testing.T) {
-	s := NewThreadLocal()
-	s2 := NewThreadLocal()
+	threadLocal := NewThreadLocal()
+	threadLocal2 := NewThreadLocal()
 
 	for i := 0; i < 100; i++ {
 		src := "hello"
-		s.Set(src)
-		p := s.Get()
+		threadLocal.Set(src)
+		p := threadLocal.Get()
 		assert.Equal(t, src, p.(string))
 		//
 		src2 := "world"
-		s2.Set(src2)
-		p2 := s2.Get()
+		threadLocal2.Set(src2)
+		p2 := threadLocal2.Get()
 		assert.Equal(t, src2, p2.(string))
 	}
 
 	for i := 0; i < 1000; i++ {
 		num := rand.Int()
-		s.Set(num)
-		num2 := s.Get()
+		threadLocal.Set(num)
+		num2 := threadLocal.Get()
 		assert.Equal(t, num, num2.(int))
 	}
 
-	v := s.Remove()
+	v := threadLocal.Remove()
 	assert.NotNil(t, v)
 
 	Clear()
-	vv1 := s.Get()
+	vv1 := threadLocal.Get()
 	assert.Nil(t, vv1)
 	//
-	vv2 := s2.Get()
+	vv2 := threadLocal2.Get()
 	assert.Nil(t, vv2)
 }
 
@@ -50,8 +50,8 @@ func TestThreadLocalConcurrency(t *testing.T) {
 	const concurrency = 1000
 	const loopTimes = 1000
 
-	s := NewThreadLocal()
-	s2 := NewThreadLocal()
+	threadLocal := NewThreadLocal()
+	threadLocal2 := NewThreadLocal()
 
 	waiter := &sync.WaitGroup{}
 	waiter.Add(concurrency)
@@ -62,12 +62,12 @@ func TestThreadLocalConcurrency(t *testing.T) {
 			assert.True(t, v != 0)
 			assert.True(t, v2 != 0)
 			for i := 0; i < loopTimes; i++ {
-				s.Set(v)
-				tmp := s.Get()
+				threadLocal.Set(v)
+				tmp := threadLocal.Get()
 				assert.True(t, tmp.(uint64) == v)
 				//
-				s2.Set(v2)
-				tmp2 := s2.Get()
+				threadLocal2.Set(v2)
+				tmp2 := threadLocal2.Get()
 				assert.True(t, tmp2.(uint64) == v2)
 			}
 			waiter.Done()
@@ -77,11 +77,11 @@ func TestThreadLocalConcurrency(t *testing.T) {
 }
 
 func TestThreadLocalGC(t *testing.T) {
-	s1 := NewThreadLocal()
-	s2 := NewThreadLocal()
-	s3 := NewThreadLocal()
-	s4 := NewThreadLocal()
-	s5 := NewThreadLocal()
+	threadLocal := NewThreadLocal()
+	threadLocal2 := NewThreadLocal()
+	threadLocal3 := NewThreadLocal()
+	threadLocal4 := NewThreadLocal()
+	threadLocal5 := NewThreadLocal()
 
 	// use ThreadLocal in multi goroutines
 	gcRunningCnt := 0
@@ -90,11 +90,11 @@ func TestThreadLocalGC(t *testing.T) {
 		for i := 0; i < 1000; i++ {
 			waiter.Add(1)
 			go func() {
-				s1.Set("hello world")
-				s2.Set(true)
-				s3.Set(&s3)
-				s4.Set(rand.Int())
-				s5.Set(time.Now())
+				threadLocal.Set("hello world")
+				threadLocal2.Set(true)
+				threadLocal3.Set(&threadLocal3)
+				threadLocal4.Set(rand.Int())
+				threadLocal5.Set(time.Now())
 				waiter.Done()
 			}()
 		}

@@ -19,11 +19,11 @@ type ThreadLocal interface {
 
 // Clear clean up all context variables of the current coroutine.
 func Clear() {
-	s := getMap(false)
-	if s == nil {
+	mp := getMap(false)
+	if mp == nil {
 		return
 	}
-	s.clear()
+	mp.clear()
 }
 
 // ImmutableContext represents all local values of one goroutine.
@@ -42,12 +42,12 @@ func Go(f func()) {
 
 // BackupContext copy all local values into an ImmutableContext instance.
 func BackupContext() *ImmutableContext {
-	s := getMap(false)
-	if s == nil || s.values == nil {
+	mp := getMap(false)
+	if mp == nil || mp.values == nil {
 		return nil
 	}
-	data := make([]interface{}, len(s.values))
-	copy(data, s.values)
+	data := make([]interface{}, len(mp.values))
+	copy(data, mp.values)
 	return &ImmutableContext{values: data}
 }
 
@@ -58,11 +58,11 @@ func RestoreContext(ic *ImmutableContext) {
 		return
 	}
 	icLength := len(ic.values)
-	s := getMap(true)
-	if len(s.values) != icLength {
-		s.values = make([]interface{}, icLength)
+	mp := getMap(true)
+	if len(mp.values) != icLength {
+		mp.values = make([]interface{}, icLength)
 	}
-	copy(s.values, ic.values)
+	copy(mp.values, ic.values)
 }
 
 var threadLocalIndex int32 = -1

@@ -8,41 +8,41 @@ import (
 )
 
 func TestNewThreadLocal(t *testing.T) {
-	s := NewThreadLocal()
-	s.Set("hello")
-	assert.Equal(t, "hello", s.Get())
+	threadLocal := NewThreadLocal()
+	threadLocal.Set("hello")
+	assert.Equal(t, "hello", threadLocal.Get())
 	//
-	s2 := NewThreadLocal()
-	assert.Equal(t, "hello", s.Get())
-	s2.Set(22)
-	assert.Equal(t, 22, s2.Get())
+	threadLocal2 := NewThreadLocal()
+	assert.Equal(t, "hello", threadLocal.Get())
+	threadLocal2.Set(22)
+	assert.Equal(t, 22, threadLocal2.Get())
 }
 
 func TestMultiThreadLocal(t *testing.T) {
-	s := NewThreadLocal()
-	s2 := NewThreadLocal()
-	s.Set("hello")
-	s2.Set(22)
-	assert.Equal(t, 22, s2.Get())
-	assert.Equal(t, "hello", s.Get())
+	threadLocal := NewThreadLocal()
+	threadLocal2 := NewThreadLocal()
+	threadLocal.Set("hello")
+	threadLocal2.Set(22)
+	assert.Equal(t, 22, threadLocal2.Get())
+	assert.Equal(t, "hello", threadLocal.Get())
 }
 
 func TestBackupContext(t *testing.T) {
-	s := NewThreadLocal()
+	threadLocal := NewThreadLocal()
 	ic := BackupContext()
 
 	waiter := &sync.WaitGroup{}
 	waiter.Add(1)
 	go func() {
-		s.Set("hello")
-		assert.Equal(t, "hello", s.Get())
+		threadLocal.Set("hello")
+		assert.Equal(t, "hello", threadLocal.Get())
 		icLocalBackup := BackupContext()
 		//
 		RestoreContext(ic)
-		assert.Nil(t, s.Get())
+		assert.Nil(t, threadLocal.Get())
 		//
 		RestoreContext(icLocalBackup)
-		assert.Equal(t, "hello", s.Get())
+		assert.Equal(t, "hello", threadLocal.Get())
 		//
 		waiter.Done()
 	}()
@@ -70,10 +70,10 @@ func TestGoThreadLocal(t *testing.T) {
 	waiter := &sync.WaitGroup{}
 	waiter.Add(1)
 	variable := "hello world"
-	stg := NewThreadLocal()
-	stg.Set(variable)
+	threadLocal := NewThreadLocal()
+	threadLocal.Set(variable)
 	Go(func() {
-		v := stg.Get()
+		v := threadLocal.Get()
 		assert.Equal(t, variable, v.(string))
 		waiter.Done()
 	})
