@@ -28,7 +28,6 @@ func Clear() {
 
 // ImmutableContext represents all local values of one goroutine.
 type ImmutableContext struct {
-	gid    int64
 	values []interface{}
 }
 
@@ -49,7 +48,7 @@ func BackupContext() *ImmutableContext {
 	}
 	data := make([]interface{}, len(s.values))
 	copy(data, s.values)
-	return &ImmutableContext{gid: s.gid, values: data}
+	return &ImmutableContext{values: data}
 }
 
 // RestoreContext load the specified ImmutableContext instance into the local threadLocalImpl of current goroutine.
