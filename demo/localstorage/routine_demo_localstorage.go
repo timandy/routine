@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var nameVar = routine.NewLocalStorage()
+var nameVar = routine.NewThreadLocal()
 
 func main() {
 	nameVar.Set("hello world")

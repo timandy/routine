@@ -5,34 +5,34 @@ import (
 	"sync/atomic"
 )
 
-// LocalStorage provides goroutine-local variables.
-type LocalStorage interface {
-	// Get returns the value in the current goroutine's local storage, if it was set before.
+// ThreadLocal provides goroutine-local variables.
+type ThreadLocal interface {
+	// Get returns the value in the current goroutine's local threadLocalImpl, if it was set before.
 	Get() interface{}
 
-	// Set copy the value into the current goroutine's local storage, and return the old value.
+	// Set copy the value into the current goroutine's local threadLocalImpl, and return the old value.
 	Set(value interface{}) interface{}
 
-	// Remove delete the value from the current goroutine's local storage, and return it.
+	// Remove delete the value from the current goroutine's local threadLocalImpl, and return it.
 	Remove() interface{}
 }
 
 // Clear clean up all context variables of the current coroutine.
 func Clear() {
-	s := loadCurrentStore(false)
+	s := getMap(false)
 	if s == nil {
 		return
 	}
 	s.clear()
 }
 
-// ImmutableContext represents all local storages of one goroutine.
+// ImmutableContext represents all local values of one goroutine.
 type ImmutableContext struct {
 	gid    int64
 	values []interface{}
 }
 
-// Go start an new goroutine, and copy all local storages from current goroutine.
+// Go starts a new goroutine, and copy all local values from current goroutine.
 func Go(f func()) {
 	ic := BackupContext()
 	go func() {
@@ -41,9 +41,9 @@ func Go(f func()) {
 	}()
 }
 
-// BackupContext copy all local storages into an ImmutableContext instance.
+// BackupContext copy all local values into an ImmutableContext instance.
 func BackupContext() *ImmutableContext {
-	s := loadCurrentStore(false)
+	s := getMap(false)
 	if s == nil || s.values == nil {
 		return nil
 	}
@@ -52,25 +52,25 @@ func BackupContext() *ImmutableContext {
 	return &ImmutableContext{gid: s.gid, values: data}
 }
 
-// RestoreContext load the specified ImmutableContext instance into the local storage of current goroutine.
+// RestoreContext load the specified ImmutableContext instance into the local threadLocalImpl of current goroutine.
 func RestoreContext(ic *ImmutableContext) {
 	if ic == nil || ic.values == nil {
 		Clear()
 		return
 	}
 	icLength := len(ic.values)
-	s := loadCurrentStore(true)
+	s := getMap(true)
 	if len(s.values) != icLength {
 		s.values = make([]interface{}, icLength)
 	}
 	copy(s.values, ic.values)
 }
 
-var storageIndex int32 = -1
+var threadLocalIndex int32 = -1
 
-// NewLocalStorage create and return a new LocalStorage instance.
-func NewLocalStorage() LocalStorage {
-	return &storage{id: int(atomic.AddInt32(&storageIndex, 1))}
+// NewThreadLocal create and return a new ThreadLocal instance.
+func NewThreadLocal() ThreadLocal {
+	return &threadLocalImpl{id: int(atomic.AddInt32(&threadLocalIndex, 1))}
 }
 
 // Goid return the current goroutine's unique id.

@@ -9,12 +9,12 @@ import (
 )
 
 func init() {
-	storageGCInterval = time.Millisecond * 50 // for faster test
+	gCInterval = time.Millisecond * 50 // for faster test
 }
 
-func TestStorage(t *testing.T) {
-	s := NewLocalStorage()
-	s2 := NewLocalStorage()
+func TestThreadLocal(t *testing.T) {
+	s := NewThreadLocal()
+	s2 := NewThreadLocal()
 
 	for i := 0; i < 100; i++ {
 		src := "hello"
@@ -46,12 +46,12 @@ func TestStorage(t *testing.T) {
 	assert.Nil(t, vv2)
 }
 
-func TestStorageConcurrency(t *testing.T) {
+func TestThreadLocalConcurrency(t *testing.T) {
 	const concurrency = 1000
 	const loopTimes = 1000
 
-	s := NewLocalStorage()
-	s2 := NewLocalStorage()
+	s := NewThreadLocal()
+	s2 := NewThreadLocal()
 
 	waiter := &sync.WaitGroup{}
 	waiter.Add(concurrency)
@@ -76,14 +76,14 @@ func TestStorageConcurrency(t *testing.T) {
 	waiter.Wait()
 }
 
-func TestStorageGC(t *testing.T) {
-	s1 := NewLocalStorage()
-	s2 := NewLocalStorage()
-	s3 := NewLocalStorage()
-	s4 := NewLocalStorage()
-	s5 := NewLocalStorage()
+func TestThreadLocalGC(t *testing.T) {
+	s1 := NewThreadLocal()
+	s2 := NewThreadLocal()
+	s3 := NewThreadLocal()
+	s4 := NewThreadLocal()
+	s5 := NewThreadLocal()
 
-	// use LocalStorage in multi goroutines
+	// use ThreadLocal in multi goroutines
 	gcRunningCnt := 0
 	for i := 0; i < 10; i++ {
 		waiter := &sync.WaitGroup{}
@@ -104,30 +104,30 @@ func TestStorageGC(t *testing.T) {
 		}
 		waiter.Wait()
 		// wait for a while
-		time.Sleep(storageGCInterval + time.Second)
+		time.Sleep(gCInterval + time.Second)
 		assert.False(t, gcRunning(), "#%v, timer not stoped?", i)
-		storeMap := storages.Load().(map[int64]*store)
+		storeMap := globalMap.Load().(map[int64]*threadLocalMap)
 		assert.Equal(t, 0, len(storeMap), "#%v, storeMap not empty - %d", i, len(storeMap))
 	}
 	assert.True(t, gcRunningCnt > 0, "gc timer may not running!")
 }
 
-// BenchmarkStorage-8   	10183446	        99.28 ns/op	       8 B/op	       0 allocs/op
-func BenchmarkStorage(b *testing.B) {
-	localStorageCount := 100
-	localStorages := make([]LocalStorage, localStorageCount)
-	for i := 0; i < localStorageCount; i++ {
-		localStorages[i] = NewLocalStorage()
+// BenchmarkThreadLocal-8   	10183446	        99.28 ns/op	       8 B/op	       0 allocs/op
+func BenchmarkThreadLocal(b *testing.B) {
+	threadLocalCount := 100
+	threadLocals := make([]ThreadLocal, threadLocalCount)
+	for i := 0; i < threadLocalCount; i++ {
+		threadLocals[i] = NewThreadLocal()
 	}
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		index := i % localStorageCount
-		localStorage := localStorages[index]
-		localStorage.Set(i)
-		if localStorage.Get() != i {
+		index := i % threadLocalCount
+		threadLocal := threadLocals[index]
+		threadLocal.Set(i)
+		if threadLocal.Get() != i {
 			b.Fail()
 		}
-		localStorage.Remove()
+		threadLocal.Remove()
 	}
 }

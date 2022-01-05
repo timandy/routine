@@ -7,20 +7,20 @@ import (
 	"time"
 )
 
-func TestNewLocalStorage(t *testing.T) {
-	s := NewLocalStorage()
+func TestNewThreadLocal(t *testing.T) {
+	s := NewThreadLocal()
 	s.Set("hello")
 	assert.Equal(t, "hello", s.Get())
 	//
-	s2 := NewLocalStorage()
+	s2 := NewThreadLocal()
 	assert.Equal(t, "hello", s.Get())
 	s2.Set(22)
 	assert.Equal(t, 22, s2.Get())
 }
 
-func TestMultiStorage(t *testing.T) {
-	s := NewLocalStorage()
-	s2 := NewLocalStorage()
+func TestMultiThreadLocal(t *testing.T) {
+	s := NewThreadLocal()
+	s2 := NewThreadLocal()
 	s.Set("hello")
 	s2.Set(22)
 	assert.Equal(t, 22, s2.Get())
@@ -28,7 +28,7 @@ func TestMultiStorage(t *testing.T) {
 }
 
 func TestBackupContext(t *testing.T) {
-	s := NewLocalStorage()
+	s := NewThreadLocal()
 	ic := BackupContext()
 
 	waiter := &sync.WaitGroup{}
@@ -66,11 +66,11 @@ func TestAllGoid(t *testing.T) {
 	t.Log("all gids: ", len(ids), ids)
 }
 
-func TestGoStorage(t *testing.T) {
+func TestGoThreadLocal(t *testing.T) {
 	waiter := &sync.WaitGroup{}
 	waiter.Add(1)
 	variable := "hello world"
-	stg := NewLocalStorage()
+	stg := NewThreadLocal()
 	stg.Set(variable)
 	Go(func() {
 		v := stg.Get()

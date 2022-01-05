@@ -7,35 +7,35 @@ import (
 )
 
 var (
-	storages          atomic.Value       // The global storage map (map[int64]*store)
-	storageLock       sync.Mutex         // The Lock to control accessing of storages
-	storageGCTimer    *time.Timer        // The timer of storage's garbage collector
-	storageGCInterval = time.Second * 30 // The pre-defined gc interval
+	globalMap     atomic.Value       // The global threadLocalImpl map (map[int64]*threadLocalMap)
+	globalMapLock sync.Mutex         // The Lock to control accessing of globalMap
+	gcTimer       *time.Timer        // The timer of globalMap's garbage collector
+	gCInterval    = time.Second * 30 // The pre-defined gc interval
 )
 
 func init() {
-	storages.Store(map[int64]*store{})
+	globalMap.Store(map[int64]*threadLocalMap{})
 }
 
 func gcRunning() bool {
-	storageLock.Lock()
-	defer storageLock.Unlock()
-	return storageGCTimer != nil
+	globalMapLock.Lock()
+	defer globalMapLock.Unlock()
+	return gcTimer != nil
 }
 
-type store struct {
+type threadLocalMap struct {
 	gid    int64
 	values []interface{}
 }
 
-func (s *store) get(index int) interface{} {
+func (s *threadLocalMap) get(index int) interface{} {
 	if index < len(s.values) {
 		return s.values[index]
 	}
 	return nil
 }
 
-func (s *store) set(index int, value interface{}) interface{} {
+func (s *threadLocalMap) set(index int, value interface{}) interface{} {
 	if index < len(s.values) {
 		oldValue := s.values[index]
 		s.values[index] = value
@@ -57,7 +57,7 @@ func (s *store) set(index int, value interface{}) interface{} {
 	return nil
 }
 
-func (s *store) remove(index int) interface{} {
+func (s *threadLocalMap) remove(index int) interface{} {
 	if index < len(s.values) {
 		oldValue := s.values[index]
 		s.values[index] = nil
@@ -66,74 +66,74 @@ func (s *store) remove(index int) interface{} {
 	return nil
 }
 
-func (s *store) clear() {
+func (s *threadLocalMap) clear() {
 	s.values = []interface{}{}
 }
 
-type storage struct {
+type threadLocalImpl struct {
 	id int
 }
 
-func (t *storage) Get() interface{} {
-	s := loadCurrentStore(false)
+func (t *threadLocalImpl) Get() interface{} {
+	s := getMap(false)
 	if s == nil {
 		return nil
 	}
 	return s.get(t.id)
 }
 
-func (t *storage) Set(value interface{}) interface{} {
-	s := loadCurrentStore(true)
+func (t *threadLocalImpl) Set(value interface{}) interface{} {
+	s := getMap(true)
 	oldValue := s.set(t.id, value)
 
 	// try restart gc timer if Set for the first time
 	if oldValue == nil {
-		storageLock.Lock()
-		if storageGCTimer == nil {
-			storageGCTimer = time.AfterFunc(storageGCInterval, clearDeadStore)
+		globalMapLock.Lock()
+		if gcTimer == nil {
+			gcTimer = time.AfterFunc(gCInterval, gc)
 		}
-		storageLock.Unlock()
+		globalMapLock.Unlock()
 	}
 	return oldValue
 }
 
-func (t *storage) Remove() interface{} {
-	s := loadCurrentStore(false)
+func (t *threadLocalImpl) Remove() interface{} {
+	s := getMap(false)
 	if s == nil {
 		return nil
 	}
 	return s.remove(t.id)
 }
 
-// loadCurrentStore load the store of current goroutine.
-func loadCurrentStore(create bool) *store {
+// getMap load the threadLocalMap of current goroutine.
+func getMap(create bool) *threadLocalMap {
 	gid := Goid()
-	storeMap := storages.Load().(map[int64]*store)
-	var s *store
+	storeMap := globalMap.Load().(map[int64]*threadLocalMap)
+	var s *threadLocalMap
 	if s = storeMap[gid]; s == nil && create {
-		storageLock.Lock()
-		oldStoreMap := storages.Load().(map[int64]*store)
+		globalMapLock.Lock()
+		oldStoreMap := globalMap.Load().(map[int64]*threadLocalMap)
 		if s = oldStoreMap[gid]; s == nil {
-			s = &store{
+			s = &threadLocalMap{
 				gid:    gid,
 				values: make([]interface{}, 8),
 			}
-			newStoreMap := make(map[int64]*store, len(oldStoreMap)+1)
+			newStoreMap := make(map[int64]*threadLocalMap, len(oldStoreMap)+1)
 			for k, v := range oldStoreMap {
 				newStoreMap[k] = v
 			}
 			newStoreMap[gid] = s
-			storages.Store(newStoreMap)
+			globalMap.Store(newStoreMap)
 		}
-		storageLock.Unlock()
+		globalMapLock.Unlock()
 	}
 	return s
 }
 
-// clearDeadStore clear all data of dead goroutine.
-func clearDeadStore() {
-	storageLock.Lock()
-	defer storageLock.Unlock()
+// gc clear all data of dead goroutine.
+func gc() {
+	globalMapLock.Lock()
+	defer globalMapLock.Unlock()
 
 	// load all alive goids
 	gids := AllGoids()
@@ -142,8 +142,8 @@ func clearDeadStore() {
 		gidMap[gid] = struct{}{}
 	}
 
-	// scan global storeMap check the dead and live store count.
-	var storeMap = storages.Load().(map[int64]*store)
+	// scan global storeMap check the dead and live threadLocalMap count.
+	var storeMap = globalMap.Load().(map[int64]*threadLocalMap)
 	var liveCnt int
 	for gid := range storeMap {
 		if _, ok := gidMap[gid]; ok {
@@ -151,21 +151,21 @@ func clearDeadStore() {
 		}
 	}
 
-	// clean dead store of dead goroutine if needed.
+	// clean dead threadLocalMap of dead goroutine if needed.
 	if liveCnt != len(storeMap) {
-		newStoreMap := make(map[int64]*store, liveCnt)
+		newStoreMap := make(map[int64]*threadLocalMap, liveCnt)
 		for gid, s := range storeMap {
 			if _, ok := gidMap[gid]; ok {
 				newStoreMap[gid] = s
 			}
 		}
-		storages.Store(newStoreMap)
+		globalMap.Store(newStoreMap)
 	}
 
 	// setup next round timer if need. TODO it's ok?
 	if liveCnt > 0 {
-		storageGCTimer.Reset(storageGCInterval)
+		gcTimer.Reset(gCInterval)
 	} else {
-		storageGCTimer = nil
+		gcTimer = nil
 	}
 }
