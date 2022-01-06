@@ -35,7 +35,8 @@ func TestThreadLocal(t *testing.T) {
 		assert.Equal(t, num, num2.(int))
 	}
 
-	v := threadLocal.Remove()
+	v := threadLocal.Get()
+	threadLocal.Remove()
 	assert.NotNil(t, v)
 
 	Clear()

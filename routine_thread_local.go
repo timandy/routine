@@ -23,23 +23,33 @@ func gcRunning() bool {
 	return gcTimer != nil
 }
 
-type threadLocalMap struct {
-	gid    int64
-	values []interface{}
+type entry struct {
+	value interface{}
 }
 
-func (mp *threadLocalMap) get(index int) interface{} {
-	if index < len(mp.values) {
-		return mp.values[index]
+type threadLocalMap struct {
+	gid     int64
+	entries []*entry
+}
+
+func (mp *threadLocalMap) getEntry(key *threadLocalImpl) *entry {
+	index := key.id
+	if index < len(mp.entries) {
+		return mp.entries[index]
 	}
 	return nil
 }
 
-func (mp *threadLocalMap) set(index int, value interface{}) interface{} {
-	if index < len(mp.values) {
-		oldValue := mp.values[index]
-		mp.values[index] = value
-		return oldValue
+func (mp *threadLocalMap) set(key *threadLocalImpl, value interface{}) bool {
+	index := key.id
+	if index < len(mp.entries) {
+		e := mp.entries[index]
+		if e == nil {
+			mp.entries[index] = &entry{value: value}
+			return true
+		}
+		e.value = value
+		return false
 	}
 
 	newCapacity := index
@@ -50,24 +60,22 @@ func (mp *threadLocalMap) set(index int, value interface{}) interface{} {
 	newCapacity |= newCapacity >> 16
 	newCapacity++
 
-	newValues := make([]interface{}, newCapacity)
-	copy(newValues, mp.values)
-	newValues[index] = value
-	mp.values = newValues
-	return nil
+	newEntries := make([]*entry, newCapacity)
+	copy(newEntries, mp.entries)
+	newEntries[index] = &entry{value: value}
+	mp.entries = newEntries
+	return true
 }
 
-func (mp *threadLocalMap) remove(index int) interface{} {
-	if index < len(mp.values) {
-		oldValue := mp.values[index]
-		mp.values[index] = nil
-		return oldValue
+func (mp *threadLocalMap) remove(key *threadLocalImpl) {
+	index := key.id
+	if index < len(mp.entries) {
+		mp.entries[index] = nil
 	}
-	return nil
 }
 
 func (mp *threadLocalMap) clear() {
-	mp.values = []interface{}{}
+	mp.entries = []*entry{}
 }
 
 type threadLocalImpl struct {
@@ -79,30 +87,33 @@ func (tls *threadLocalImpl) Get() interface{} {
 	if mp == nil {
 		return nil
 	}
-	return mp.get(tls.id)
+	e := mp.getEntry(tls)
+	if e == nil {
+		return nil
+	}
+	return e.value
 }
 
-func (tls *threadLocalImpl) Set(value interface{}) interface{} {
+func (tls *threadLocalImpl) Set(value interface{}) {
 	mp := getMap(true)
-	oldValue := mp.set(tls.id, value)
+	notExists := mp.set(tls, value)
 
 	// try restart gc timer if Set for the first time
-	if oldValue == nil {
+	if notExists {
 		globalMapLock.Lock()
 		if gcTimer == nil {
 			gcTimer = time.AfterFunc(gCInterval, gc)
 		}
 		globalMapLock.Unlock()
 	}
-	return oldValue
 }
 
-func (tls *threadLocalImpl) Remove() interface{} {
+func (tls *threadLocalImpl) Remove() {
 	mp := getMap(false)
 	if mp == nil {
-		return nil
+		return
 	}
-	return mp.remove(tls.id)
+	mp.remove(tls)
 }
 
 // getMap load the threadLocalMap of current goroutine.
@@ -115,8 +126,8 @@ func getMap(create bool) *threadLocalMap {
 		oldGMap := globalMap.Load().(map[int64]*threadLocalMap)
 		if lMap = oldGMap[gid]; lMap == nil {
 			lMap = &threadLocalMap{
-				gid:    gid,
-				values: make([]interface{}, 8),
+				gid:     gid,
+				entries: make([]*entry, 8),
 			}
 			newGMap := make(map[int64]*threadLocalMap, len(oldGMap)+1)
 			for k, v := range oldGMap {

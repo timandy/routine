@@ -11,10 +11,10 @@ type ThreadLocal interface {
 	Get() interface{}
 
 	// Set copy the value into the current goroutine's local threadLocalImpl, and return the old value.
-	Set(value interface{}) interface{}
+	Set(value interface{})
 
 	// Remove delete the value from the current goroutine's local threadLocalImpl, and return it.
-	Remove() interface{}
+	Remove()
 }
 
 // Clear clean up all context variables of the current coroutine.
@@ -26,12 +26,12 @@ func Clear() {
 	mp.clear()
 }
 
-// ImmutableContext represents all local values of one goroutine.
+// ImmutableContext represents all local entries of one goroutine.
 type ImmutableContext struct {
-	values []interface{}
+	entries []*entry
 }
 
-// Go starts a new goroutine, and copy all local values from current goroutine.
+// Go starts a new goroutine, and copy all local entries from current goroutine.
 func Go(f func()) {
 	ic := BackupContext()
 	go func() {
@@ -40,29 +40,29 @@ func Go(f func()) {
 	}()
 }
 
-// BackupContext copy all local values into an ImmutableContext instance.
+// BackupContext copy all local entries into an ImmutableContext instance.
 func BackupContext() *ImmutableContext {
 	mp := getMap(false)
-	if mp == nil || mp.values == nil {
+	if mp == nil || mp.entries == nil {
 		return nil
 	}
-	data := make([]interface{}, len(mp.values))
-	copy(data, mp.values)
-	return &ImmutableContext{values: data}
+	entries := make([]*entry, len(mp.entries))
+	copy(entries, mp.entries)
+	return &ImmutableContext{entries: entries}
 }
 
 // RestoreContext load the specified ImmutableContext instance into the local threadLocalImpl of current goroutine.
 func RestoreContext(ic *ImmutableContext) {
-	if ic == nil || ic.values == nil {
+	if ic == nil || ic.entries == nil {
 		Clear()
 		return
 	}
-	icLength := len(ic.values)
+	icLength := len(ic.entries)
 	mp := getMap(true)
-	if len(mp.values) != icLength {
-		mp.values = make([]interface{}, icLength)
+	if len(mp.entries) != icLength {
+		mp.entries = make([]*entry, icLength)
 	}
-	copy(mp.values, ic.values)
+	copy(mp.entries, ic.entries)
 }
 
 var threadLocalIndex int32 = -1
