@@ -122,20 +122,18 @@ func getMap(create bool) *threadLocalMap {
 	gMap := globalMap.Load().(map[int64]*threadLocalMap)
 	var lMap *threadLocalMap
 	if lMap = gMap[gid]; lMap == nil && create {
+		lMap = &threadLocalMap{
+			gid:     gid,
+			entries: make([]*entry, 8),
+		}
 		globalMapLock.Lock()
 		oldGMap := globalMap.Load().(map[int64]*threadLocalMap)
-		if lMap = oldGMap[gid]; lMap == nil {
-			lMap = &threadLocalMap{
-				gid:     gid,
-				entries: make([]*entry, 8),
-			}
-			newGMap := make(map[int64]*threadLocalMap, len(oldGMap)+1)
-			for k, v := range oldGMap {
-				newGMap[k] = v
-			}
-			newGMap[gid] = lMap
-			globalMap.Store(newGMap)
+		newGMap := make(map[int64]*threadLocalMap, len(oldGMap)+1)
+		for k, v := range oldGMap {
+			newGMap[k] = v
 		}
+		newGMap[gid] = lMap
+		globalMap.Store(newGMap)
 		globalMapLock.Unlock()
 	}
 	return lMap
