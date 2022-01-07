@@ -34,16 +34,18 @@ func (mp *threadLocalMap) getEntry(key *threadLocalImpl) *entry {
 	return nil
 }
 
-func (mp *threadLocalMap) set(key *threadLocalImpl, value interface{}) bool {
+func (mp *threadLocalMap) set(key *threadLocalImpl, value interface{}) {
 	index := key.id
 	if index < len(mp.entries) {
 		e := mp.entries[index]
 		if e == nil {
 			mp.entries[index] = &entry{value: value}
-			return true
+			// try restart gc timer if Set for the first time
+			gcTimerStart()
+		} else {
+			e.value = value
 		}
-		e.value = value
-		return false
+		return
 	}
 
 	newCapacity := index
@@ -58,7 +60,8 @@ func (mp *threadLocalMap) set(key *threadLocalImpl, value interface{}) bool {
 	copy(newEntries, mp.entries)
 	newEntries[index] = &entry{value: value}
 	mp.entries = newEntries
-	return true
+	// try restart gc timer if Set for the first time
+	gcTimerStart()
 }
 
 func (mp *threadLocalMap) remove(key *threadLocalImpl) {
@@ -90,16 +93,7 @@ func (tls *threadLocalImpl) Get() interface{} {
 
 func (tls *threadLocalImpl) Set(value interface{}) {
 	mp := getMap(true)
-	notExists := mp.set(tls, value)
-
-	// try restart gc timer if Set for the first time
-	if notExists {
-		globalMapLock.Lock()
-		if gcTimer == nil {
-			gcTimer = time.AfterFunc(gCInterval, gc)
-		}
-		globalMapLock.Unlock()
-	}
+	mp.set(tls, value)
 }
 
 func (tls *threadLocalImpl) Remove() {
@@ -138,6 +132,15 @@ func gcRunning() bool {
 	globalMapLock.Lock()
 	defer globalMapLock.Unlock()
 	return gcTimer != nil
+}
+
+// gcTimerStart make sure gcTimer is not nil
+func gcTimerStart() {
+	globalMapLock.Lock()
+	defer globalMapLock.Unlock()
+	if gcTimer == nil {
+		gcTimer = time.AfterFunc(gCInterval, gc)
+	}
 }
 
 // gc clear all data of dead goroutine.
