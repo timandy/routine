@@ -17,12 +17,6 @@ func init() {
 	globalMap.Store(map[int64]*threadLocalMap{})
 }
 
-func gcRunning() bool {
-	globalMapLock.Lock()
-	defer globalMapLock.Unlock()
-	return gcTimer != nil
-}
-
 type entry struct {
 	value interface{}
 }
@@ -137,6 +131,13 @@ func getMap(create bool) *threadLocalMap {
 		globalMap.Store(newGMap)
 	}
 	return lMap
+}
+
+// gcRunning if gcTimer is not nil return true, else return false
+func gcRunning() bool {
+	globalMapLock.Lock()
+	defer globalMapLock.Unlock()
+	return gcTimer != nil
 }
 
 // gc clear all data of dead goroutine.
