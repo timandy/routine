@@ -127,6 +127,7 @@ func getMap(create bool) *threadLocalMap {
 			entries: make([]*entry, 8),
 		}
 		globalMapLock.Lock()
+		defer globalMapLock.Unlock()
 		oldGMap := globalMap.Load().(map[int64]*threadLocalMap)
 		newGMap := make(map[int64]*threadLocalMap, len(oldGMap)+1)
 		for k, v := range oldGMap {
@@ -134,7 +135,6 @@ func getMap(create bool) *threadLocalMap {
 		}
 		newGMap[gid] = lMap
 		globalMap.Store(newGMap)
-		globalMapLock.Unlock()
 	}
 	return lMap
 }
