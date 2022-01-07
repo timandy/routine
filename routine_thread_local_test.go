@@ -10,6 +10,7 @@ import (
 
 func init() {
 	gCInterval = time.Millisecond * 50 // for faster test
+	allStackBufSize = stackSize * 512
 }
 
 func TestThreadLocal(t *testing.T) {
@@ -65,11 +66,11 @@ func TestThreadLocalConcurrency(t *testing.T) {
 			for i := 0; i < loopTimes; i++ {
 				threadLocal.Set(v)
 				tmp := threadLocal.Get()
-				assert.True(t, tmp.(uint64) == v)
+				assert.Equal(t, v, tmp.(uint64))
 				//
 				threadLocal2.Set(v2)
 				tmp2 := threadLocal2.Get()
-				assert.True(t, tmp2.(uint64) == v2)
+				assert.Equal(t, v2, tmp2.(uint64))
 			}
 			waiter.Done()
 		}()
