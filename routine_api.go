@@ -72,6 +72,11 @@ func NewThreadLocal() ThreadLocal {
 	return &threadLocalImpl{id: int(atomic.AddInt32(&threadLocalIndex, 1))}
 }
 
+// NewThreadLocalWithInitial create and return a new ThreadLocal instance. The initial value is determined by invoking the supplier method.
+func NewThreadLocalWithInitial(supplier func() interface{}) ThreadLocal {
+	return &threadLocalImpl{id: int(atomic.AddInt32(&threadLocalIndex, 1)), supplier: supplier}
+}
+
 // Goid return the current goroutine's unique id.
 // It will try get gid by native cgo/asm for better performance,
 // and could parse gid from stack for failover supporting.

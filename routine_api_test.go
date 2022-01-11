@@ -80,6 +80,16 @@ func TestGoThreadLocal(t *testing.T) {
 	waiter.Wait()
 }
 
+func TestClear(t *testing.T) {
+	threadLocal := NewThreadLocal()
+	Clear()
+	assert.Nil(t, threadLocal.Get())
+	threadLocal.Set(1)
+	assert.Equal(t, 1, threadLocal.Get())
+	Clear()
+	assert.Nil(t, threadLocal.Get())
+}
+
 // BenchmarkGoid-12    	278801190	         4.586 ns/op	       0 B/op	       0 allocs/op
 func BenchmarkGoid(b *testing.B) {
 	b.ReportAllocs()

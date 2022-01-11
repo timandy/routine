@@ -13,6 +13,11 @@ func init() {
 	allStackBufSize = stackSize * 512
 }
 
+type Person struct {
+	Id   int
+	Name string
+}
+
 func TestThreadLocal(t *testing.T) {
 	threadLocal := NewThreadLocal()
 	threadLocal2 := NewThreadLocal()
@@ -46,6 +51,42 @@ func TestThreadLocal(t *testing.T) {
 	//
 	vv2 := threadLocal2.Get()
 	assert.Nil(t, vv2)
+}
+
+func TestNewThreadLocalWithInitial(t *testing.T) {
+	threadLocal := NewThreadLocalWithInitial(nil)
+	threadLocal2 := NewThreadLocalWithInitial(func() interface{} {
+		return nil
+	})
+	threadLocal3 := NewThreadLocalWithInitial(func() interface{} {
+		return &Person{Id: 1, Name: "Tim"}
+	})
+
+	for i := 0; i < 100; i++ {
+		p := threadLocal.Get()
+		assert.Nil(t, p)
+		//
+		p2 := threadLocal2.Get()
+		assert.Nil(t, p2)
+		//
+		p3 := threadLocal3.Get().(*Person)
+		assert.Equal(t, Person{Id: 1, Name: "Tim"}, *p3)
+
+		waiter := &sync.WaitGroup{}
+		waiter.Add(1)
+		go func() {
+			assert.Equal(t, Person{Id: 1, Name: "Tim"}, *threadLocal3.Get().(*Person))
+			assert.NotSame(t, p3, threadLocal3.Get().(*Person))
+			waiter.Done()
+		}()
+		waiter.Wait()
+	}
+
+	threadLocal3.Set(nil)
+	assert.Nil(t, threadLocal3.Get())
+
+	threadLocal3.Remove()
+	assert.Equal(t, Person{Id: 1, Name: "Tim"}, *threadLocal3.Get().(*Person))
 }
 
 func TestThreadLocalConcurrency(t *testing.T) {
