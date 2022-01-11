@@ -76,19 +76,17 @@ func (mp *threadLocalMap) clear() {
 }
 
 type threadLocalImpl struct {
-	id int
+	id       int
+	supplier func() interface{}
 }
 
 func (tls *threadLocalImpl) Get() interface{} {
-	mp := getMap(false)
-	if mp == nil {
-		return nil
-	}
+	mp := getMap(true)
 	e := mp.getEntry(tls)
-	if e == nil {
-		return nil
+	if e != nil {
+		return e.value
 	}
-	return e.value
+	return tls.setInitialValue(mp)
 }
 
 func (tls *threadLocalImpl) Set(value interface{}) {
@@ -102,6 +100,19 @@ func (tls *threadLocalImpl) Remove() {
 		return
 	}
 	mp.remove(tls)
+}
+
+func (tls *threadLocalImpl) setInitialValue(mp *threadLocalMap) interface{} {
+	value := tls.initialValue()
+	mp.set(tls, value)
+	return value
+}
+
+func (tls *threadLocalImpl) initialValue() interface{} {
+	if tls.supplier == nil {
+		return nil
+	}
+	return tls.supplier()
 }
 
 // getMap load the threadLocalMap of current goroutine.
