@@ -92,6 +92,16 @@ func getAllGoidByStack() (goids []int64) {
 	return
 }
 
+func readStackBuf() []byte {
+	stackBuf := make([]byte, stackSize)
+	written := runtime.Stack(stackBuf, false)
+	for written >= len(stackBuf) {
+		stackBuf = make([]byte, len(stackBuf)<<1)
+		written = runtime.Stack(stackBuf, false)
+	}
+	return stackBuf[0:written]
+}
+
 // Read all stack info into a buf
 func readAllStackBuf() []byte {
 	if allStackBuf == nil {
