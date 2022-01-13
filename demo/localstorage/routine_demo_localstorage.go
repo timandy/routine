@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var nameVar = routine.NewThreadLocal()
+var nameVar = routine.NewInheritableThreadLocal()
 
 func main() {
 	nameVar.Set("hello world")
@@ -21,13 +21,6 @@ func main() {
 	routine.Go(func() {
 		fmt.Println("name2: ", nameVar.Get())
 	})
-
-	// or, you could copy all local data manually
-	ic := routine.BackupContext()
-	go func() {
-		routine.RestoreContext(ic)
-		fmt.Println("name3: ", nameVar.Get())
-	}()
 
 	time.Sleep(time.Second)
 }

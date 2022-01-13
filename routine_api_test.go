@@ -28,24 +28,21 @@ func TestMultiThreadLocal(t *testing.T) {
 }
 
 func TestBackupContext(t *testing.T) {
-	threadLocal := NewThreadLocal()
-	ic := BackupContext()
+	threadLocal := NewInheritableThreadLocal()
 
 	waiter := &sync.WaitGroup{}
 	waiter.Add(1)
-	go func() {
+	Go(func() {
+		assert.Nil(t, threadLocal.Get())
+
 		threadLocal.Set("hello")
 		assert.Equal(t, "hello", threadLocal.Get())
-		icLocalBackup := BackupContext()
 		//
-		RestoreContext(ic)
+		threadLocal.Remove()
 		assert.Nil(t, threadLocal.Get())
 		//
-		RestoreContext(icLocalBackup)
-		assert.Equal(t, "hello", threadLocal.Get())
-		//
 		waiter.Done()
-	}()
+	})
 	waiter.Wait()
 }
 
@@ -70,7 +67,7 @@ func TestGoThreadLocal(t *testing.T) {
 	waiter := &sync.WaitGroup{}
 	waiter.Add(1)
 	variable := "hello world"
-	threadLocal := NewThreadLocal()
+	threadLocal := NewInheritableThreadLocal()
 	threadLocal.Set(variable)
 	Go(func() {
 		v := threadLocal.Get()
@@ -78,16 +75,6 @@ func TestGoThreadLocal(t *testing.T) {
 		waiter.Done()
 	})
 	waiter.Wait()
-}
-
-func TestClear(t *testing.T) {
-	threadLocal := NewThreadLocal()
-	Clear()
-	assert.Nil(t, threadLocal.Get())
-	threadLocal.Set(1)
-	assert.Equal(t, 1, threadLocal.Get())
-	Clear()
-	assert.Nil(t, threadLocal.Get())
 }
 
 // BenchmarkGoid-12    	278801190	         4.586 ns/op	       0 B/op	       0 allocs/op

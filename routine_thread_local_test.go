@@ -45,10 +45,11 @@ func TestThreadLocal(t *testing.T) {
 	threadLocal.Remove()
 	assert.NotNil(t, v)
 
-	Clear()
+	threadLocal.Remove()
 	vv1 := threadLocal.Get()
 	assert.Nil(t, vv1)
 	//
+	threadLocal2.Remove()
 	vv2 := threadLocal2.Get()
 	assert.Nil(t, vv2)
 }
@@ -149,7 +150,7 @@ func TestThreadLocalGC(t *testing.T) {
 		// wait for a while
 		time.Sleep(gCInterval + time.Second)
 		assert.False(t, gcRunning(), "#%v, timer not stoped?", i)
-		storeMap := globalMap.Load().(map[int64]*threadLocalMap)
+		storeMap := globalMap.Load().(map[int64]*thread)
 		assert.Equal(t, 0, len(storeMap), "#%v, storeMap not empty - %d", i, len(storeMap))
 	}
 	assert.True(t, gcRunningCnt > 0, "gc timer may not running!")

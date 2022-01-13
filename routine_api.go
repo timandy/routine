@@ -7,6 +7,9 @@ import (
 
 // ThreadLocal provides goroutine-local variables.
 type ThreadLocal interface {
+	// Id returns the global id of instance
+	Id() int
+
 	// Get returns the value in the current goroutine's local threadLocalImpl, if it was set before.
 	Get() interface{}
 
@@ -17,52 +20,28 @@ type ThreadLocal interface {
 	Remove()
 }
 
-// Clear clean up all context variables of the current coroutine.
-func Clear() {
-	mp := getMap(false)
-	if mp == nil {
-		return
-	}
-	mp.clear()
-}
-
-// ImmutableContext represents all local entries of one goroutine.
-type ImmutableContext struct {
-	entries []*entry
-}
-
-// Go starts a new goroutine, and copy all local entries from current goroutine.
+// Go starts a new goroutine, and copy all local table from current goroutine.
 func Go(f func()) {
-	ic := BackupContext()
+	// backup
+	copied := createInheritedMap()
 	go func() {
-		RestoreContext(ic)
-		f()
+		// catch
+		defer func() {
+			if err := recover(); err != nil {
+				fmt.Println(err)
+			}
+		}()
+		// restore
+		t := currentThread(copied != nil)
+		if t == nil {
+			f()
+		} else {
+			backup := t.inheritableThreadLocals
+			t.inheritableThreadLocals = copied
+			f()
+			t.inheritableThreadLocals = backup
+		}
 	}()
-}
-
-// BackupContext copy all local entries into an ImmutableContext instance.
-func BackupContext() *ImmutableContext {
-	mp := getMap(false)
-	if mp == nil || mp.entries == nil {
-		return nil
-	}
-	entries := make([]*entry, len(mp.entries))
-	copy(entries, mp.entries)
-	return &ImmutableContext{entries: entries}
-}
-
-// RestoreContext load the specified ImmutableContext instance into the local threadLocalImpl of current goroutine.
-func RestoreContext(ic *ImmutableContext) {
-	if ic == nil || ic.entries == nil {
-		Clear()
-		return
-	}
-	icLength := len(ic.entries)
-	mp := getMap(true)
-	if len(mp.entries) != icLength {
-		mp.entries = make([]*entry, icLength)
-	}
-	copy(mp.entries, ic.entries)
 }
 
 var threadLocalIndex int32 = -1
@@ -75,6 +54,18 @@ func NewThreadLocal() ThreadLocal {
 // NewThreadLocalWithInitial create and return a new ThreadLocal instance. The initial value is determined by invoking the supplier method.
 func NewThreadLocalWithInitial(supplier func() interface{}) ThreadLocal {
 	return &threadLocalImpl{id: int(atomic.AddInt32(&threadLocalIndex, 1)), supplier: supplier}
+}
+
+var inheritableThreadLocalIndex int32 = -1
+
+// NewInheritableThreadLocal create and return a new ThreadLocal instance.
+func NewInheritableThreadLocal() ThreadLocal {
+	return &inheritableThreadLocalImpl{id: int(atomic.AddInt32(&inheritableThreadLocalIndex, 1))}
+}
+
+// NewInheritableThreadLocalWithInitial create and return a new ThreadLocal instance. The initial value is determined by invoking the supplier method.
+func NewInheritableThreadLocalWithInitial(supplier func() interface{}) ThreadLocal {
+	return &inheritableThreadLocalImpl{id: int(atomic.AddInt32(&inheritableThreadLocalIndex, 1)), supplier: supplier}
 }
 
 // Goid return the current goroutine's unique id.

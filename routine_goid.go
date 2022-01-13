@@ -99,7 +99,7 @@ func readAllStackBuf() []byte {
 	}
 	written := runtime.Stack(allStackBuf, true)
 	for written >= len(allStackBuf) {
-		allStackBuf = make([]byte, len(allStackBuf)*2)
+		allStackBuf = make([]byte, len(allStackBuf)<<1)
 		written = runtime.Stack(allStackBuf, true)
 	}
 	return allStackBuf[0:written]
