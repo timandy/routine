@@ -6,24 +6,26 @@ import (
 	"sync/atomic"
 )
 
+type Any = interface{}
+
 // ThreadLocal provides goroutine-local variables.
 type ThreadLocal interface {
 	// Id returns the global id of instance
 	Id() int
 
 	// Get returns the value in the current goroutine's local threadLocalImpl, if it was set before.
-	Get() interface{}
+	Get() Any
 
 	// Set copy the value into the current goroutine's local threadLocalImpl, and return the old value.
-	Set(value interface{})
+	Set(value Any)
 
 	// Remove delete the value from the current goroutine's local threadLocalImpl, and return it.
 	Remove()
 }
 
 type FeatureError struct {
-	error      interface{}
-	errorStack interface{}
+	error      Any
+	errorStack Any
 }
 
 func (fe *FeatureError) Error() string {
@@ -32,9 +34,9 @@ func (fe *FeatureError) Error() string {
 
 type Feature struct {
 	waitGroup  *sync.WaitGroup
-	error      interface{}
-	errorStack interface{}
-	result     interface{}
+	error      Any
+	errorStack Any
+	result     Any
 }
 
 func feature() *Feature {
@@ -43,18 +45,18 @@ func feature() *Feature {
 	return &Feature{waitGroup: waitGroup}
 }
 
-func (f *Feature) complete(result interface{}) {
+func (f *Feature) complete(result Any) {
 	f.result = result
 	f.waitGroup.Done()
 }
 
-func (f *Feature) completeError(error interface{}, errorStack []byte) {
+func (f *Feature) completeError(error Any, errorStack []byte) {
 	f.error = error
 	f.errorStack = errorStack
 	f.waitGroup.Done()
 }
 
-func (f *Feature) Get() interface{} {
+func (f *Feature) Get() Any {
 	f.waitGroup.Wait()
 	if f.error != nil {
 		panic(FeatureError{error: f.error, errorStack: f.errorStack})
@@ -116,7 +118,7 @@ func GoWait(fun func()) *Feature {
 }
 
 // Go starts a new goroutine, and copy all local table from current goroutine.
-func GoWaitResult(fun func() interface{}) *Feature {
+func GoWaitResult(fun func() Any) *Feature {
 	fea := feature()
 	// backup
 	copied := createInheritedMap()
@@ -149,7 +151,7 @@ func NewThreadLocal() ThreadLocal {
 }
 
 // NewThreadLocalWithInitial create and return a new ThreadLocal instance. The initial value is determined by invoking the supplier method.
-func NewThreadLocalWithInitial(supplier func() interface{}) ThreadLocal {
+func NewThreadLocalWithInitial(supplier func() Any) ThreadLocal {
 	return &threadLocalImpl{id: int(atomic.AddInt32(&threadLocalIndex, 1)), supplier: supplier}
 }
 
@@ -161,7 +163,7 @@ func NewInheritableThreadLocal() ThreadLocal {
 }
 
 // NewInheritableThreadLocalWithInitial create and return a new ThreadLocal instance. The initial value is determined by invoking the supplier method.
-func NewInheritableThreadLocalWithInitial(supplier func() interface{}) ThreadLocal {
+func NewInheritableThreadLocalWithInitial(supplier func() Any) ThreadLocal {
 	return &inheritableThreadLocalImpl{id: int(atomic.AddInt32(&inheritableThreadLocalIndex, 1)), supplier: supplier}
 }
 

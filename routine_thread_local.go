@@ -2,14 +2,14 @@ package routine
 
 type threadLocalImpl struct {
 	id       int
-	supplier func() interface{}
+	supplier func() Any
 }
 
 func (tls *threadLocalImpl) Id() int {
 	return tls.id
 }
 
-func (tls *threadLocalImpl) Get() interface{} {
+func (tls *threadLocalImpl) Get() Any {
 	t := currentThread(true)
 	mp := tls.getMap(t)
 	if mp != nil {
@@ -21,7 +21,7 @@ func (tls *threadLocalImpl) Get() interface{} {
 	return tls.setInitialValue(t)
 }
 
-func (tls *threadLocalImpl) Set(value interface{}) {
+func (tls *threadLocalImpl) Set(value Any) {
 	t := currentThread(true)
 	mp := tls.getMap(t)
 	if mp != nil {
@@ -43,13 +43,13 @@ func (tls *threadLocalImpl) getMap(t *thread) *threadLocalMap {
 	return t.threadLocals
 }
 
-func (tls *threadLocalImpl) createMap(t *thread, firstValue interface{}) {
+func (tls *threadLocalImpl) createMap(t *thread, firstValue Any) {
 	mp := &threadLocalMap{}
 	mp.set(tls, firstValue)
 	t.threadLocals = mp
 }
 
-func (tls *threadLocalImpl) setInitialValue(t *thread) interface{} {
+func (tls *threadLocalImpl) setInitialValue(t *thread) Any {
 	value := tls.initialValue()
 	mp := tls.getMap(t)
 	if mp != nil {
@@ -60,7 +60,7 @@ func (tls *threadLocalImpl) setInitialValue(t *thread) interface{} {
 	return value
 }
 
-func (tls *threadLocalImpl) initialValue() interface{} {
+func (tls *threadLocalImpl) initialValue() Any {
 	if tls.supplier == nil {
 		return nil
 	}

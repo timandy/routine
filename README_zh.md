@@ -147,9 +147,9 @@ name2:  hello world
 
 表示协程上下文变量，支持的函数包括：
 
-+ `Get() (value interface{})`：获取当前协程已设置的变量值，若未设置则为`nil`
-+ `Set(v interface{}) interface{}`：设置当前协程的上下文变量值，返回之前已设置的旧值
-+ `Remove() (v interface{})`：删除当前协程的上下文变量值，返回已删除的旧值
++ `Get() (value Any)`：获取当前协程已设置的变量值，若未设置则为`nil`
++ `Set(v Any) Any`：设置当前协程的上下文变量值，返回之前已设置的旧值
++ `Remove() (v Any)`：删除当前协程的上下文变量值，返回已删除的旧值
 
 ## `Clear()`
 

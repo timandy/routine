@@ -20,7 +20,7 @@ var (
 	allStackBufSize = stackSize * 1024
 	anchor          = []byte("goroutine ")
 	stackBufPool    = sync.Pool{
-		New: func() interface{} {
+		New: func() Any {
 			buf := make([]byte, 64)
 			return &buf
 		},

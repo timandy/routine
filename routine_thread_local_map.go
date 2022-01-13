@@ -15,7 +15,7 @@ func init() {
 }
 
 type entry struct {
-	value interface{}
+	value Any
 }
 
 type threadLocalMap struct {
@@ -30,7 +30,7 @@ func (mp *threadLocalMap) getEntry(key ThreadLocal) *entry {
 	return nil
 }
 
-func (mp *threadLocalMap) set(key ThreadLocal, value interface{}) {
+func (mp *threadLocalMap) set(key ThreadLocal, value Any) {
 	index := key.Id()
 	if index < len(mp.table) {
 		e := mp.table[index]

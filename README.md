@@ -167,9 +167,9 @@ coroutine. Its internal implementation consists of `BackupContext()` and `Restor
 
 Represents the context variable of the coroutine, and the supported functions include:
 
-+ `Get() (value interface{})`: Get the variable value that has been set by the current coroutine.
-+ `Set(v interface{}) interface{}`: Set the value of the context variable of the current coroutine, and return the old value that has been set before.
-+ `Remove() (v interface{})`: Delete the context variable value of the current coroutine and return the deleted old value.
++ `Get() (value Any)`: Get the variable value that has been set by the current coroutine.
++ `Set(v Any) Any`: Set the value of the context variable of the current coroutine, and return the old value that has been set before.
++ `Remove() (v Any)`: Delete the context variable value of the current coroutine and return the deleted old value.
 
 ## `Clear()`
 

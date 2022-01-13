@@ -56,10 +56,10 @@ func TestThreadLocal(t *testing.T) {
 
 func TestNewThreadLocalWithInitial(t *testing.T) {
 	threadLocal := NewThreadLocalWithInitial(nil)
-	threadLocal2 := NewThreadLocalWithInitial(func() interface{} {
+	threadLocal2 := NewThreadLocalWithInitial(func() Any {
 		return nil
 	})
-	threadLocal3 := NewThreadLocalWithInitial(func() interface{} {
+	threadLocal3 := NewThreadLocalWithInitial(func() Any {
 		return &Person{Id: 1, Name: "Tim"}
 	})
 

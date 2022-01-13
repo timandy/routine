@@ -2,14 +2,14 @@ package routine
 
 type inheritableThreadLocalImpl struct {
 	id       int
-	supplier func() interface{}
+	supplier func() Any
 }
 
 func (tls *inheritableThreadLocalImpl) Id() int {
 	return tls.id
 }
 
-func (tls *inheritableThreadLocalImpl) Get() interface{} {
+func (tls *inheritableThreadLocalImpl) Get() Any {
 	t := currentThread(true)
 	mp := tls.getMap(t)
 	if mp != nil {
@@ -21,7 +21,7 @@ func (tls *inheritableThreadLocalImpl) Get() interface{} {
 	return tls.setInitialValue(t)
 }
 
-func (tls *inheritableThreadLocalImpl) Set(value interface{}) {
+func (tls *inheritableThreadLocalImpl) Set(value Any) {
 	t := currentThread(true)
 	mp := tls.getMap(t)
 	if mp != nil {
@@ -43,13 +43,13 @@ func (tls *inheritableThreadLocalImpl) getMap(t *thread) *threadLocalMap {
 	return t.inheritableThreadLocals
 }
 
-func (tls *inheritableThreadLocalImpl) createMap(t *thread, firstValue interface{}) {
+func (tls *inheritableThreadLocalImpl) createMap(t *thread, firstValue Any) {
 	mp := &threadLocalMap{}
 	mp.set(tls, firstValue)
 	t.inheritableThreadLocals = mp
 }
 
-func (tls *inheritableThreadLocalImpl) setInitialValue(t *thread) interface{} {
+func (tls *inheritableThreadLocalImpl) setInitialValue(t *thread) Any {
 	value := tls.initialValue()
 	mp := tls.getMap(t)
 	if mp != nil {
@@ -60,7 +60,7 @@ func (tls *inheritableThreadLocalImpl) setInitialValue(t *thread) interface{} {
 	return value
 }
 
-func (tls *inheritableThreadLocalImpl) initialValue() interface{} {
+func (tls *inheritableThreadLocalImpl) initialValue() Any {
 	if tls.supplier == nil {
 		return nil
 	}
