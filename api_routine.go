@@ -10,72 +10,98 @@ func Go(fun func()) {
 		// catch
 		defer func() {
 			if err := recover(); err != nil {
-				fe := &StackError{error: err, stackTrace: readStackBuf()}
-				fmt.Println(fe.Error())
+				fmt.Println(NewStackError(err).Error())
 			}
 		}()
 		// restore
 		t := currentThread(copied != nil)
 		if t == nil {
+			//copied is nil
+			defer func() {
+				t = currentThread(false)
+				if t != nil {
+					t.inheritableThreadLocals = nil
+				}
+			}()
 			fun()
 		} else {
 			backup := t.inheritableThreadLocals
+			defer func() {
+				t.inheritableThreadLocals = backup
+			}()
 			t.inheritableThreadLocals = copied
 			fun()
-			t.inheritableThreadLocals = backup
 		}
 	}()
 }
 
-// Go starts a new goroutine, and copy all local table from current goroutine.
+// GoWait starts a new goroutine, and copy all local table from current goroutine.
 func GoWait(fun func()) *Feature {
-	fea := feature()
+	fea := NewFeature()
 	// backup
 	copied := createInheritedMap()
 	go func() {
 		// catch
 		defer func() {
 			if err := recover(); err != nil {
-				fea.completeError(stackError(err))
+				fea.CompleteError(err)
 			}
 		}()
 		// restore
 		t := currentThread(copied != nil)
 		if t == nil {
+			//copied is nil
+			defer func() {
+				t = currentThread(false)
+				if t != nil {
+					t.inheritableThreadLocals = nil
+				}
+			}()
 			fun()
-			fea.complete(nil)
+			fea.Complete(nil)
 		} else {
 			backup := t.inheritableThreadLocals
+			defer func() {
+				t.inheritableThreadLocals = backup
+			}()
 			t.inheritableThreadLocals = copied
 			fun()
-			fea.complete(nil)
-			t.inheritableThreadLocals = backup
+			fea.Complete(nil)
 		}
 	}()
 	return fea
 }
 
-// Go starts a new goroutine, and copy all local table from current goroutine.
+// GoWaitResult starts a new goroutine, and copy all local table from current goroutine.
 func GoWaitResult(fun func() Any) *Feature {
-	fea := feature()
+	fea := NewFeature()
 	// backup
 	copied := createInheritedMap()
 	go func() {
 		// catch
 		defer func() {
 			if err := recover(); err != nil {
-				fea.completeError(stackError(err))
+				fea.CompleteError(err)
 			}
 		}()
 		// restore
 		t := currentThread(copied != nil)
 		if t == nil {
-			fea.complete(fun())
+			//copied is nil
+			defer func() {
+				t = currentThread(false)
+				if t != nil {
+					t.inheritableThreadLocals = nil
+				}
+			}()
+			fea.Complete(fun())
 		} else {
 			backup := t.inheritableThreadLocals
+			defer func() {
+				t.inheritableThreadLocals = backup
+			}()
 			t.inheritableThreadLocals = copied
-			fea.complete(fun())
-			t.inheritableThreadLocals = backup
+			fea.Complete(fun())
 		}
 	}()
 	return fea
