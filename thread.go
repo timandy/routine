@@ -1,5 +1,19 @@
 package routine
 
+import (
+	"sync"
+	"sync/atomic"
+)
+
+var (
+	globalMap     atomic.Value // The global threadLocalImpl map (map[int64]*threadLocalMap)
+	globalMapLock sync.Mutex   // The Lock to control accessing of globalMap
+)
+
+func init() {
+	globalMap.Store(map[int64]*thread{})
+}
+
 type thread struct {
 	id                      int64
 	threadLocals            *threadLocalMap
