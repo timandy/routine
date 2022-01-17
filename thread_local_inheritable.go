@@ -44,7 +44,10 @@ func (tls *inheritableThreadLocalImpl) Set(value Any) {
 }
 
 func (tls *inheritableThreadLocalImpl) Remove() {
-	t := currentThread(true)
+	t := currentThread(false)
+	if t == nil {
+		return
+	}
 	mp := tls.getMap(t)
 	if mp != nil {
 		mp.remove(tls)
