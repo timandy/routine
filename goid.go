@@ -5,26 +5,16 @@ import (
 	"github.com/timandy/routine/g"
 	"runtime"
 	"strings"
-	"sync"
 	"unsafe"
 )
 
 const (
-	ptrSize   = 4 << (^uintptr(0) >> 63) // unsafe.Sizeof(uintptr(0)) but an ideal const
-	stackSize = 1024
+	ptrSize = 4 << (^uintptr(0) >> 63) // unsafe.Sizeof(uintptr(0)) but an ideal const
 )
 
 var (
-	goidOffset      uintptr
-	allStackBuf     []byte
-	allStackBufSize = stackSize * 1024
-	anchor          = []byte("goroutine ")
-	stackBufPool    = sync.Pool{
-		New: func() Any {
-			buf := make([]byte, 64)
-			return &buf
-		},
-	}
+	goidOffset     uintptr
+	anchor         = []byte("goroutine ")
 	goidOffsetDict = map[string]int64{
 		"go1.12": 152,
 		"go1.13": 152,
@@ -50,17 +40,13 @@ func init() {
 // getGoidByStack parse the current goroutine's id from caller stack.
 // This function could be very slow(like 3000us/op), but it's very safe.
 func getGoidByStack() (goid int64) {
-	bp := stackBufPool.Get().(*[]byte)
-	defer stackBufPool.Put(bp)
-
-	b := *bp
-	b = b[:runtime.Stack(b, false)]
-	goid, _ = findNextGoid(b, 0)
+	buf := traceTiny()
+	goid, _ = findNextGoid(buf, 0)
 	return
 }
 
 // getGoidByNative parse the current goroutine's id from G.
-// This function could be very fast(like 1ns/op), but it could be failed.
+// This function could be very fast(like 1ns/op), but it may be failed.
 func getGoidByNative() (int64, bool) {
 	if goidOffset == 0 {
 		return 0, false
@@ -78,8 +64,7 @@ func getGoidByNative() (int64, bool) {
 
 // getAllGoidByStack find all goid through stack; WARNING: This function could be very inefficient; This method is not thread safe
 func getAllGoidByStack() (goids []int64) {
-	buf := readAllStackBuf()
-	defer releaseAllStackBuf()
+	buf := traceAllStack()
 	// parse all goids
 	goids = make([]int64, 0, 100)
 	for i := 0; i < len(buf); {
@@ -90,37 +75,6 @@ func getAllGoidByStack() (goids []int64) {
 		i = off
 	}
 	return
-}
-
-func readStackBuf() []byte {
-	stackBuf := make([]byte, stackSize)
-	written := runtime.Stack(stackBuf, false)
-	for written >= len(stackBuf) {
-		stackBuf = make([]byte, len(stackBuf)<<1)
-		written = runtime.Stack(stackBuf, false)
-	}
-	return stackBuf[0:written]
-}
-
-// Read all stack info into a buf
-func readAllStackBuf() []byte {
-	if allStackBuf == nil {
-		allStackBuf = make([]byte, allStackBufSize)
-	}
-	written := runtime.Stack(allStackBuf, true)
-	for written >= len(allStackBuf) {
-		allStackBuf = make([]byte, len(allStackBuf)<<1)
-		written = runtime.Stack(allStackBuf, true)
-	}
-	return allStackBuf[0:written]
-}
-
-// Release stack buf when it is too large
-func releaseAllStackBuf() {
-	if allStackBuf == nil || len(allStackBuf) == allStackBufSize {
-		return
-	}
-	allStackBuf = nil
 }
 
 // Find the next goid from `buf[off:]`

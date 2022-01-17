@@ -7,6 +7,6 @@ import "errors"
 
 var errUnsupported = errors.New("unsupported")
 
-func getAllGoidByNative() (goids []int64, err error) {
-	return nil, errUnsupported
+func getAllGoidByNative() ([]int64, bool) {
+	return nil, false
 }

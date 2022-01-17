@@ -4,8 +4,6 @@
 package routine
 
 import (
-	"errors"
-	"fmt"
 	"unsafe"
 )
 
@@ -27,15 +25,12 @@ func runtimeReadgstatus(g *runtimeG) uint32
 func runtimeIsSystemGoroutine(gp *runtimeG, fixed bool) bool
 
 // getAllGoidByNative retrieve all goid through runtime.atomicAllG
-func getAllGoidByNative() (goids []int64, err error) {
+func getAllGoidByNative() ([]int64, bool) {
 	defer func() {
-		if e := recover(); e != nil {
-			err = errors.New(fmt.Sprintf("get all goid failed: %v", e))
-			goids = nil
-		}
+		recover()
 	}()
 	root, n := runtimeAtomicAllG()
-	goids = make([]int64, 0, n)
+	goids := make([]int64, 0, n)
 	for i := uintptr(0); i < n; i++ {
 		gp := *(**runtimeG)(unsafe.Pointer(uintptr(unsafe.Pointer(root)) + i*ptrSize))
 		if runtimeReadgstatus(gp) == gDead || runtimeIsSystemGoroutine(gp, false) {
@@ -44,5 +39,5 @@ func getAllGoidByNative() (goids []int64, err error) {
 		gid := (*int64)(unsafe.Pointer(uintptr(unsafe.Pointer(gp)) + goidOffset))
 		goids = append(goids, *gid)
 	}
-	return
+	return goids, true
 }
