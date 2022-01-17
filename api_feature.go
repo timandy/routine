@@ -8,26 +8,26 @@ type Feature struct {
 	result    Any
 }
 
-func feature() *Feature {
+func NewFeature() *Feature {
 	waitGroup := &sync.WaitGroup{}
 	waitGroup.Add(1)
 	return &Feature{waitGroup: waitGroup}
 }
 
-func (f *Feature) complete(result Any) {
-	f.result = result
-	f.waitGroup.Done()
+func (fea *Feature) Complete(result Any) {
+	fea.result = result
+	fea.waitGroup.Done()
 }
 
-func (f *Feature) completeError(error *StackError) {
-	f.error = error
-	f.waitGroup.Done()
+func (fea *Feature) CompleteError(error Any) {
+	fea.error = NewStackError(error)
+	fea.waitGroup.Done()
 }
 
-func (f *Feature) Get() Any {
-	f.waitGroup.Wait()
-	if f.error != nil {
-		panic(f.error)
+func (fea *Feature) Get() Any {
+	fea.waitGroup.Wait()
+	if fea.error != nil {
+		panic(fea.error)
 	}
-	return f.result
+	return fea.result
 }
