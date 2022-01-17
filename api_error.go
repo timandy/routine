@@ -4,11 +4,11 @@ import "fmt"
 
 type StackError struct {
 	error      Any
-	stackTrace []byte
+	stackTrace string
 }
 
-func stackError(error Any) *StackError {
-	return &StackError{error: error, stackTrace: readStackBuf()}
+func NewStackError(error Any) *StackError {
+	return &StackError{error: error, stackTrace: string(traceStack())}
 }
 
 func (fe *StackError) Error() string {
