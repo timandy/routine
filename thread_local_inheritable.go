@@ -1,5 +1,17 @@
 package routine
 
+import "sync/atomic"
+
+var inheritableThreadLocalIndex int32 = -1
+
+func nextInheritableThreadLocalId() int {
+	index := atomic.AddInt32(&inheritableThreadLocalIndex, 1)
+	if index < 0 {
+		panic("too many inheritable-thread-local indexed variables")
+	}
+	return int(index)
+}
+
 type inheritableThreadLocalImpl struct {
 	id       int
 	supplier func() Any

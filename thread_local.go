@@ -1,5 +1,17 @@
 package routine
 
+import "sync/atomic"
+
+var threadLocalIndex int32 = -1
+
+func nextThreadLocalId() int {
+	index := atomic.AddInt32(&threadLocalIndex, 1)
+	if index < 0 {
+		panic("too many thread-local indexed variables")
+	}
+	return int(index)
+}
+
 type threadLocalImpl struct {
 	id       int
 	supplier func() Any

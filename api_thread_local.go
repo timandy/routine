@@ -1,12 +1,5 @@
 package routine
 
-import "sync/atomic"
-
-var (
-	threadLocalIndex            int32 = -1
-	inheritableThreadLocalIndex int32 = -1
-)
-
 // ThreadLocal provides goroutine-local variables.
 type ThreadLocal interface {
 	// Id returns the global id of instance
@@ -26,20 +19,20 @@ type Supplier = func() Any
 
 // NewThreadLocal create and return a new ThreadLocal instance.
 func NewThreadLocal() ThreadLocal {
-	return &threadLocalImpl{id: int(atomic.AddInt32(&threadLocalIndex, 1))}
+	return &threadLocalImpl{id: nextThreadLocalId()}
 }
 
 // NewThreadLocalWithInitial create and return a new ThreadLocal instance. The initial value is determined by invoking the supplier method.
 func NewThreadLocalWithInitial(supplier Supplier) ThreadLocal {
-	return &threadLocalImpl{id: int(atomic.AddInt32(&threadLocalIndex, 1)), supplier: supplier}
+	return &threadLocalImpl{id: nextThreadLocalId(), supplier: supplier}
 }
 
 // NewInheritableThreadLocal create and return a new ThreadLocal instance.
 func NewInheritableThreadLocal() ThreadLocal {
-	return &inheritableThreadLocalImpl{id: int(atomic.AddInt32(&inheritableThreadLocalIndex, 1))}
+	return &inheritableThreadLocalImpl{id: nextInheritableThreadLocalId()}
 }
 
 // NewInheritableThreadLocalWithInitial create and return a new ThreadLocal instance. The initial value is determined by invoking the supplier method.
 func NewInheritableThreadLocalWithInitial(supplier Supplier) ThreadLocal {
-	return &inheritableThreadLocalImpl{id: int(atomic.AddInt32(&inheritableThreadLocalIndex, 1)), supplier: supplier}
+	return &inheritableThreadLocalImpl{id: nextInheritableThreadLocalId(), supplier: supplier}
 }
