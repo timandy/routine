@@ -83,26 +83,28 @@ func findNextGoid(buf []byte, off int) (goid int64, next int) {
 	i := off
 	hit := false
 	// skip to anchor
-	acr := anchor
-	for sb := len(buf) - len(acr); i < sb; {
-		if buf[i] == acr[0] && buf[i+1] == acr[1] && buf[i+2] == acr[2] && buf[i+3] == acr[3] &&
-			buf[i+4] == acr[4] && buf[i+5] == acr[5] && buf[i+6] == acr[6] &&
-			buf[i+7] == acr[7] && buf[i+8] == acr[8] && buf[i+9] == acr[9] {
+	anc := anchor
+	bufLen := len(buf)
+	ancLen := len(anc)
+	for stop := bufLen - ancLen; i < stop; {
+		if buf[i] == anc[0] && buf[i+1] == anc[1] && buf[i+2] == anc[2] && buf[i+3] == anc[3] &&
+			buf[i+4] == anc[4] && buf[i+5] == anc[5] && buf[i+6] == anc[6] &&
+			buf[i+7] == anc[7] && buf[i+8] == anc[8] && buf[i+9] == anc[9] {
 			hit = true
-			i += len(acr)
+			i += ancLen
 			break
 		}
-		for ; i < len(buf) && buf[i] != '\n'; i++ {
+		for ; i < bufLen && buf[i] != '\n'; i++ {
 		}
 		i++
 	}
 	// return if not hit
 	if !hit {
-		return 0, len(buf)
+		return 0, bufLen
 	}
 	// extract goid
 	var done bool
-	for ; i < len(buf) && !done; i++ {
+	for ; i < bufLen && !done; i++ {
 		switch buf[i] {
 		case '0':
 			goid *= 10
@@ -129,7 +131,7 @@ func findNextGoid(buf []byte, off int) (goid int64, next int) {
 			break
 		default:
 			goid = 0
-			fmt.Println("should never be here, any bug happens")
+			fmt.Println("Should never be here, any bug happens")
 		}
 	}
 	next = i
