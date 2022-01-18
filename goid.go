@@ -39,10 +39,10 @@ func init() {
 
 // getGoidByStack parse the current goroutine's id from caller stack.
 // This function could be very slow(like 3000us/op), but it's very safe.
-func getGoidByStack() (goid int64) {
+func getGoidByStack() int64 {
 	buf := traceTiny()
-	goid, _ = findNextGoid(buf, 0)
-	return
+	goid, _ := findNextGoid(buf, 0)
+	return goid
 }
 
 // getGoidByNative parse the current goroutine's id from G.
@@ -62,11 +62,12 @@ func getGoidByNative() (int64, bool) {
 	return *p, true
 }
 
-// getAllGoidByStack find all goid through stack; WARNING: This function could be very inefficient; This method is not thread safe
-func getAllGoidByStack() (goids []int64) {
+// getAllGoidByStack find all goid through stack;
+// WARNING: This function could be very inefficient; This method is not thread safe
+func getAllGoidByStack() []int64 {
 	buf := traceAllStack()
 	// parse all goids
-	goids = make([]int64, 0, 100)
+	goids := make([]int64, 0, 100)
 	for i := 0; i < len(buf); {
 		goid, off := findNextGoid(buf, i)
 		if goid > 0 {
@@ -74,7 +75,7 @@ func getAllGoidByStack() (goids []int64) {
 		}
 		i = off
 	}
-	return
+	return goids
 }
 
 // Find the next goid from `buf[off:]`
