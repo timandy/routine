@@ -7,7 +7,7 @@ import (
 const (
 	tinyStackSize = 64
 	curStackSize  = 1024
-	allStackSize  = 1024 * 1024
+	allStackSize  = 512 * 1024
 )
 
 func traceTiny() []byte {
