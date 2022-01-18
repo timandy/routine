@@ -103,7 +103,7 @@ func findNextGoid(buf []byte, off int) (goid int64, next int) {
 		return 0, bufLen
 	}
 	// extract goid
-	var done bool
+	done := false
 	for ; i < bufLen && !done; i++ {
 		switch buf[i] {
 		case '0':

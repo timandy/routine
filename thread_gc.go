@@ -36,8 +36,8 @@ func gc() {
 	}
 
 	// scan globalMap check the dead and live threadLocalMap count.
-	var gMap = globalMap.Load().(map[int64]*thread)
-	var liveCnt int
+	gMap := globalMap.Load().(map[int64]*thread)
+	liveCnt := 0
 	for gid := range gMap {
 		if _, ok := gidMap[gid]; ok {
 			liveCnt++
