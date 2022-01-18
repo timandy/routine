@@ -6,19 +6,19 @@ import (
 	"testing"
 )
 
-func TestThreadLocal_Id(t *testing.T) {
-	threadLocal := NewThreadLocal()
+func TestInheritableThreadLocal_Id(t *testing.T) {
+	threadLocal := NewInheritableThreadLocal()
 	assert.GreaterOrEqual(t, threadLocal.Id(), 0)
-	threadLocal2 := NewThreadLocalWithInitial(func() Any {
+	threadLocal2 := NewInheritableThreadLocalWithInitial(func() Any {
 		return "Hello"
 	})
 	assert.GreaterOrEqual(t, threadLocal2.Id(), 0)
 	assert.NotEqual(t, threadLocal.Id(), threadLocal2)
 }
 
-func TestThreadLocal(t *testing.T) {
-	threadLocal := NewThreadLocal()
-	threadLocal2 := NewThreadLocal()
+func TestInheritableThreadLocal(t *testing.T) {
+	threadLocal := NewInheritableThreadLocal()
+	threadLocal2 := NewInheritableThreadLocal()
 	assert.Nil(t, threadLocal.Get())
 	assert.Nil(t, threadLocal2.Get())
 	//
@@ -50,8 +50,8 @@ func TestThreadLocal(t *testing.T) {
 	waiter.Add(100)
 	for i := 0; i < 100; i++ {
 		Go(func() {
-			assert.Nil(t, threadLocal.Get())
-			assert.Nil(t, threadLocal2.Get())
+			assert.Equal(t, 2, threadLocal.Get())
+			assert.Equal(t, "!", threadLocal2.Get())
 			waiter.Done()
 		})
 	}
@@ -60,9 +60,9 @@ func TestThreadLocal(t *testing.T) {
 	assert.Equal(t, "!", threadLocal2.Get())
 }
 
-func TestThreadLocalMixed(t *testing.T) {
-	threadLocal := NewThreadLocal()
-	threadLocal2 := NewThreadLocalWithInitial(func() Any {
+func TestInheritableThreadLocalMixed(t *testing.T) {
+	threadLocal := NewInheritableThreadLocal()
+	threadLocal2 := NewInheritableThreadLocalWithInitial(func() Any {
 		return "Hello"
 	})
 	assert.Nil(t, threadLocal.Get())
@@ -96,8 +96,8 @@ func TestThreadLocalMixed(t *testing.T) {
 	waiter.Add(100)
 	for i := 0; i < 100; i++ {
 		Go(func() {
-			assert.Nil(t, threadLocal.Get())
-			assert.Equal(t, "Hello", threadLocal2.Get())
+			assert.Equal(t, 2, threadLocal.Get())
+			assert.Equal(t, "!", threadLocal2.Get())
 			waiter.Done()
 		})
 	}
@@ -106,16 +106,16 @@ func TestThreadLocalMixed(t *testing.T) {
 	assert.Equal(t, "!", threadLocal2.Get())
 }
 
-func TestThreadLocalWithInitial(t *testing.T) {
+func TestInheritableThreadLocalWithInitial(t *testing.T) {
 	src := &person{Id: 1, Name: "Tim"}
-	threadLocal := NewThreadLocalWithInitial(nil)
-	threadLocal2 := NewThreadLocalWithInitial(func() Any {
+	threadLocal := NewInheritableThreadLocalWithInitial(nil)
+	threadLocal2 := NewInheritableThreadLocalWithInitial(func() Any {
 		return nil
 	})
-	threadLocal3 := NewThreadLocalWithInitial(func() Any {
+	threadLocal3 := NewInheritableThreadLocalWithInitial(func() Any {
 		return src
 	})
-	threadLocal4 := NewThreadLocalWithInitial(func() Any {
+	threadLocal4 := NewInheritableThreadLocalWithInitial(func() Any {
 		return *src
 	})
 
@@ -159,7 +159,44 @@ func TestThreadLocalWithInitial(t *testing.T) {
 	assert.Equal(t, *src, p6)
 }
 
-type person struct {
-	Id   int
-	Name string
+func TestInheritableThreadLocalCopy(t *testing.T) {
+	threadLocal := NewInheritableThreadLocalWithInitial(func() Any {
+		return &person{Id: 1, Name: "Tim"}
+	})
+	threadLocal2 := NewInheritableThreadLocalWithInitial(func() Any {
+		return person{Id: 2, Name: "Andy"}
+	})
+
+	p1 := threadLocal.Get().(*person)
+	assert.Equal(t, 1, p1.Id)
+	assert.Equal(t, "Tim", p1.Name)
+	p2 := threadLocal2.Get().(person)
+	assert.Equal(t, 2, p2.Id)
+	assert.Equal(t, "Andy", p2.Name)
+	//
+	fea := GoWait(func() {
+		p3 := threadLocal.Get().(*person)
+		assert.Same(t, p1, p3)
+		assert.Equal(t, 1, p3.Id)
+		assert.Equal(t, "Tim", p1.Name)
+		p4 := threadLocal2.Get().(person)
+		assert.NotSame(t, &p2, &p4)
+		assert.Equal(t, p2, p4)
+		assert.Equal(t, 2, p4.Id)
+		assert.Equal(t, "Andy", p4.Name)
+		//
+		p3.Name = "Tim2"
+		p4.Name = "Andy2"
+	})
+	fea.Get()
+	//
+	p5 := threadLocal.Get().(*person)
+	assert.Same(t, p1, p5)
+	assert.Equal(t, 1, p5.Id)
+	assert.Equal(t, "Tim2", p5.Name)
+	p6 := threadLocal2.Get().(person)
+	assert.NotSame(t, &p2, &p6)
+	assert.Equal(t, p2, p6)
+	assert.Equal(t, 2, p6.Id)
+	assert.Equal(t, "Andy", p6.Name)
 }
