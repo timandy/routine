@@ -25,9 +25,9 @@ func (tls *inheritableThreadLocalImpl) Get() Any {
 	t := currentThread(true)
 	mp := tls.getMap(t)
 	if mp != nil {
-		e := mp.getEntry(tls)
-		if e != nil {
-			return e.value
+		v := mp.get(tls)
+		if v != unset {
+			return v
 		}
 	}
 	return tls.setInitialValue(t)

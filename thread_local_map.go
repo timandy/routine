@@ -1,35 +1,52 @@
 package routine
 
-type entry struct {
+var unset = &object{}
+
+type object struct {
 	value Any
 }
 
 type threadLocalMap struct {
-	table []*entry
+	table []Any
 }
 
-func (mp *threadLocalMap) getEntry(key ThreadLocal) *entry {
+func (mp *threadLocalMap) get(key ThreadLocal) Any {
 	index := key.Id()
-	if index < len(mp.table) {
-		return mp.table[index]
+	lookup := mp.table
+	if index < len(lookup) {
+		return lookup[index]
 	}
-	return nil
+	return unset
 }
 
 func (mp *threadLocalMap) set(key ThreadLocal, value Any) {
 	index := key.Id()
-	if index < len(mp.table) {
-		e := mp.table[index]
-		if e == nil {
-			mp.table[index] = &entry{value: value}
+	lookup := mp.table
+	if index < len(lookup) {
+		oldValue := lookup[index]
+		lookup[index] = value
+		if oldValue == unset {
 			// try restart gc timer if Set for the first time
 			gcTimerStart()
-		} else {
-			e.value = value
 		}
 		return
 	}
+	mp.expandAndSet(index, value)
+	// try restart gc timer if Set for the first time
+	gcTimerStart()
+}
 
+func (mp *threadLocalMap) remove(key ThreadLocal) {
+	index := key.Id()
+	lookup := mp.table
+	if index < len(lookup) {
+		lookup[index] = unset
+	}
+}
+
+func (mp *threadLocalMap) expandAndSet(index int, value Any) {
+	oldArray := mp.table
+	oldCapacity := len(oldArray)
 	newCapacity := index
 	newCapacity |= newCapacity >> 1
 	newCapacity |= newCapacity >> 2
@@ -38,19 +55,11 @@ func (mp *threadLocalMap) set(key ThreadLocal, value Any) {
 	newCapacity |= newCapacity >> 16
 	newCapacity++
 
-	newEntries := make([]*entry, newCapacity)
-	copy(newEntries, mp.table)
-	newEntries[index] = &entry{value: value}
-	mp.table = newEntries
-	// try restart gc timer if Set for the first time
-	gcTimerStart()
-}
-
-func (mp *threadLocalMap) remove(key ThreadLocal) {
-	index := key.Id()
-	if index < len(mp.table) {
-		mp.table[index] = nil
-	}
+	newArray := make([]Any, newCapacity)
+	copy(newArray, oldArray)
+	fill(newArray, oldCapacity, newCapacity, unset)
+	newArray[index] = value
+	mp.table = newArray
 }
 
 // BackupContext copy all local table into an threadLocalMap instance.
@@ -60,10 +69,20 @@ func createInheritedMap() *threadLocalMap {
 		return nil
 	}
 	mp := parent.inheritableThreadLocals
-	if mp == nil || mp.table == nil {
+	if mp == nil {
 		return nil
 	}
-	table := make([]*entry, len(mp.table))
-	copy(table, mp.table)
+	lookup := mp.table
+	if lookup == nil {
+		return nil
+	}
+	table := make([]Any, len(lookup))
+	copy(table, lookup)
 	return &threadLocalMap{table: table}
+}
+
+func fill(a []Any, fromIndex int, toIndex int, val Any) {
+	for i := fromIndex; i < toIndex; i++ {
+		a[i] = val
+	}
 }
