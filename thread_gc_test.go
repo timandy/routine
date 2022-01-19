@@ -25,20 +25,20 @@ func TestThreadGC(t *testing.T) {
 
 	// use ThreadLocal in multi goroutines
 	for i := 0; i < 10; i++ {
-		waiter := &sync.WaitGroup{}
+		wg := &sync.WaitGroup{}
 		for j := 0; j < 1000; j++ {
-			waiter.Add(1)
+			wg.Add(1)
 			Go(func() {
 				tls.Set("hello world")
 				tls2.Set(true)
 				tls3.Set(&tls3)
 				tls4.Set(rand.Int())
 				tls5.Set(time.Now())
-				waiter.Done()
+				wg.Done()
 			})
 		}
 		assert.True(t, gcRunning(), "#%v, timer may not running!", i)
-		waiter.Wait()
+		wg.Wait()
 		// wait for a while
 		time.Sleep(gCInterval + time.Second)
 		assert.False(t, gcRunning(), "#%v, timer not stopped?", i)

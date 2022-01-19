@@ -67,8 +67,8 @@ func TestThreadLocal_Concurrency(t *testing.T) {
 	tls2.Set(33)
 	assert.Equal(t, 33, tls2.Get())
 	//
-	waiter := &sync.WaitGroup{}
-	waiter.Add(concurrency)
+	wg := &sync.WaitGroup{}
+	wg.Add(concurrency)
 	for i := 0; i < concurrency; i++ {
 		assert.Nil(t, tls.Get())
 		assert.Equal(t, 33, tls2.Get())
@@ -86,10 +86,10 @@ func TestThreadLocal_Concurrency(t *testing.T) {
 				tmp2 := tls2.Get()
 				assert.Equal(t, v2, tmp2.(uint64))
 			}
-			waiter.Done()
+			wg.Done()
 		})
 	}
-	waiter.Wait()
+	wg.Wait()
 	//
 	fea := GoWait(func() {
 		assert.Nil(t, tls.Get())
@@ -155,8 +155,8 @@ func TestThreadLocalWithInitial_Concurrency(t *testing.T) {
 	tls2.Set(33)
 	assert.Equal(t, 33, tls2.Get())
 	//
-	waiter := &sync.WaitGroup{}
-	waiter.Add(concurrency)
+	wg := &sync.WaitGroup{}
+	wg.Add(concurrency)
 	for i := 0; i < concurrency; i++ {
 		assert.Equal(t, "Hello", tls.Get())
 		assert.Equal(t, 33, tls2.Get())
@@ -174,10 +174,10 @@ func TestThreadLocalWithInitial_Concurrency(t *testing.T) {
 				tmp2 := tls2.Get()
 				assert.Equal(t, v2, tmp2.(uint64))
 			}
-			waiter.Done()
+			wg.Done()
 		})
 	}
-	waiter.Wait()
+	wg.Wait()
 	//
 	fea := GoWait(func() {
 		assert.Equal(t, "Hello", tls.Get())
@@ -233,8 +233,8 @@ func TestInheritableThreadLocal_Concurrency(t *testing.T) {
 	tls2.Set(33)
 	assert.Equal(t, 33, tls2.Get())
 	//
-	waiter := &sync.WaitGroup{}
-	waiter.Add(concurrency)
+	wg := &sync.WaitGroup{}
+	wg.Add(concurrency)
 	for i := 0; i < concurrency; i++ {
 		assert.Nil(t, tls.Get())
 		assert.Equal(t, 33, tls2.Get())
@@ -252,10 +252,10 @@ func TestInheritableThreadLocal_Concurrency(t *testing.T) {
 				tmp2 := tls2.Get()
 				assert.Equal(t, v2, tmp2.(uint64))
 			}
-			waiter.Done()
+			wg.Done()
 		})
 	}
-	waiter.Wait()
+	wg.Wait()
 	//
 	fea := GoWait(func() {
 		assert.Nil(t, tls.Get())
@@ -321,8 +321,8 @@ func TestInheritableThreadLocalWithInitial_Concurrency(t *testing.T) {
 	tls2.Set(33)
 	assert.Equal(t, 33, tls2.Get())
 	//
-	waiter := &sync.WaitGroup{}
-	waiter.Add(concurrency)
+	wg := &sync.WaitGroup{}
+	wg.Add(concurrency)
 	for i := 0; i < concurrency; i++ {
 		assert.Equal(t, "Hello", tls.Get())
 		assert.Equal(t, 33, tls2.Get())
@@ -340,10 +340,10 @@ func TestInheritableThreadLocalWithInitial_Concurrency(t *testing.T) {
 				tmp2 := tls2.Get()
 				assert.Equal(t, v2, tmp2.(uint64))
 			}
-			waiter.Done()
+			wg.Done()
 		})
 	}
-	waiter.Wait()
+	wg.Wait()
 	//
 	fea := GoWait(func() {
 		assert.Equal(t, "Hello", tls.Get())

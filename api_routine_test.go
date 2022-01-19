@@ -9,14 +9,14 @@ import (
 func TestGo_Error(t *testing.T) {
 	run := false
 	assert.NotPanics(t, func() {
-		waiter := &sync.WaitGroup{}
-		waiter.Add(1)
+		wg := &sync.WaitGroup{}
+		wg.Add(1)
 		Go(func() {
 			run = true
-			waiter.Done()
+			wg.Done()
 			panic("error")
 		})
-		waiter.Wait()
+		wg.Wait()
 	})
 	assert.True(t, run)
 }
@@ -26,15 +26,15 @@ func TestGo_Nil(t *testing.T) {
 	assert.Nil(t, copied)
 	//
 	run := false
-	waiter := &sync.WaitGroup{}
-	waiter.Add(1)
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
 	Go(func() {
 		thd := currentThread(true)
 		assert.Nil(t, thd.inheritableThreadLocals)
 		run = true
-		waiter.Done()
+		wg.Done()
 	})
-	waiter.Wait()
+	wg.Wait()
 	assert.True(t, run)
 }
 
@@ -51,8 +51,8 @@ func TestGo_Value(t *testing.T) {
 	assert.NotNil(t, copied)
 	//
 	run := false
-	waiter := &sync.WaitGroup{}
-	waiter.Add(1)
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
 	Go(func() {
 		thd := currentThread(true)
 		assert.NotNil(t, thd.inheritableThreadLocals == nil)
@@ -67,9 +67,9 @@ func TestGo_Value(t *testing.T) {
 		assert.Nil(t, inheritableTls.Get())
 		//
 		run = true
-		waiter.Done()
+		wg.Done()
 	})
-	waiter.Wait()
+	wg.Wait()
 	assert.True(t, run)
 	//
 	assert.Equal(t, "Hello", tls.Get())

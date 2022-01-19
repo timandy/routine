@@ -17,8 +17,8 @@ func TestGetGoidByNative(t *testing.T) {
 		assert.Equal(t, sid, nid)
 	}
 	//
-	waiter := &sync.WaitGroup{}
-	waiter.Add(100)
+	wg := &sync.WaitGroup{}
+	wg.Add(100)
 	for i := 0; i < 100; i++ {
 		go func() {
 			sid2 := getGoidByStack()
@@ -29,10 +29,10 @@ func TestGetGoidByNative(t *testing.T) {
 			assert.Equal(t, sid2, nid2)
 			assert.NotEqual(t, sid, nid2)
 			//
-			waiter.Done()
+			wg.Done()
 		}()
 	}
-	waiter.Wait()
+	wg.Wait()
 }
 
 func TestGetGoidByStack(t *testing.T) {
@@ -45,8 +45,8 @@ func TestGetGoidByStack(t *testing.T) {
 		assert.Equal(t, nid, sid)
 	}
 	//
-	waiter := &sync.WaitGroup{}
-	waiter.Add(100)
+	wg := &sync.WaitGroup{}
+	wg.Add(100)
 	for i := 0; i < 100; i++ {
 		go func() {
 			nid2, success2 := getGoidByNative()
@@ -57,10 +57,10 @@ func TestGetGoidByStack(t *testing.T) {
 			assert.Equal(t, nid2, sid2)
 			assert.NotEqual(t, nid, sid2)
 			//
-			waiter.Done()
+			wg.Done()
 		}()
 	}
-	waiter.Wait()
+	wg.Wait()
 }
 
 func TestGetAllGoidByNative(t *testing.T) {

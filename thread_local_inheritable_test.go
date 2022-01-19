@@ -46,16 +46,16 @@ func TestInheritableThreadLocal(t *testing.T) {
 	tls2.Set("!")
 	assert.Equal(t, 2, tls.Get())
 	assert.Equal(t, "!", tls2.Get())
-	waiter := &sync.WaitGroup{}
-	waiter.Add(100)
+	wg := &sync.WaitGroup{}
+	wg.Add(100)
 	for i := 0; i < 100; i++ {
 		Go(func() {
 			assert.Equal(t, 2, tls.Get())
 			assert.Equal(t, "!", tls2.Get())
-			waiter.Done()
+			wg.Done()
 		})
 	}
-	waiter.Wait()
+	wg.Wait()
 	assert.Equal(t, 2, tls.Get())
 	assert.Equal(t, "!", tls2.Get())
 }
@@ -92,16 +92,16 @@ func TestInheritableThreadLocalMixed(t *testing.T) {
 	tls2.Set("!")
 	assert.Equal(t, 2, tls.Get())
 	assert.Equal(t, "!", tls2.Get())
-	waiter := &sync.WaitGroup{}
-	waiter.Add(100)
+	wg := &sync.WaitGroup{}
+	wg.Add(100)
 	for i := 0; i < 100; i++ {
 		Go(func() {
 			assert.Equal(t, 2, tls.Get())
 			assert.Equal(t, "!", tls2.Get())
-			waiter.Done()
+			wg.Done()
 		})
 	}
-	waiter.Wait()
+	wg.Wait()
 	assert.Equal(t, 2, tls.Get())
 	assert.Equal(t, "!", tls2.Get())
 }
@@ -133,17 +133,17 @@ func TestInheritableThreadLocalWithInitial(t *testing.T) {
 		assert.NotSame(t, src, &p4)
 		assert.Equal(t, *src, p4)
 
-		waiter := &sync.WaitGroup{}
-		waiter.Add(1)
+		wg := &sync.WaitGroup{}
+		wg.Add(1)
 		Go(func() {
 			assert.Same(t, src, tls3.Get().(*person))
 			p5 := tls4.Get().(person)
 			assert.NotSame(t, src, &p5)
 			assert.Equal(t, *src, p5)
 			//
-			waiter.Done()
+			wg.Done()
 		})
-		waiter.Wait()
+		wg.Wait()
 	}
 
 	tls3.Set(nil)
