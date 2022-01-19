@@ -11,7 +11,7 @@ type Feature interface {
 }
 
 func NewFeature() Feature {
-	waitGroup := &sync.WaitGroup{}
-	waitGroup.Add(1)
-	return &feature{waitGroup: waitGroup}
+	await := &sync.WaitGroup{}
+	await.Add(1)
+	return &feature{await: await}
 }
