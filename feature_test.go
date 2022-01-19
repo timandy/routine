@@ -6,17 +6,6 @@ import (
 	"time"
 )
 
-func TestGet(t *testing.T) {
-	fea := NewFeature()
-	begin := time.Now()
-	go func() {
-		time.Sleep(time.Millisecond * 500)
-		fea.Complete(nil)
-	}()
-	assert.Nil(t, fea.Get())
-	assert.Greater(t, time.Now().Sub(begin), time.Millisecond*200)
-}
-
 func TestComplete(t *testing.T) {
 	fea := NewFeature()
 	go func() {
@@ -41,4 +30,16 @@ func TestCompleteError(t *testing.T) {
 	}()
 	fea.Get()
 	assert.Fail(t, "should not be here")
+}
+
+func TestGet(t *testing.T) {
+	run := false
+	fea := NewFeature()
+	go func() {
+		time.Sleep(time.Millisecond * 500)
+		run = true
+		fea.Complete(nil)
+	}()
+	assert.Nil(t, fea.Get())
+	assert.True(t, run)
 }
