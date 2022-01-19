@@ -39,13 +39,13 @@ func TestGo_Nil(t *testing.T) {
 }
 
 func TestGo_Value(t *testing.T) {
-	threadLocal := NewThreadLocal()
-	threadLocal.Set("Hello")
-	assert.Equal(t, "Hello", threadLocal.Get())
+	tls := NewThreadLocal()
+	tls.Set("Hello")
+	assert.Equal(t, "Hello", tls.Get())
 	//
-	inheritableThreadLocal := NewInheritableThreadLocal()
-	inheritableThreadLocal.Set("World")
-	assert.Equal(t, "World", inheritableThreadLocal.Get())
+	inheritableTls := NewInheritableThreadLocal()
+	inheritableTls.Set("World")
+	assert.Equal(t, "World", inheritableTls.Get())
 	//
 	copied := createInheritedMap()
 	assert.NotNil(t, copied)
@@ -57,14 +57,14 @@ func TestGo_Value(t *testing.T) {
 		thd := currentThread(true)
 		assert.NotNil(t, thd.inheritableThreadLocals == nil)
 		//
-		assert.Nil(t, threadLocal.Get())
-		assert.Equal(t, "World", inheritableThreadLocal.Get())
+		assert.Nil(t, tls.Get())
+		assert.Equal(t, "World", inheritableTls.Get())
 		//
-		threadLocal.Set("Hello2")
-		assert.Equal(t, "Hello2", threadLocal.Get())
+		tls.Set("Hello2")
+		assert.Equal(t, "Hello2", tls.Get())
 		//
-		inheritableThreadLocal.Remove()
-		assert.Nil(t, inheritableThreadLocal.Get())
+		inheritableTls.Remove()
+		assert.Nil(t, inheritableTls.Get())
 		//
 		run = true
 		waiter.Done()
@@ -72,8 +72,8 @@ func TestGo_Value(t *testing.T) {
 	waiter.Wait()
 	assert.True(t, run)
 	//
-	assert.Equal(t, "Hello", threadLocal.Get())
-	assert.Equal(t, "World", inheritableThreadLocal.Get())
+	assert.Equal(t, "Hello", tls.Get())
+	assert.Equal(t, "World", inheritableTls.Get())
 }
 
 func TestGoWait_Error(t *testing.T) {
@@ -103,13 +103,13 @@ func TestGoWait_Nil(t *testing.T) {
 }
 
 func TestGoWait_Value(t *testing.T) {
-	threadLocal := NewThreadLocal()
-	threadLocal.Set("Hello")
-	assert.Equal(t, "Hello", threadLocal.Get())
+	tls := NewThreadLocal()
+	tls.Set("Hello")
+	assert.Equal(t, "Hello", tls.Get())
 	//
-	inheritableThreadLocal := NewInheritableThreadLocal()
-	inheritableThreadLocal.Set("World")
-	assert.Equal(t, "World", inheritableThreadLocal.Get())
+	inheritableTls := NewInheritableThreadLocal()
+	inheritableTls.Set("World")
+	assert.Equal(t, "World", inheritableTls.Get())
 	//
 	copied := createInheritedMap()
 	assert.NotNil(t, copied)
@@ -119,22 +119,22 @@ func TestGoWait_Value(t *testing.T) {
 		thd := currentThread(true)
 		assert.NotNil(t, thd.inheritableThreadLocals == nil)
 		//
-		assert.Nil(t, threadLocal.Get())
-		assert.Equal(t, "World", inheritableThreadLocal.Get())
+		assert.Nil(t, tls.Get())
+		assert.Equal(t, "World", inheritableTls.Get())
 		//
-		threadLocal.Set("Hello2")
-		assert.Equal(t, "Hello2", threadLocal.Get())
+		tls.Set("Hello2")
+		assert.Equal(t, "Hello2", tls.Get())
 		//
-		inheritableThreadLocal.Remove()
-		assert.Nil(t, inheritableThreadLocal.Get())
+		inheritableTls.Remove()
+		assert.Nil(t, inheritableTls.Get())
 		//
 		run = true
 	})
 	assert.Nil(t, fea.Get())
 	assert.True(t, run)
 	//
-	assert.Equal(t, "Hello", threadLocal.Get())
-	assert.Equal(t, "World", inheritableThreadLocal.Get())
+	assert.Equal(t, "Hello", tls.Get())
+	assert.Equal(t, "World", inheritableTls.Get())
 }
 
 func TestGoWaitResult_Error(t *testing.T) {
@@ -168,13 +168,13 @@ func TestGoWaitResult_Nil(t *testing.T) {
 }
 
 func TestGoWaitResult_Value(t *testing.T) {
-	threadLocal := NewThreadLocal()
-	threadLocal.Set("Hello")
-	assert.Equal(t, "Hello", threadLocal.Get())
+	tls := NewThreadLocal()
+	tls.Set("Hello")
+	assert.Equal(t, "Hello", tls.Get())
 	//
-	inheritableThreadLocal := NewInheritableThreadLocal()
-	inheritableThreadLocal.Set("World")
-	assert.Equal(t, "World", inheritableThreadLocal.Get())
+	inheritableTls := NewInheritableThreadLocal()
+	inheritableTls.Set("World")
+	assert.Equal(t, "World", inheritableTls.Get())
 	//
 	copied := createInheritedMap()
 	assert.NotNil(t, copied)
@@ -184,14 +184,14 @@ func TestGoWaitResult_Value(t *testing.T) {
 		thd := currentThread(true)
 		assert.NotNil(t, thd.inheritableThreadLocals == nil)
 		//
-		assert.Nil(t, threadLocal.Get())
-		assert.Equal(t, "World", inheritableThreadLocal.Get())
+		assert.Nil(t, tls.Get())
+		assert.Equal(t, "World", inheritableTls.Get())
 		//
-		threadLocal.Set("Hello2")
-		assert.Equal(t, "Hello2", threadLocal.Get())
+		tls.Set("Hello2")
+		assert.Equal(t, "Hello2", tls.Get())
 		//
-		inheritableThreadLocal.Remove()
-		assert.Nil(t, inheritableThreadLocal.Get())
+		inheritableTls.Remove()
+		assert.Nil(t, inheritableTls.Get())
 		//
 		run = true
 		return true
@@ -199,6 +199,6 @@ func TestGoWaitResult_Value(t *testing.T) {
 	assert.True(t, fea.Get().(bool))
 	assert.True(t, run)
 	//
-	assert.Equal(t, "Hello", threadLocal.Get())
-	assert.Equal(t, "World", inheritableThreadLocal.Get())
+	assert.Equal(t, "Hello", tls.Get())
+	assert.Equal(t, "World", inheritableTls.Get())
 }

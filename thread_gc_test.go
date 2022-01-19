@@ -13,13 +13,13 @@ func init() {
 }
 
 func TestThreadGC(t *testing.T) {
-	threadLocal := NewThreadLocal()
-	threadLocal2 := NewThreadLocal()
-	threadLocal3 := NewThreadLocalWithInitial(func() Any {
+	tls := NewThreadLocal()
+	tls2 := NewThreadLocal()
+	tls3 := NewThreadLocalWithInitial(func() Any {
 		return "Hello"
 	})
-	threadLocal4 := NewInheritableThreadLocal()
-	threadLocal5 := NewInheritableThreadLocalWithInitial(func() Any {
+	tls4 := NewInheritableThreadLocal()
+	tls5 := NewInheritableThreadLocalWithInitial(func() Any {
 		return 1234
 	})
 
@@ -29,11 +29,11 @@ func TestThreadGC(t *testing.T) {
 		for i := 0; i < 1000; i++ {
 			waiter.Add(1)
 			Go(func() {
-				threadLocal.Set("hello world")
-				threadLocal2.Set(true)
-				threadLocal3.Set(&threadLocal3)
-				threadLocal4.Set(rand.Int())
-				threadLocal5.Set(time.Now())
+				tls.Set("hello world")
+				tls2.Set(true)
+				tls3.Set(&tls3)
+				tls4.Set(rand.Int())
+				tls5.Set(time.Now())
 				waiter.Done()
 			})
 		}

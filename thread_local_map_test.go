@@ -7,19 +7,19 @@ import (
 )
 
 func TestCreateInheritedMap(t *testing.T) {
-	threadLocal := NewInheritableThreadLocal()
+	tls := NewInheritableThreadLocal()
 	value := rand.Uint64()
-	threadLocal.Set(value)
-	assert.Equal(t, value, threadLocal.Get())
+	tls.Set(value)
+	assert.Equal(t, value, tls.Get())
 
 	mp := createInheritedMap()
 	assert.NotNil(t, mp)
-	assert.Equal(t, value, mp.get(threadLocal))
+	assert.Equal(t, value, mp.get(tls))
 
 	mp2 := createInheritedMap()
 	assert.NotNil(t, mp2)
 	assert.NotSame(t, mp, mp2)
-	assert.Equal(t, value, mp2.get(threadLocal))
+	assert.Equal(t, value, mp2.get(tls))
 }
 
 func TestFill(t *testing.T) {
