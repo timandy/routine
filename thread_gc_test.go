@@ -26,7 +26,7 @@ func TestThreadGC(t *testing.T) {
 	// use ThreadLocal in multi goroutines
 	for i := 0; i < 10; i++ {
 		waiter := &sync.WaitGroup{}
-		for i := 0; i < 1000; i++ {
+		for j := 0; j < 1000; j++ {
 			waiter.Add(1)
 			Go(func() {
 				tls.Set("hello world")

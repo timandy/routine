@@ -77,7 +77,7 @@ func TestThreadLocal_Concurrency(t *testing.T) {
 			assert.Nil(t, tls2.Get())
 			v := rand.Uint64()
 			v2 := rand.Uint64()
-			for i := 0; i < loopTimes; i++ {
+			for j := 0; j < loopTimes; j++ {
 				tls.Set(v)
 				tmp := tls.Get()
 				assert.Equal(t, v, tmp.(uint64))
@@ -165,7 +165,7 @@ func TestThreadLocalWithInitial_Concurrency(t *testing.T) {
 			assert.Equal(t, 22, tls2.Get())
 			v := rand.Uint64()
 			v2 := rand.Uint64()
-			for i := 0; i < loopTimes; i++ {
+			for j := 0; j < loopTimes; j++ {
 				tls.Set(v)
 				tmp := tls.Get()
 				assert.Equal(t, v, tmp.(uint64))
@@ -243,7 +243,7 @@ func TestInheritableThreadLocal_Concurrency(t *testing.T) {
 			assert.Equal(t, 33, tls2.Get())
 			v := rand.Uint64()
 			v2 := rand.Uint64()
-			for i := 0; i < loopTimes; i++ {
+			for j := 0; j < loopTimes; j++ {
 				tls.Set(v)
 				tmp := tls.Get()
 				assert.Equal(t, v, tmp.(uint64))
@@ -331,7 +331,7 @@ func TestInheritableThreadLocalWithInitial_Concurrency(t *testing.T) {
 			assert.Equal(t, 33, tls2.Get())
 			v := rand.Uint64()
 			v2 := rand.Uint64()
-			for i := 0; i < loopTimes; i++ {
+			for j := 0; j < loopTimes; j++ {
 				tls.Set(v)
 				tmp := tls.Get()
 				assert.Equal(t, v, tmp.(uint64))
