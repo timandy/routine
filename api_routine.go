@@ -36,7 +36,7 @@ func Go(fun func()) {
 }
 
 // GoWait starts a new goroutine, and copy all local table from current goroutine.
-func GoWait(fun func()) *Feature {
+func GoWait(fun func()) Feature {
 	fea := NewFeature()
 	// backup
 	copied := createInheritedMap()
@@ -73,7 +73,7 @@ func GoWait(fun func()) *Feature {
 }
 
 // GoWaitResult starts a new goroutine, and copy all local table from current goroutine.
-func GoWaitResult(fun func() Any) *Feature {
+func GoWaitResult(fun func() Any) Feature {
 	fea := NewFeature()
 	// backup
 	copied := createInheritedMap()
