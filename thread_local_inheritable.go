@@ -12,16 +12,16 @@ func nextInheritableThreadLocalId() int {
 	return int(index)
 }
 
-type inheritableThreadLocalImpl struct {
+type inheritableThreadLocal struct {
 	id       int
 	supplier func() Any
 }
 
-func (tls *inheritableThreadLocalImpl) Id() int {
+func (tls *inheritableThreadLocal) Id() int {
 	return tls.id
 }
 
-func (tls *inheritableThreadLocalImpl) Get() Any {
+func (tls *inheritableThreadLocal) Get() Any {
 	t := currentThread(true)
 	mp := tls.getMap(t)
 	if mp != nil {
@@ -33,7 +33,7 @@ func (tls *inheritableThreadLocalImpl) Get() Any {
 	return tls.setInitialValue(t)
 }
 
-func (tls *inheritableThreadLocalImpl) Set(value Any) {
+func (tls *inheritableThreadLocal) Set(value Any) {
 	t := currentThread(true)
 	mp := tls.getMap(t)
 	if mp != nil {
@@ -43,7 +43,7 @@ func (tls *inheritableThreadLocalImpl) Set(value Any) {
 	}
 }
 
-func (tls *inheritableThreadLocalImpl) Remove() {
+func (tls *inheritableThreadLocal) Remove() {
 	t := currentThread(false)
 	if t == nil {
 		return
@@ -54,17 +54,17 @@ func (tls *inheritableThreadLocalImpl) Remove() {
 	}
 }
 
-func (tls *inheritableThreadLocalImpl) getMap(t *thread) *threadLocalMap {
+func (tls *inheritableThreadLocal) getMap(t *thread) *threadLocalMap {
 	return t.inheritableThreadLocals
 }
 
-func (tls *inheritableThreadLocalImpl) createMap(t *thread, firstValue Any) {
+func (tls *inheritableThreadLocal) createMap(t *thread, firstValue Any) {
 	mp := &threadLocalMap{}
 	mp.set(tls, firstValue)
 	t.inheritableThreadLocals = mp
 }
 
-func (tls *inheritableThreadLocalImpl) setInitialValue(t *thread) Any {
+func (tls *inheritableThreadLocal) setInitialValue(t *thread) Any {
 	value := tls.initialValue()
 	mp := tls.getMap(t)
 	if mp != nil {
@@ -75,7 +75,7 @@ func (tls *inheritableThreadLocalImpl) setInitialValue(t *thread) Any {
 	return value
 }
 
-func (tls *inheritableThreadLocalImpl) initialValue() Any {
+func (tls *inheritableThreadLocal) initialValue() Any {
 	if tls.supplier == nil {
 		return nil
 	}

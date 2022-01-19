@@ -19,20 +19,20 @@ type Supplier = func() Any
 
 // NewThreadLocal create and return a new ThreadLocal instance.
 func NewThreadLocal() ThreadLocal {
-	return &threadLocalImpl{id: nextThreadLocalId()}
+	return &threadLocal{id: nextThreadLocalId()}
 }
 
 // NewThreadLocalWithInitial create and return a new ThreadLocal instance. The initial value is determined by invoking the supplier method.
 func NewThreadLocalWithInitial(supplier Supplier) ThreadLocal {
-	return &threadLocalImpl{id: nextThreadLocalId(), supplier: supplier}
+	return &threadLocal{id: nextThreadLocalId(), supplier: supplier}
 }
 
 // NewInheritableThreadLocal create and return a new ThreadLocal instance.
 func NewInheritableThreadLocal() ThreadLocal {
-	return &inheritableThreadLocalImpl{id: nextInheritableThreadLocalId()}
+	return &inheritableThreadLocal{id: nextInheritableThreadLocalId()}
 }
 
 // NewInheritableThreadLocalWithInitial create and return a new ThreadLocal instance. The initial value is determined by invoking the supplier method.
 func NewInheritableThreadLocalWithInitial(supplier Supplier) ThreadLocal {
-	return &inheritableThreadLocalImpl{id: nextInheritableThreadLocalId(), supplier: supplier}
+	return &inheritableThreadLocal{id: nextInheritableThreadLocalId(), supplier: supplier}
 }
