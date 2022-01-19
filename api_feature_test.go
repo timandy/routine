@@ -7,22 +7,22 @@ import (
 )
 
 func TestGet(t *testing.T) {
-	feature := NewFeature()
+	fea := NewFeature()
 	begin := time.Now()
 	go func() {
 		time.Sleep(time.Millisecond * 500)
-		feature.Complete(nil)
+		fea.Complete(nil)
 	}()
-	assert.Nil(t, feature.Get())
+	assert.Nil(t, fea.Get())
 	assert.Greater(t, time.Now().Sub(begin), time.Millisecond*200)
 }
 
 func TestComplete(t *testing.T) {
-	feature := NewFeature()
+	fea := NewFeature()
 	go func() {
-		feature.Complete(1)
+		fea.Complete(1)
 	}()
-	assert.Equal(t, 1, feature.Get())
+	assert.Equal(t, 1, fea.Get())
 }
 
 func TestCompleteError(t *testing.T) {
@@ -35,10 +35,10 @@ func TestCompleteError(t *testing.T) {
 		}
 	}()
 
-	feature := NewFeature()
+	fea := NewFeature()
 	go func() {
-		feature.CompleteError(1)
+		fea.CompleteError(1)
 	}()
-	feature.Get()
+	fea.Get()
 	assert.Fail(t, "should not be here")
 }

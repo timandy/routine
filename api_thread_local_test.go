@@ -35,11 +35,11 @@ func TestThreadLocal_New(t *testing.T) {
 	tls2.Set(33)
 	assert.Equal(t, 33, tls2.Get())
 	//
-	feature := GoWait(func() {
+	fea := GoWait(func() {
 		assert.Nil(t, tls.Get())
 		assert.Nil(t, tls2.Get())
 	})
-	feature.Get()
+	fea.Get()
 }
 
 func TestThreadLocal_Multi(t *testing.T) {
@@ -53,11 +53,11 @@ func TestThreadLocal_Multi(t *testing.T) {
 	tls2.Set(33)
 	assert.Equal(t, 33, tls2.Get())
 	//
-	feature := GoWait(func() {
+	fea := GoWait(func() {
 		assert.Nil(t, tls.Get())
 		assert.Nil(t, tls2.Get())
 	})
-	feature.Get()
+	fea.Get()
 }
 
 func TestThreadLocal_Concurrency(t *testing.T) {
@@ -91,11 +91,11 @@ func TestThreadLocal_Concurrency(t *testing.T) {
 	}
 	waiter.Wait()
 	//
-	feature := GoWait(func() {
+	fea := GoWait(func() {
 		assert.Nil(t, tls.Get())
 		assert.Nil(t, tls2.Get())
 	})
-	feature.Get()
+	fea.Get()
 }
 
 //===
@@ -115,11 +115,11 @@ func TestThreadLocalWithInitial_New(t *testing.T) {
 	tls2.Set(33)
 	assert.Equal(t, 33, tls2.Get())
 	//
-	feature := GoWait(func() {
+	fea := GoWait(func() {
 		assert.Equal(t, "Hello", tls.Get())
 		assert.Equal(t, 22, tls2.Get())
 	})
-	feature.Get()
+	fea.Get()
 }
 
 func TestThreadLocalWithInitial_Multi(t *testing.T) {
@@ -137,11 +137,11 @@ func TestThreadLocalWithInitial_Multi(t *testing.T) {
 	tls2.Set(33)
 	assert.Equal(t, 33, tls2.Get())
 	//
-	feature := GoWait(func() {
+	fea := GoWait(func() {
 		assert.Equal(t, "Hello", tls.Get())
 		assert.Equal(t, 22, tls2.Get())
 	})
-	feature.Get()
+	fea.Get()
 }
 
 func TestThreadLocalWithInitial_Concurrency(t *testing.T) {
@@ -179,11 +179,11 @@ func TestThreadLocalWithInitial_Concurrency(t *testing.T) {
 	}
 	waiter.Wait()
 	//
-	feature := GoWait(func() {
+	fea := GoWait(func() {
 		assert.Equal(t, "Hello", tls.Get())
 		assert.Equal(t, 22, tls2.Get())
 	})
-	feature.Get()
+	fea.Get()
 }
 
 //===
@@ -201,11 +201,11 @@ func TestInheritableThreadLocal_New(t *testing.T) {
 	tls2.Set(33)
 	assert.Equal(t, 33, tls2.Get())
 	//
-	feature := GoWait(func() {
+	fea := GoWait(func() {
 		assert.Equal(t, "Hello", tls.Get())
 		assert.Equal(t, 33, tls2.Get())
 	})
-	feature.Get()
+	fea.Get()
 }
 
 func TestInheritableThreadLocal_Multi(t *testing.T) {
@@ -219,11 +219,11 @@ func TestInheritableThreadLocal_Multi(t *testing.T) {
 	tls2.Set(33)
 	assert.Equal(t, 33, tls2.Get())
 	//
-	feature := GoWait(func() {
+	fea := GoWait(func() {
 		assert.Equal(t, "Hello", tls.Get())
 		assert.Equal(t, 33, tls2.Get())
 	})
-	feature.Get()
+	fea.Get()
 }
 
 func TestInheritableThreadLocal_Concurrency(t *testing.T) {
@@ -257,11 +257,11 @@ func TestInheritableThreadLocal_Concurrency(t *testing.T) {
 	}
 	waiter.Wait()
 	//
-	feature := GoWait(func() {
+	fea := GoWait(func() {
 		assert.Nil(t, tls.Get())
 		assert.Equal(t, 33, tls2.Get())
 	})
-	feature.Get()
+	fea.Get()
 }
 
 //===
@@ -281,11 +281,11 @@ func TestInheritableThreadLocalWithInitial_New(t *testing.T) {
 	tls2.Set(33)
 	assert.Equal(t, 33, tls2.Get())
 	//
-	feature := GoWait(func() {
+	fea := GoWait(func() {
 		assert.Equal(t, "Hello", tls.Get())
 		assert.Equal(t, 33, tls2.Get())
 	})
-	feature.Get()
+	fea.Get()
 }
 
 func TestInheritableThreadLocalWithInitial_Multi(t *testing.T) {
@@ -303,11 +303,11 @@ func TestInheritableThreadLocalWithInitial_Multi(t *testing.T) {
 	tls2.Set(33)
 	assert.Equal(t, 33, tls2.Get())
 	//
-	feature := GoWait(func() {
+	fea := GoWait(func() {
 		assert.Equal(t, "Hello", tls.Get())
 		assert.Equal(t, 33, tls2.Get())
 	})
-	feature.Get()
+	fea.Get()
 }
 
 func TestInheritableThreadLocalWithInitial_Concurrency(t *testing.T) {
@@ -345,11 +345,11 @@ func TestInheritableThreadLocalWithInitial_Concurrency(t *testing.T) {
 	}
 	waiter.Wait()
 	//
-	feature := GoWait(func() {
+	fea := GoWait(func() {
 		assert.Equal(t, "Hello", tls.Get())
 		assert.Equal(t, 33, tls2.Get())
 	})
-	feature.Get()
+	fea.Get()
 }
 
 //===
