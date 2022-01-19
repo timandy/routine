@@ -1,16 +1,11 @@
 package routine
 
-import "fmt"
-
-type StackError struct {
-	error      Any
-	stackTrace string
+type StackError interface {
+	Message() Any
+	StackTrace() string
+	Error() string
 }
 
-func NewStackError(error Any) *StackError {
-	return &StackError{error: error, stackTrace: string(traceStack())}
-}
-
-func (fe *StackError) Error() string {
-	return fmt.Sprintf("%v\n%v", fe.error, fe.stackTrace)
+func NewStackError(message Any) StackError {
+	return &stackError{message: message, stackTrace: string(traceStack())}
 }

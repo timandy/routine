@@ -4,7 +4,7 @@ import "sync"
 
 type feature struct {
 	waitGroup *sync.WaitGroup
-	error     *StackError
+	error     StackError
 	result    Any
 }
 
