@@ -23,17 +23,10 @@ func (mp *threadLocalMap) set(key ThreadLocal, value Any) {
 	index := key.Id()
 	lookup := mp.table
 	if index < len(lookup) {
-		oldValue := lookup[index]
 		lookup[index] = value
-		if oldValue == unset {
-			// try restart gc timer if Set for the first time
-			gcTimerStart()
-		}
 		return
 	}
 	mp.expandAndSet(index, value)
-	// try restart gc timer if Set for the first time
-	gcTimerStart()
 }
 
 func (mp *threadLocalMap) remove(key ThreadLocal) {

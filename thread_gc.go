@@ -14,15 +14,6 @@ func gcRunning() bool {
 	return gcTimer != nil
 }
 
-// gcTimerStart make sure gcTimer is not nil
-func gcTimerStart() {
-	globalMapLock.Lock()
-	defer globalMapLock.Unlock()
-	if gcTimer == nil {
-		gcTimer = time.AfterFunc(gCInterval, gc)
-	}
-}
-
 // gc clear all data of dead goroutine.
 func gc() {
 	globalMapLock.Lock()

@@ -3,6 +3,7 @@ package routine
 import (
 	"sync"
 	"sync/atomic"
+	"time"
 )
 
 var (
@@ -37,6 +38,10 @@ func currentThread(create bool) *thread {
 		}
 		newGMap[gid] = t
 		globalMap.Store(newGMap)
+		// try restart gc timer if Set for the first time
+		if gcTimer == nil {
+			gcTimer = time.AfterFunc(gCInterval, gc)
+		}
 	}
 	return t
 }
