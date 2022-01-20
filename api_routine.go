@@ -20,6 +20,7 @@ func Go(fun func()) {
 			defer func() {
 				t = currentThread(false)
 				if t != nil {
+					t.threadLocals = nil
 					t.inheritableThreadLocals = nil
 				}
 			}()
@@ -27,8 +28,10 @@ func Go(fun func()) {
 		} else {
 			backup := t.inheritableThreadLocals
 			defer func() {
+				t.threadLocals = nil
 				t.inheritableThreadLocals = backup
 			}()
+			t.threadLocals = nil
 			t.inheritableThreadLocals = copied
 			fun()
 		}
@@ -54,6 +57,7 @@ func GoWait(fun func()) Feature {
 			defer func() {
 				t = currentThread(false)
 				if t != nil {
+					t.threadLocals = nil
 					t.inheritableThreadLocals = nil
 				}
 			}()
@@ -62,8 +66,10 @@ func GoWait(fun func()) Feature {
 		} else {
 			backup := t.inheritableThreadLocals
 			defer func() {
+				t.threadLocals = nil
 				t.inheritableThreadLocals = backup
 			}()
+			t.threadLocals = nil
 			t.inheritableThreadLocals = copied
 			fun()
 			fea.Complete(nil)
@@ -91,6 +97,7 @@ func GoWaitResult(fun func() Any) Feature {
 			defer func() {
 				t = currentThread(false)
 				if t != nil {
+					t.threadLocals = nil
 					t.inheritableThreadLocals = nil
 				}
 			}()
@@ -98,8 +105,10 @@ func GoWaitResult(fun func() Any) Feature {
 		} else {
 			backup := t.inheritableThreadLocals
 			defer func() {
+				t.threadLocals = nil
 				t.inheritableThreadLocals = backup
 			}()
+			t.threadLocals = nil
 			t.inheritableThreadLocals = copied
 			fea.Complete(fun())
 		}
