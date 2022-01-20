@@ -12,8 +12,7 @@ func TestInheritableThreadLocal_Id(t *testing.T) {
 	tls2 := NewInheritableThreadLocalWithInitial(func() Any {
 		return "Hello"
 	})
-	assert.GreaterOrEqual(t, tls2.Id(), 0)
-	assert.NotEqual(t, tls.Id(), tls2)
+	assert.Greater(t, tls2.Id(), tls.Id())
 }
 
 func TestInheritableThreadLocal(t *testing.T) {

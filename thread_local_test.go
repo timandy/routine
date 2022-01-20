@@ -12,8 +12,7 @@ func TestThreadLocal_Id(t *testing.T) {
 	tls2 := NewThreadLocalWithInitial(func() Any {
 		return "Hello"
 	})
-	assert.GreaterOrEqual(t, tls2.Id(), 0)
-	assert.NotEqual(t, tls.Id(), tls2)
+	assert.Greater(t, tls2.Id(), tls.Id())
 }
 
 func TestThreadLocal(t *testing.T) {
