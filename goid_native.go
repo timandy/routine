@@ -3,9 +3,7 @@
 
 package routine
 
-import (
-	"unsafe"
-)
+import "unsafe"
 
 const (
 	gDead = 6

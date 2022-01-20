@@ -4,9 +4,7 @@
 // Package g exposes goroutine struct g to user space.
 package g
 
-import (
-	"unsafe"
-)
+import "unsafe"
 
 func getg() unsafe.Pointer
 

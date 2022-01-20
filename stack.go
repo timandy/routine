@@ -1,8 +1,6 @@
 package routine
 
-import (
-	"runtime"
-)
+import "runtime"
 
 const (
 	tinyStackSize = 64
