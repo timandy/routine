@@ -13,6 +13,8 @@ func init() {
 }
 
 func TestThreadGC(t *testing.T) {
+	const loopTimes = 10
+	const concurrency = 1000
 	tls := NewThreadLocal()
 	tls2 := NewThreadLocal()
 	tls3 := NewThreadLocalWithInitial(func() Any {
@@ -22,12 +24,12 @@ func TestThreadGC(t *testing.T) {
 	tls5 := NewInheritableThreadLocalWithInitial(func() Any {
 		return 1234
 	})
-
 	// use ThreadLocal in multi goroutines
-	for i := 0; i < 10; i++ {
+	gcCnt := 0
+	for i := 0; i < loopTimes; i++ {
 		wg := &sync.WaitGroup{}
-		for j := 0; j < 1000; j++ {
-			wg.Add(1)
+		wg.Add(concurrency)
+		for j := 0; j < concurrency; j++ {
 			Go(func() {
 				tls.Set("hello world")
 				tls2.Set(true)
@@ -37,12 +39,18 @@ func TestThreadGC(t *testing.T) {
 				wg.Done()
 			})
 		}
-		assert.True(t, gcRunning(), "#%v, timer may not running!", i)
+		if gcRunning() {
+			gcCnt++
+		}
 		wg.Wait()
 		// wait for a while
-		time.Sleep(gCInterval + time.Second)
-		assert.False(t, gcRunning(), "#%v, timer not stopped?", i)
+		time.Sleep(gCInterval + 200*time.Millisecond)
+		assert.False(t, gcRunning(), "#%v, gcTimer not stopped!", i)
 		gMap := globalMap.Load().(map[int64]*thread)
-		assert.Equal(t, 0, len(gMap), "#%v, gMap not empty - %d", i, len(gMap))
+		assert.Equal(t, 0, len(gMap), "#%v, gMap(len=%d) not empty after gc!", i, len(gMap))
 	}
+	if gcCnt != loopTimes {
+		t.Logf("[WARNING] gcTimer running count is: %v!", gcCnt)
+	}
+	assert.Greater(t, gcCnt, loopTimes/2, "gcTimer not running!")
 }
