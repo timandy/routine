@@ -35,28 +35,25 @@ func gc() {
 		gidMap[gid] = struct{}{}
 	}
 
-	// scan globalMap check the live count.
+	// compute how many thread instances are there *at most* after GC.
 	gMap := globalMap.Load().(map[int64]*thread)
-	liveCnt := 0
-	for gid := range gMap {
-		if _, ok := gidMap[gid]; ok {
-			liveCnt++
-		}
+	gMapLen := len(gMap)
+	liveCnt := len(gidMap)
+	if liveCnt > gMapLen {
+		liveCnt = gMapLen
 	}
 
-	// clean dead thread of dead goroutine if needed.
-	if liveCnt != len(gMap) {
-		newGMap := make(map[int64]*thread, liveCnt)
-		for gid, lMap := range gMap {
-			if _, ok := gidMap[gid]; ok {
-				newGMap[gid] = lMap
-			}
+	// clean dead thread of dead goroutine.
+	newGMap := make(map[int64]*thread, liveCnt)
+	for gid, t := range gMap {
+		if _, ok := gidMap[gid]; ok {
+			newGMap[gid] = t
 		}
-		globalMap.Store(newGMap)
 	}
+	globalMap.Store(newGMap)
 
 	// setup next round timer if needed.
-	if liveCnt > 0 {
+	if len(newGMap) > 0 {
 		gcTimer.Reset(gCInterval)
 	} else {
 		gcTimer = nil
