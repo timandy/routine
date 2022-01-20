@@ -2,7 +2,8 @@ package routine
 
 import "fmt"
 
-// Go starts a new goroutine, and copy all local table from current goroutine.
+// Go starts a new goroutine, and copy inheritableThreadLocals from current goroutine.
+// This function will auto invoke the fun and print error stack when panic occur in goroutine.
 func Go(fun func()) {
 	// backup
 	copied := createInheritedMap()
@@ -38,7 +39,9 @@ func Go(fun func()) {
 	}()
 }
 
-// GoWait starts a new goroutine, and copy all local table from current goroutine.
+// GoWait starts a new goroutine, and copy inheritableThreadLocals from current goroutine.
+// This function return a Feature pointer, so we can wait by Feature.Get method.
+// If panic occur in goroutine, The panic will be trigger again when calling Feature.Get method.
 func GoWait(fun func()) Feature {
 	fea := NewFeature()
 	// backup
@@ -78,7 +81,9 @@ func GoWait(fun func()) Feature {
 	return fea
 }
 
-// GoWaitResult starts a new goroutine, and copy all local table from current goroutine.
+// GoWaitResult starts a new goroutine, and copy inheritableThreadLocals from current goroutine.
+// This function return a Feature pointer, so we can wait and get result by Feature.Get method.
+// If panic occur in goroutine, The panic will be trigger again when calling Feature.Get method.
 func GoWaitResult(fun func() Any) Feature {
 	fea := NewFeature()
 	// backup

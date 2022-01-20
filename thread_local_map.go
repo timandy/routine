@@ -62,7 +62,6 @@ func (mp *threadLocalMap) expandAndSet(index int, value Any) {
 	mp.table = newArray
 }
 
-// BackupContext copy all local table into an threadLocalMap instance.
 func createInheritedMap() *threadLocalMap {
 	parent := currentThread(false)
 	if parent == nil {

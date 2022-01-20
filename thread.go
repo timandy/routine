@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	globalMap     atomic.Value // The global threadLocalImpl map (map[int64]*threadLocalMap)
+	globalMap     atomic.Value // The global thread map (map[int64]*thread)
 	globalMapLock sync.Mutex   // The Lock to control accessing of globalMap
 )
 
