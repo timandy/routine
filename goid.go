@@ -63,7 +63,7 @@ func getGoidByStack() int64 {
 }
 
 // getAllGoidByStack find all goid through stack;
-// WARNING: This function could be very inefficient; This method is not thread safe
+// This function could be very inefficient, but it's very safe.
 func getAllGoidByStack() []int64 {
 	buf := traceAllStack()
 	// parse all goids
@@ -78,7 +78,7 @@ func getAllGoidByStack() []int64 {
 	return goids
 }
 
-// Find the next goid from `buf[off:]`
+// Find the next goid from buf[off:]
 func findNextGoid(buf []byte, off int) (goid int64, next int) {
 	i := off
 	hit := false
