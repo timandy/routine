@@ -1,5 +1,31 @@
 <!--变更日志-->
 
+# v1.0.2 Release notes
+
+### Bugs
+
+- Fix bug in `getAllGoidByStack()` method, Buffer may too small when dump all stack info.
+
+### Features
+
+- Support initialize value when first get from `ThreadLocal`.
+- Add `StackError` to catch stack info.
+- Add `Feature` to wait goroutine finished or get result from goroutine.
+- Add api `NewThreadLocalWithInitial()`, `NewInheritableThreadLocal()` and `NewInheritableThreadLocalWithInitial()`.
+- Support Inherit values of `ThreadLocal` by `Go`, `GoWait()` and `GoWaitResult()`.
+
+### Changes
+
+- Rename `LocalStorage` to `ThreadLocal`.
+- Remove api `Clear()`, `InheritContext()` and `RestoreContext()`.
+- Improve `gc` performance by reducing the number of for loops.
+
+# Links
+
+- Source code [https://github.com/timandy/routine/tree/v1.0.2](https://github.com/timandy/routine/tree/v1.0.2)
+
+---
+
 # v1.0.1 Release notes
 
 ### Features
