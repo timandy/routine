@@ -3,7 +3,7 @@
 version: 2
 updates:
 
-  # Maintain dependencies for maven
+  # Maintain dependencies for gomod
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
