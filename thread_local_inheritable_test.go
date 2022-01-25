@@ -199,3 +199,45 @@ func TestInheritableThreadLocalCopy(t *testing.T) {
 	assert.Equal(t, 2, p6.Id)
 	assert.Equal(t, "Andy", p6.Name)
 }
+
+func TestInheritableThreadLocalCloneable(t *testing.T) {
+	tls := NewInheritableThreadLocalWithInitial(func() Any {
+		return &personCloneable{Id: 1, Name: "Tim"}
+	})
+	tls2 := NewInheritableThreadLocalWithInitial(func() Any {
+		return personCloneable{Id: 2, Name: "Andy"}
+	})
+
+	p1 := tls.Get().(*personCloneable)
+	assert.Equal(t, 1, p1.Id)
+	assert.Equal(t, "Tim", p1.Name)
+	p2 := tls2.Get().(personCloneable)
+	assert.Equal(t, 2, p2.Id)
+	assert.Equal(t, "Andy", p2.Name)
+	//
+	fea := GoWait(func() {
+		p3 := tls.Get().(*personCloneable) //p3 is clone from p1
+		assert.NotSame(t, p1, p3)
+		assert.Equal(t, 1, p3.Id)
+		assert.Equal(t, "Tim", p1.Name)
+		p4 := tls2.Get().(personCloneable)
+		assert.NotSame(t, &p2, &p4)
+		assert.Equal(t, p2, p4)
+		assert.Equal(t, 2, p4.Id)
+		assert.Equal(t, "Andy", p4.Name)
+		//
+		p3.Name = "Tim2"
+		p4.Name = "Andy2"
+	})
+	fea.Get()
+	//
+	p5 := tls.Get().(*personCloneable)
+	assert.Same(t, p1, p5)
+	assert.Equal(t, 1, p5.Id)
+	assert.Equal(t, "Tim", p5.Name)
+	p6 := tls2.Get().(personCloneable)
+	assert.NotSame(t, &p2, &p6)
+	assert.Equal(t, p2, p6)
+	assert.Equal(t, 2, p6.Id)
+	assert.Equal(t, "Andy", p6.Name)
+}
