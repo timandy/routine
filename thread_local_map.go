@@ -70,6 +70,11 @@ func createInheritedMap() *threadLocalMap {
 	}
 	table := make([]Any, len(lookup))
 	copy(table, lookup)
+	for i := 0; i < len(table); i++ {
+		if c, ok := table[i].(Cloneable); ok {
+			table[i] = c.Clone()
+		}
+	}
 	return &threadLocalMap{table: table}
 }
 
