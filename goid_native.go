@@ -34,8 +34,8 @@ func getAllGoidByNative() ([]int64, bool) {
 		if runtimeReadgstatus(gp) == gDead || runtimeIsSystemGoroutine(gp, false) {
 			continue
 		}
-		gid := (*int64)(unsafe.Pointer(uintptr(unsafe.Pointer(gp)) + goidOffset))
-		goids = append(goids, *gid)
+		goid := (*int64)(unsafe.Pointer(uintptr(unsafe.Pointer(gp)) + goidOffset))
+		goids = append(goids, *goid)
 	}
 	return goids, true
 }

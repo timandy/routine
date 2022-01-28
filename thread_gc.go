@@ -20,25 +20,25 @@ func gc() {
 	defer globalMapLock.Unlock()
 
 	// load all alive goids
-	gids := AllGoids()
-	gidMap := make(map[int64]struct{}, len(gids))
-	for _, gid := range gids {
-		gidMap[gid] = struct{}{}
+	goids := AllGoids()
+	goidMap := make(map[int64]struct{}, len(goids))
+	for _, goid := range goids {
+		goidMap[goid] = struct{}{}
 	}
 
 	// compute how many thread instances are there *at most* after GC.
 	gMap := globalMap.Load().(map[int64]*thread)
 	gMapLen := len(gMap)
-	liveCnt := len(gidMap)
+	liveCnt := len(goidMap)
 	if liveCnt > gMapLen {
 		liveCnt = gMapLen
 	}
 
 	// clean dead thread of dead goroutine.
 	newGMap := make(map[int64]*thread, liveCnt)
-	for gid, t := range gMap {
-		if _, ok := gidMap[gid]; ok {
-			newGMap[gid] = t
+	for goid, t := range gMap {
+		if _, ok := goidMap[goid]; ok {
+			newGMap[goid] = t
 		}
 	}
 	globalMap.Store(newGMap)

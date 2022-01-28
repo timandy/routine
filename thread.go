@@ -22,12 +22,12 @@ type thread struct {
 }
 
 func currentThread(create bool) *thread {
-	gid := Goid()
+	goid := Goid()
 	gMap := globalMap.Load().(map[int64]*thread)
 	var t *thread
-	if t = gMap[gid]; t == nil && create {
+	if t = gMap[goid]; t == nil && create {
 		t = &thread{
-			id: gid,
+			id: goid,
 		}
 		globalMapLock.Lock()
 		defer globalMapLock.Unlock()
@@ -36,7 +36,7 @@ func currentThread(create bool) *thread {
 		for k, v := range oldGMap {
 			newGMap[k] = v
 		}
-		newGMap[gid] = t
+		newGMap[goid] = t
 		globalMap.Store(newGMap)
 		// try restart gc timer if Set for the first time
 		if gcTimer == nil {
