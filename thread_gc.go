@@ -3,50 +3,46 @@ package routine
 import "time"
 
 var (
-	gcTimer    *time.Timer        // The timer of globalMap's garbage collector
-	gCInterval = time.Second * 30 // The pre-defined gc interval
+	gcTimer    = [segmentSize]*time.Timer{} // The timers of globalMap's garbage collector
+	gCInterval = time.Second * 30           // The pre-defined gc interval
 )
 
-// gcRunning if gcTimer is not nil return true, else return false
-func gcRunning() bool {
-	globalMapLock.Lock()
-	defer globalMapLock.Unlock()
-	return gcTimer != nil
-}
-
 // gc clear all data of dead goroutine.
-func gc() {
-	globalMapLock.Lock()
-	defer globalMapLock.Unlock()
+func gc(idx int) {
+	segmentLock := globalMapLock[idx]
+	segmentLock.Lock()
+	defer segmentLock.Unlock()
 
 	// load all alive goids
 	goids := AllGoids()
 	goidMap := make(map[int64]struct{}, len(goids))
 	for _, goid := range goids {
-		goidMap[goid] = struct{}{}
+		if hash(goid) == idx {
+			goidMap[goid] = struct{}{}
+		}
 	}
-
 	// compute how many thread instances are there *at most* after GC.
-	gMap := globalMap.Load().(map[int64]*thread)
-	gMapLen := len(gMap)
+	segment := globalMap[idx]
+	segmentMap := segment.Load().(map[int64]*thread)
+	segmentMapLen := len(segmentMap)
 	liveCnt := len(goidMap)
-	if liveCnt > gMapLen {
-		liveCnt = gMapLen
+	if liveCnt > segmentMapLen {
+		liveCnt = segmentMapLen
 	}
 
 	// clean dead thread of dead goroutine.
-	newGMap := make(map[int64]*thread, liveCnt)
-	for goid, t := range gMap {
+	newSegMap := make(map[int64]*thread, liveCnt)
+	for goid, t := range segmentMap {
 		if _, ok := goidMap[goid]; ok {
-			newGMap[goid] = t
+			newSegMap[goid] = t
 		}
 	}
-	globalMap.Store(newGMap)
+	segment.Store(newSegMap)
 
 	// setup next round timer if needed.
-	if len(newGMap) > 0 {
-		gcTimer.Reset(gCInterval)
+	if len(newSegMap) > 0 {
+		gcTimer[idx].Reset(gCInterval)
 	} else {
-		gcTimer = nil
+		gcTimer[idx] = nil
 	}
 }

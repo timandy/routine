@@ -39,18 +39,49 @@ func TestThreadGC(t *testing.T) {
 				wg.Done()
 			})
 		}
-		if gcRunning() {
+		if hasAnyGcTimer() {
 			gcCnt++
 		}
 		wg.Wait()
 		// wait for a while
 		time.Sleep(gCInterval + 200*time.Millisecond)
-		assert.False(t, gcRunning(), "#%v, gcTimer not stopped!", i)
-		gMap := globalMap.Load().(map[int64]*thread)
-		assert.Equal(t, 0, len(gMap), "#%v, gMap(len=%d) not empty after gc!", i, len(gMap))
+		assert.False(t, hasAnyGcTimer(), "#%v, gcTimer not stopped!", i)
+		threadsCnt := countAllThreads()
+		assert.Equal(t, 0, threadsCnt, "#%v, globalMap(len=%d) not empty after gc!", i, threadsCnt)
 	}
 	if gcCnt != loopTimes {
 		t.Logf("[WARNING] gcTimer running count is: %v!", gcCnt)
 	}
 	assert.Greater(t, gcCnt, loopTimes/2, "gcTimer not running!")
+}
+
+func hasAnyGcTimer() bool {
+	for idx := 0; idx < segmentSize; idx++ {
+		if hasGcTimer(idx) {
+			return true
+		}
+	}
+	return false
+}
+
+func hasGcTimer(idx int) bool {
+	segmentLock := globalMapLock[idx]
+	segmentLock.Lock()
+	defer segmentLock.Unlock()
+	return gcTimer[idx] != nil
+}
+
+func countAllThreads() int {
+	count := 0
+	for idx := 0; idx < segmentSize; idx++ {
+		count += countThreads(idx)
+	}
+	return count
+}
+
+func countThreads(idx int) int {
+	segmentLock := globalMapLock[idx]
+	segmentLock.Lock()
+	defer segmentLock.Unlock()
+	return len(globalMap[idx].Load().(map[int64]*thread))
 }
