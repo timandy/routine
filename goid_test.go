@@ -7,6 +7,17 @@ import (
 	"time"
 )
 
+func TestFindNextGoid(t *testing.T) {
+	stack := "goroutine 6 [running]:\n...\ngoroutine 33 [running]..."
+	goid, next := findNextGoid([]byte(stack), 0)
+	assert.Equal(t, int64(6), goid)
+	assert.Equal(t, 12, next)
+	//
+	goid, next = findNextGoid([]byte(stack), next)
+	assert.Equal(t, int64(33), goid)
+	assert.Equal(t, 40, next)
+}
+
 func TestGetGoidByNative(t *testing.T) {
 	sid := getGoidByStack()
 	assert.NotEqual(t, 0, sid)
