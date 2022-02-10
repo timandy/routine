@@ -1,5 +1,5 @@
-//go:build go1.16
-// +build go1.16
+//go:build go1.12
+// +build go1.12
 
 package routine
 
@@ -13,8 +13,8 @@ const (
 type runtimeG struct {
 }
 
-//go:linkname runtimeAtomicAllG runtime.atomicAllG
-func runtimeAtomicAllG() (**runtimeG, uintptr)
+//go:linkname runtimeAllgs runtime.allgs
+var runtimeAllgs []*runtimeG
 
 //go:linkname runtimeReadgstatus runtime.readgstatus
 func runtimeReadgstatus(g *runtimeG) uint32
@@ -22,15 +22,14 @@ func runtimeReadgstatus(g *runtimeG) uint32
 //go:linkname runtimeIsSystemGoroutine runtime.isSystemGoroutine
 func runtimeIsSystemGoroutine(gp *runtimeG, fixed bool) bool
 
-// getAllGoidByNative retrieve all goid through runtime.atomicAllG
+// getAllGoidByNative retrieve all goid by runtime.allgs
 func getAllGoidByNative() ([]int64, bool) {
 	defer func() {
 		recover()
 	}()
-	root, n := runtimeAtomicAllG()
-	goids := make([]int64, 0, n)
-	for i := uintptr(0); i < n; i++ {
-		gp := *(**runtimeG)(unsafe.Pointer(uintptr(unsafe.Pointer(root)) + i*ptrSize))
+	allgs := runtimeAllgs
+	goids := make([]int64, 0, len(allgs))
+	for _, gp := range allgs {
 		if runtimeReadgstatus(gp) == gDead || runtimeIsSystemGoroutine(gp, false) {
 			continue
 		}
