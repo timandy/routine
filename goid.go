@@ -13,9 +13,9 @@ const (
 )
 
 var (
-	goidOffset     uintptr
-	anchor         = []byte("goroutine ")
-	goidOffsetDict = map[string]int64{
+	goidOffset    uintptr
+	anchor        = []byte("goroutine ")
+	goidOffsetDic = map[string]int64{
 		"go1.12": 152,
 		"go1.13": 152,
 		"go1.14": 152,
@@ -28,7 +28,7 @@ var (
 func init() {
 	var off int64
 	version := runtime.Version()
-	for k, v := range goidOffsetDict {
+	for k, v := range goidOffsetDic {
 		if version == k || strings.HasPrefix(version, k) {
 			off = v
 			break
