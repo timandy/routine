@@ -9,6 +9,7 @@ func Goid() int64 {
 	if goid, success := getGoidByNative(); success {
 		return goid
 	}
+	fmt.Println("[WARNING] cannot get goid from runtime natively, now fall over to stack info, this will be very inefficient!!!")
 	return getGoidByStack()
 }
 
