@@ -5,7 +5,14 @@ import (
 	"sync"
 	"testing"
 	"time"
+	"unsafe"
 )
+
+func TestFindGoidPointer(t *testing.T) {
+	assert.Nil(t, findGoidPointer(nil))
+	//goland:noinspection GoVetUnsafePointer
+	assert.Nil(t, findGoidPointer(unsafe.Pointer(uintptr(0))))
+}
 
 func TestFindNextGoid(t *testing.T) {
 	stack := "goroutine 6 [running]:\n...\ngoroutine 33 [running]..."
