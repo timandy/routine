@@ -13,8 +13,21 @@ const (
 type runtimeG struct {
 }
 
+//go:linkname runtimeMutex runtime.mutex
+type runtimeMutex struct {
+}
+
 //go:linkname runtimeAllgs runtime.allgs
 var runtimeAllgs []*runtimeG
+
+//go:linkname runtimeAllglock runtime.allglock
+var runtimeAllglock runtimeMutex
+
+//go:linkname runtimeLock runtime.lock
+func runtimeLock(l *runtimeMutex)
+
+//go:linkname runtimeUnlock runtime.unlock
+func runtimeUnlock(l *runtimeMutex)
 
 //go:linkname runtimeReadgstatus runtime.readgstatus
 func runtimeReadgstatus(g *runtimeG) uint32
@@ -27,6 +40,8 @@ func getAllGoidByNative() ([]int64, bool) {
 	defer func() {
 		recover()
 	}()
+	runtimeLock(&runtimeAllglock)
+	defer runtimeUnlock(&runtimeAllglock)
 	allgs := runtimeAllgs
 	goids := make([]int64, 0, len(allgs))
 	for _, gp := range allgs {
