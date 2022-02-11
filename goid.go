@@ -12,7 +12,6 @@ var (
 	goidOffset    uintptr
 	anchor        = []byte("goroutine ")
 	goidOffsetDic = map[string]int64{
-		"go1.12": 152,
 		"go1.13": 152,
 		"go1.14": 152,
 		"go1.15": 152,
