@@ -1,5 +1,24 @@
 <!--变更日志-->
 
+# v1.0.3 Release notes
+
+### Features
+
+- Support copy `Cloneable` objects to sub goroutine when create sub goroutines by `Go()`,`GoWait()` and `GoWaitResult()` methods.
+- Add api `ForeachGoid(func(goid int64))` to run a func for each goid.
+
+### Changes
+
+- Support go version range `go1.13` ~ `go1.17`(Not support `go1.12` anymore).
+- Use segment locks to reduce competition and improve `ThreadLocal`'s `read`, `write` and `gc` performance.
+- Get all goids through `runtime.allgs` instead of `runtime.atomicAllG`, so `go1.13` ~ `go1.15` can also get all goids natively.
+
+# Links
+
+- Source code [https://github.com/timandy/routine/tree/v1.0.3](https://github.com/timandy/routine/tree/v1.0.3)
+
+---
+
 # v1.0.2 Release notes
 
 ### Bugs
