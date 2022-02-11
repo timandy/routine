@@ -35,7 +35,7 @@ func runtimeReadgstatus(g *runtimeG) uint32
 //go:linkname runtimeIsSystemGoroutine runtime.isSystemGoroutine
 func runtimeIsSystemGoroutine(gp *runtimeG, fixed bool) bool
 
-// getAllGoidByNative retrieve all goid by runtime.allgs
+// getAllGoidByNative retrieve all goid through runtime.allgs
 func getAllGoidByNative() ([]int64, bool) {
 	defer func() {
 		recover()
@@ -57,6 +57,7 @@ func getAllGoidByNative() ([]int64, bool) {
 	return goids, true
 }
 
+// foreachGoidByNative run a func for each goroutine's goid through runtime.allgs
 func foreachGoidByNative(fun func(goid int64)) bool {
 	runtimeLock(&runtimeAllglock)
 	defer runtimeUnlock(&runtimeAllglock)

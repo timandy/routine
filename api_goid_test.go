@@ -38,6 +38,8 @@ func TestForeachGoid(t *testing.T) {
 	assert.GreaterOrEqual(t, cnt, num)
 }
 
+//===
+
 // BenchmarkGoid-4                279375390             4.244 ns/op               0 B/op               0 allocs/op
 func BenchmarkGoid(b *testing.B) {
 	b.ReportAllocs()
