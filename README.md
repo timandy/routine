@@ -45,16 +45,21 @@ func main() {
 	}()
 	goid := routine.Goid()
 	goids := routine.AllGoids()
-	fmt.Printf("curr goid: %d\n", goid)
+	fmt.Printf("curr goid: %v\n", goid)
 	fmt.Printf("all goids: %v\n", goids)
+	fmt.Print("each goid:")
+	routine.ForeachGoid(func(goid int64) {
+		fmt.Printf(" %v", goid)
+	})
 }
 ```
 
-In this example, the `main` function starts a new coroutine, so `Goid()` returns the main coroutine `1`, and `AllGoids()` returns the main coroutine and coroutine `18`:
+In this example, the `main` function starts a new coroutine, so `Goid()` returns the main coroutine `1`, `AllGoids()` returns the main coroutine and the coroutine `18`, `ForeachGoid()` returns the main coroutine and coroutine `18` in turn:
 
 ```text
 curr goid: 1
 all goids: [1 18]
+each goid: 1 18
 ```
 
 ## Use `ThreadLocal`
@@ -122,9 +127,15 @@ If an error such as version incompatibility occurs, `Goid()` will try to downgra
 
 Get the `goid` of all active `goroutine` of the current process.
 
-In `go 1.15` and older versions, `AllGoids()` will try to parse and get all the coroutine information from the `runtime.Stack` information, but this operation is very inefficient, and it is not recommended using it in high-frequency logic. .
+In `go 1.12` and older versions, `AllGoids()` will try to parse and get all the coroutine information from the `runtime.Stack` information, but this operation is very inefficient, and it is not recommended using it in high-frequency logic. .
 
-In versions after `go 1.16`, `AllGoids()` will directly read the global coroutine pool information of `runtime` through `native`, which has greatly improved performance, but considering the production environment There may be tens of thousands or millions of coroutines, so it is still not recommended using it at high frequencies.
+In versions after `go 1.13`, `AllGoids()` will directly read the global coroutine pool information of `runtime` through `native`, which has greatly improved performance, but considering the production environment There may be tens of thousands or millions of coroutines, so it is still not recommended using it at high frequencies.
+
+## `ForeachGoid(fun func(goid int64))`
+
+Execute the specified function for the `goid` of all active `goroutine`s in the current process.
+
+The way to get `goids` is the same as `AllGoids() []int64`. Since `allglock` is locked during the whole process, do not execute functions that take a long time, otherwise it will affect the creation of coroutines.
 
 ## `NewThreadLocal() ThreadLocal`
 

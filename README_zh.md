@@ -45,16 +45,21 @@ func main() {
 	}()
 	goid := routine.Goid()
 	goids := routine.AllGoids()
-	fmt.Printf("curr goid: %d\n", goid)
+	fmt.Printf("curr goid: %v\n", goid)
 	fmt.Printf("all goids: %v\n", goids)
+	fmt.Print("each goid:")
+	routine.ForeachGoid(func(goid int64) {
+		fmt.Printf(" %v", goid)
+	})
 }
 ```
 
-此例中`main`函数启动了一个新的协程，因此`Goid()`返回了主协程`1`，`AllGoids()`返回了主协程及协程`18`:
+此例中`main`函数启动了一个新的协程，因此`Goid()`返回了主协程`1`，`AllGoids()`返回了主协程及协程`18`，`ForeachGoid()`依次返回了主协程及协程`18`:
 
 ```text
 curr goid: 1
 all goids: [1 18]
+each goid: 1 18
 ```
 
 ## 使用`ThreadLocal`
@@ -122,9 +127,15 @@ inheritableThreadLocal in goroutine by Go: Hello world2
 
 获取当前进程全部活跃`goroutine`的`goid`。
 
-在`go 1.15`及更旧的版本中，`AllGoids()`会尝试从`runtime.Stack`信息中解析获取全部协程信息，但此操作非常低效，非常不建议在高频逻辑中使用。
+在`go 1.12`及更旧的版本中，`AllGoids()`会尝试从`runtime.Stack`信息中解析获取全部协程信息，但此操作非常低效，非常不建议在高频逻辑中使用。
 
-在`go 1.16`之后的版本中，`AllGoids()`会通过`native`的方式直接读取`runtime`的全局协程池信息，在性能上得到了极大的提高， 但考虑到生产环境中可能有万、百万级的协程数量，因此仍不建议在高频使用它。
+在`go 1.13`之后的版本中，`AllGoids()`会通过`native`的方式直接读取`runtime`的全局协程池信息，在性能上得到了极大的提高，但考虑到生产环境中可能有万、百万级的协程数量，因此仍不建议在高频使用它。
+
+## `ForeachGoid(fun func(goid int64))`
+
+为当前进程全部活跃`goroutine`的`goid`执行指定函数。
+
+获取`goid`的方式同`AllGoids() []int64`。由于整个过程中会对`allglock`加锁，所以不要执行耗时较长的函数，否则将会影响协程的创建。
 
 ## `NewThreadLocal() ThreadLocal`
 
