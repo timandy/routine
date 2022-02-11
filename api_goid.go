@@ -23,3 +23,11 @@ func AllGoids() []int64 {
 	fmt.Println("[WARNING] cannot get all goids from runtime natively, now fall over to stack info, this will be very inefficient!!!")
 	return getAllGoidByStack()
 }
+
+func ForeachGoid(fun func(goid int64)) {
+	if success := foreachGoidByNative(fun); success {
+		return
+	}
+	fmt.Println("[WARNING] cannot run func for each goid from runtime natively, now fall over to stack info, this will be very inefficient!!!")
+	foreachGoidByStack(fun)
+}

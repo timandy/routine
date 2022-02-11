@@ -68,6 +68,17 @@ func getAllGoidByStack() []int64 {
 	return goids
 }
 
+func foreachGoidByStack(fun func(goid int64)) {
+	buf := traceAllStack()
+	for i := 0; i < len(buf); {
+		goid, off := findNextGoid(buf, i)
+		if goid > 0 {
+			fun(goid)
+		}
+		i = off
+	}
+}
+
 // Return the pointer of its goid through the pointer of the g structure.
 func findGoidPointer(gp unsafe.Pointer) *int64 {
 	if goidOffset == 0 || gp == nil {

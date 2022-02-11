@@ -56,3 +56,20 @@ func getAllGoidByNative() ([]int64, bool) {
 	}
 	return goids, true
 }
+
+func foreachGoidByNative(fun func(goid int64)) bool {
+	runtimeLock(&runtimeAllglock)
+	defer runtimeUnlock(&runtimeAllglock)
+	allgs := runtimeAllgs
+	for _, gp := range allgs {
+		if runtimeReadgstatus(gp) == gDead || runtimeIsSystemGoroutine(gp, false) {
+			continue
+		}
+		goid := findGoidPointer(unsafe.Pointer(gp))
+		if goid == nil {
+			continue
+		}
+		fun(*goid)
+	}
+	return true
+}

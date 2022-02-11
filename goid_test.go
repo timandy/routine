@@ -114,9 +114,40 @@ func TestGetAllGoidByStack(t *testing.T) {
 	assert.Fail(t, "sids must contains current goid")
 }
 
+func TestForeachGoidByNative(t *testing.T) {
+	goid, success := getGoidByNative()
+	assert.True(t, success)
+	assert.NotEqual(t, 0, goid)
+	//
+	find := false
+	native := foreachGoidByNative(func(nid int64) {
+		if nid == goid {
+			find = true
+		}
+	})
+	if !native {
+		return
+	}
+	assert.True(t, find)
+}
+
+func TestForeachGoidByStack(t *testing.T) {
+	goid, success := getGoidByNative()
+	assert.True(t, success)
+	assert.NotEqual(t, 0, goid)
+	//
+	find := false
+	foreachGoidByStack(func(sid int64) {
+		if sid == goid {
+			find = true
+		}
+	})
+	assert.True(t, find)
+}
+
 //===
 
-// BenchmarkGetGoidByNative-4                      279528649                4.303 ns/op           0 B/op          0 allocs/op
+// BenchmarkGetGoidByNative-4             205425804             5.218 ns/op               0 B/op          0 allocs/op
 func BenchmarkGetGoidByNative(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -125,7 +156,7 @@ func BenchmarkGetGoidByNative(b *testing.B) {
 	}
 }
 
-// BenchmarkGetGoidByStack-4                         255331              4898 ns/op              64 B/op          1 allocs/op
+// BenchmarkGetGoidByStack-4                 134888              8410 ns/op              64 B/op          1 allocs/op
 func BenchmarkGetGoidByStack(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -134,7 +165,7 @@ func BenchmarkGetGoidByStack(b *testing.B) {
 	}
 }
 
-// BenchmarkGetAllGoidByNative-4                        100          16360789 ns/op         1056768 B/op          1 allocs/op
+// BenchmarkGetAllGoidByNative-4                100          12644006 ns/op         1056768 B/op          1 allocs/op
 func BenchmarkGetAllGoidByNative(b *testing.B) {
 	const routineNum = 65536
 	for i := 0; i < routineNum; i++ {
@@ -150,7 +181,7 @@ func BenchmarkGetAllGoidByNative(b *testing.B) {
 	}
 }
 
-// BenchmarkGetAllGoidByStack-4                           1        4925942800 ns/op        142974848 B/op        34 allocs/op
+// BenchmarkGetAllGoidByStack-4                   1        1720123500 ns/op        69500800 B/op         28 allocs/op
 func BenchmarkGetAllGoidByStack(b *testing.B) {
 	const routineNum = 65536
 	for i := 0; i < routineNum; i++ {
@@ -163,5 +194,37 @@ func BenchmarkGetAllGoidByStack(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		_ = getAllGoidByStack()
+	}
+}
+
+// BenchmarkForeachGoidByNative-4               100          12246615 ns/op               0 B/op          0 allocs/op
+func BenchmarkForeachGoidByNative(b *testing.B) {
+	const routineNum = 65536
+	for i := 0; i < routineNum; i++ {
+		go func() {
+			time.Sleep(time.Minute)
+		}()
+	}
+	time.Sleep(time.Millisecond * 100)
+	b.ResetTimer()
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		_ = foreachGoidByNative(func(goid int64) {})
+	}
+}
+
+// BenchmarkForeachGoidByStack-4                  1        1472191600 ns/op        66584576 B/op          7 allocs/op
+func BenchmarkForeachGoidByStack(b *testing.B) {
+	const routineNum = 65536
+	for i := 0; i < routineNum; i++ {
+		go func() {
+			time.Sleep(time.Minute)
+		}()
+	}
+	time.Sleep(time.Millisecond * 100)
+	b.ResetTimer()
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		foreachGoidByStack(func(goid int64) {})
 	}
 }
