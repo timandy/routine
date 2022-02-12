@@ -2,7 +2,6 @@ package routine
 
 import (
 	"fmt"
-	"github.com/timandy/routine/g"
 	"runtime"
 	"strings"
 	"unsafe"
@@ -35,7 +34,7 @@ func init() {
 // getGoidByNative parse the current goroutine's id from G.
 // This function could be very fast(like 1ns/op), but it may be failed.
 func getGoidByNative() (int64, bool) {
-	gp := g.G()
+	gp := getg()
 	goid := findGoidPointer(gp)
 	if goid == nil {
 		return 0, false
