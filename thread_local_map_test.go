@@ -96,12 +96,13 @@ func TestCreateInheritedMapCloneable(t *testing.T) {
 
 func TestFill(t *testing.T) {
 	a := make([]Any, 6)
-	fill(a, 4, 5, 1)
+	fill(a, 4, 5, unset)
 	for i := 0; i < 6; i++ {
 		if i == 4 {
-			assert.Equal(t, 1, a[i])
+			assert.True(t, a[i] == unset)
 		} else {
 			assert.Nil(t, a[i])
+			assert.True(t, a[i] != unset)
 		}
 	}
 }
