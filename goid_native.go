@@ -6,7 +6,8 @@ package routine
 import "unsafe"
 
 const (
-	gDead = 6
+	gDead    = 6
+	goidSize = 1024
 )
 
 //go:linkname g runtime.g
@@ -42,7 +43,7 @@ func getAllGoidByNative() ([]int64, bool) {
 	}
 	lock(&allglock)
 	defer unlock(&allglock)
-	goids := make([]int64, 0, len(allgs))
+	goids := make([]int64, 0, goidSize)
 	for _, gp := range allgs {
 		if readgstatus(gp) == gDead || isSystemGoroutine(gp, false) {
 			continue
