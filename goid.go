@@ -31,7 +31,7 @@ func init() {
 	goidOffset = offset
 }
 
-// getGoidByNative parse the current goroutine's id from G.
+// getGoidByNative parse the current goroutine's id from g.
 // This function could be very fast(like 1ns/op), but it may be failed.
 func getGoidByNative() (int64, bool) {
 	gp := getg()
@@ -87,7 +87,7 @@ func findGoidPointer(gp unsafe.Pointer) *int64 {
 	return (*int64)(unsafe.Pointer(uintptr(gp) + goidOffset))
 }
 
-// Find the next goid from buf[off:]
+// Find the next goid from buf[off:].
 func findNextGoid(buf []byte, off int) (goid int64, next int) {
 	i := off
 	hit := false
