@@ -34,6 +34,9 @@ func init() {
 // getGoidByNative parse the current goroutine's id from g.
 // This function could be very fast(like 1ns/op), but it may be failed.
 func getGoidByNative() (int64, bool) {
+	if !support() {
+		return 0, false
+	}
 	gp := getg()
 	goid := findGoidPointer(gp)
 	if goid == nil {
@@ -79,9 +82,14 @@ func foreachGoidByStack(fun func(goid int64)) {
 	}
 }
 
+// Support current golang version.
+func support() bool {
+	return goidOffset != 0
+}
+
 // Return the pointer of its goid through the pointer of the g structure.
 func findGoidPointer(gp unsafe.Pointer) *int64 {
-	if goidOffset == 0 || gp == nil {
+	if gp == nil {
 		return nil
 	}
 	return (*int64)(unsafe.Pointer(uintptr(gp) + goidOffset))

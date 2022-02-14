@@ -8,6 +8,10 @@ import (
 	"unsafe"
 )
 
+func TestSupport(t *testing.T) {
+	assert.True(t, support())
+}
+
 func TestFindGoidPointer(t *testing.T) {
 	assert.Nil(t, findGoidPointer(nil))
 	//goland:noinspection GoVetUnsafePointer

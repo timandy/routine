@@ -37,9 +37,9 @@ func isSystemGoroutine(gp *g, fixed bool) bool
 
 // getAllGoidByNative retrieve all goid through runtime.allgs
 func getAllGoidByNative() ([]int64, bool) {
-	defer func() {
-		recover()
-	}()
+	if !support() {
+		return nil, false
+	}
 	lock(&allglock)
 	defer unlock(&allglock)
 	goids := make([]int64, 0, len(allgs))
@@ -58,6 +58,9 @@ func getAllGoidByNative() ([]int64, bool) {
 
 // foreachGoidByNative run a func for each goroutine's goid through runtime.allgs
 func foreachGoidByNative(fun func(goid int64)) bool {
+	if !support() {
+		return false
+	}
 	lock(&allglock)
 	defer unlock(&allglock)
 	for _, gp := range allgs {
