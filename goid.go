@@ -10,7 +10,7 @@ import (
 var (
 	goidOffset    uintptr
 	anchor        = []byte("goroutine ")
-	goidOffsetDic = map[string]int64{
+	goidOffsetDic = map[string]uintptr{
 		"go1.13": 152,
 		"go1.14": 152,
 		"go1.15": 152,
@@ -20,15 +20,15 @@ var (
 )
 
 func init() {
-	var off int64
+	var offset uintptr
 	version := runtime.Version()
 	for k, v := range goidOffsetDic {
-		if version == k || strings.HasPrefix(version, k) {
-			off = v
+		if k == version || strings.HasPrefix(version, k) {
+			offset = v
 			break
 		}
 	}
-	goidOffset = uintptr(off)
+	goidOffset = offset
 }
 
 // getGoidByNative parse the current goroutine's id from G.
