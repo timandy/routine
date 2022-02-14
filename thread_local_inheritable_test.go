@@ -18,6 +18,8 @@ func TestInheritableThreadLocal_Id(t *testing.T) {
 func TestInheritableThreadLocal(t *testing.T) {
 	tls := NewInheritableThreadLocal()
 	tls2 := NewInheritableThreadLocal()
+	tls.Remove()
+	tls2.Remove()
 	assert.Nil(t, tls.Get())
 	assert.Nil(t, tls2.Get())
 	//

@@ -18,6 +18,8 @@ func TestThreadLocal_Id(t *testing.T) {
 func TestThreadLocal(t *testing.T) {
 	tls := NewThreadLocal()
 	tls2 := NewThreadLocal()
+	tls.Remove()
+	tls2.Remove()
 	assert.Nil(t, tls.Get())
 	assert.Nil(t, tls2.Get())
 	//
