@@ -1,5 +1,7 @@
 package routine
 
+import "github.com/timandy/routine/bytesconv"
+
 // StackError an error type contains stack info.
 type StackError interface {
 	// Message data when panic is raised.
@@ -14,5 +16,5 @@ type StackError interface {
 
 // NewStackError create a new instance.
 func NewStackError(message Any) StackError {
-	return &stackError{message: message, stackTrace: string(traceStack())}
+	return &stackError{message: message, stackTrace: bytesconv.String(traceStack())}
 }
