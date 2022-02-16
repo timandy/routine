@@ -29,6 +29,21 @@ func TestFindNextGoid(t *testing.T) {
 	assert.Equal(t, 40, next)
 }
 
+func TestAtomicAllG(t *testing.T) {
+	allg := atomicAllG()
+	assert.NotNil(t, allg)
+	assert.Greater(t, len(allg), 0)
+	//
+	GoWait(func() {}).Get()
+	//
+	allg2 := atomicAllG()
+	assert.NotNil(t, allg2)
+	assert.Greater(t, len(allg2), 0)
+	//
+	assert.NotEqual(t, allg2, allg)
+	assert.Greater(t, len(allg2), len(allg))
+}
+
 func TestGetGoidByNative(t *testing.T) {
 	sid := getGoidByStack()
 	assert.NotEqual(t, 0, sid)

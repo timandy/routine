@@ -36,15 +36,22 @@ func readgstatus(gp *g) uint32
 //go:linkname isSystemGoroutine runtime.isSystemGoroutine
 func isSystemGoroutine(gp *g, fixed bool) bool
 
+// atomicAllG return allgs safely under the protection of allglock.
+// New Gs appended during the race can be missed.
+func atomicAllG() []*g {
+	lock(&allglock)
+	defer unlock(&allglock)
+	return allgs
+}
+
 // getAllGoidByNative retrieve all goid through runtime.allgs
 func getAllGoidByNative() ([]int64, bool) {
 	if !support() {
 		return nil, false
 	}
-	lock(&allglock)
-	defer unlock(&allglock)
+	allg := atomicAllG()
 	goids := make([]int64, 0, goidSize)
-	for _, gp := range allgs {
+	for _, gp := range allg {
 		if readgstatus(gp) == gDead || isSystemGoroutine(gp, false) {
 			continue
 		}
@@ -62,9 +69,8 @@ func foreachGoidByNative(fun func(goid int64)) bool {
 	if !support() {
 		return false
 	}
-	lock(&allglock)
-	defer unlock(&allglock)
-	for _, gp := range allgs {
+	allg := atomicAllG()
+	for _, gp := range allg {
 		if readgstatus(gp) == gDead || isSystemGoroutine(gp, false) {
 			continue
 		}
