@@ -166,7 +166,7 @@ func TestForeachGoidByStack(t *testing.T) {
 
 //===
 
-// BenchmarkGetGoidByNative-4             205425804             5.218 ns/op               0 B/op          0 allocs/op
+// BenchmarkGetGoidByNative-4             267225762             3.834 ns/op               0 B/op          0 allocs/op
 func BenchmarkGetGoidByNative(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -175,7 +175,7 @@ func BenchmarkGetGoidByNative(b *testing.B) {
 	}
 }
 
-// BenchmarkGetGoidByStack-4                 134888              8410 ns/op              64 B/op          1 allocs/op
+// BenchmarkGetGoidByStack-4                 347245              3351 ns/op              64 B/op          1 allocs/op
 func BenchmarkGetGoidByStack(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -184,7 +184,7 @@ func BenchmarkGetGoidByStack(b *testing.B) {
 	}
 }
 
-// BenchmarkGetAllGoidByNative-4                100          12644006 ns/op         1056768 B/op          1 allocs/op
+// BenchmarkGetAllGoidByNative-4                100          12782824 ns/op         5858560 B/op         21 allocs/op
 func BenchmarkGetAllGoidByNative(b *testing.B) {
 	const routineNum = 65536
 	for i := 0; i < routineNum; i++ {
@@ -193,14 +193,14 @@ func BenchmarkGetAllGoidByNative(b *testing.B) {
 		}()
 	}
 	time.Sleep(time.Millisecond * 100)
-	b.ResetTimer()
 	b.ReportAllocs()
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_, _ = getAllGoidByNative()
 	}
 }
 
-// BenchmarkGetAllGoidByStack-4                   1        1720123500 ns/op        69500800 B/op         28 allocs/op
+// BenchmarkGetAllGoidByStack-4                   1        1159961100 ns/op        69500800 B/op         28 allocs/op
 func BenchmarkGetAllGoidByStack(b *testing.B) {
 	const routineNum = 65536
 	for i := 0; i < routineNum; i++ {
@@ -209,14 +209,14 @@ func BenchmarkGetAllGoidByStack(b *testing.B) {
 		}()
 	}
 	time.Sleep(time.Millisecond * 100)
-	b.ResetTimer()
 	b.ReportAllocs()
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_ = getAllGoidByStack()
 	}
 }
 
-// BenchmarkForeachGoidByNative-4               100          12246615 ns/op               0 B/op          0 allocs/op
+// BenchmarkForeachGoidByNative-4               127          14034223 ns/op               0 B/op          0 allocs/op
 func BenchmarkForeachGoidByNative(b *testing.B) {
 	const routineNum = 65536
 	for i := 0; i < routineNum; i++ {
@@ -225,14 +225,14 @@ func BenchmarkForeachGoidByNative(b *testing.B) {
 		}()
 	}
 	time.Sleep(time.Millisecond * 100)
-	b.ResetTimer()
 	b.ReportAllocs()
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_ = foreachGoidByNative(func(goid int64) {})
 	}
 }
 
-// BenchmarkForeachGoidByStack-4                  1        1472191600 ns/op        66584576 B/op          7 allocs/op
+// BenchmarkForeachGoidByStack-4                  1        1075188100 ns/op        66584576 B/op          7 allocs/op
 func BenchmarkForeachGoidByStack(b *testing.B) {
 	const routineNum = 65536
 	for i := 0; i < routineNum; i++ {
@@ -241,8 +241,8 @@ func BenchmarkForeachGoidByStack(b *testing.B) {
 		}()
 	}
 	time.Sleep(time.Millisecond * 100)
-	b.ResetTimer()
 	b.ReportAllocs()
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		foreachGoidByStack(func(goid int64) {})
 	}

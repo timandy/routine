@@ -49,14 +49,15 @@ func BenchmarkGoid(b *testing.B) {
 	}
 }
 
-// BenchmarkAllGoids-4               469323              2132 ns/op             640 B/op               1 allocs/op
+// BenchmarkAllGoids-4                  100          12021738 ns/op         5858562 B/op              21 allocs/op
 func BenchmarkAllGoids(b *testing.B) {
-	const num = 16
-	for i := 0; i < num; i++ {
+	const routineNum = 65536
+	for i := 0; i < routineNum; i++ {
 		go func() {
 			time.Sleep(time.Minute)
 		}()
 	}
+	time.Sleep(time.Millisecond * 100)
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -64,14 +65,15 @@ func BenchmarkAllGoids(b *testing.B) {
 	}
 }
 
-// BenchmarkForeachGoid-4            677912              1943 ns/op               0 B/op               0 allocs/op
+// BenchmarkForeachGoid-4               142          11557488 ns/op               0 B/op               0 allocs/op
 func BenchmarkForeachGoid(b *testing.B) {
-	const num = 16
-	for i := 0; i < num; i++ {
+	const routineNum = 65536
+	for i := 0; i < routineNum; i++ {
 		go func() {
 			time.Sleep(time.Minute)
 		}()
 	}
+	time.Sleep(time.Millisecond * 100)
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
