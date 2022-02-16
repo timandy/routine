@@ -16,6 +16,7 @@ func Goid() int64 {
 // AllGoids return all goroutine's goid in the current golang process.
 // It will try load all goid from runtime natively for better performance,
 // and fall over to runtime.Stack, which is very inefficient.
+// Addition of new Gs during execution, which may be missed.
 func AllGoids() []int64 {
 	if goids, success := getAllGoidByNative(); success {
 		return goids
@@ -27,6 +28,7 @@ func AllGoids() []int64 {
 // ForeachGoid run a func for each goroutine's goid in the current golang process.
 // It will try load all goid from runtime natively for better performance,
 // and fall over to runtime.Stack, which is very inefficient.
+// Addition of new Gs during execution, which may be missed.
 func ForeachGoid(fun func(goid int64)) {
 	if success := foreachGoidByNative(fun); success {
 		return

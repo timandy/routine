@@ -44,7 +44,8 @@ func atomicAllG() []*g {
 	return allgs
 }
 
-// getAllGoidByNative retrieve all goid through runtime.allgs
+// getAllGoidByNative retrieve all goid through native.
+// Addition of new Gs during execution, which may be missed.
 func getAllGoidByNative() ([]int64, bool) {
 	if !support() {
 		return nil, false
@@ -64,7 +65,8 @@ func getAllGoidByNative() ([]int64, bool) {
 	return goids, true
 }
 
-// foreachGoidByNative run a func for each goroutine's goid through runtime.allgs
+// foreachGoidByNative run a func for each goroutine's goid through native.
+// Addition of new Gs during execution, which may be missed.
 func foreachGoidByNative(fun func(goid int64)) bool {
 	if !support() {
 		return false

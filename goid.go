@@ -55,6 +55,7 @@ func getGoidByStack() int64 {
 
 // getAllGoidByStack retrieve all goid through stack;
 // This function could be very inefficient, but it's very safe.
+// Addition of new Gs during execution, which may be missed.
 func getAllGoidByStack() []int64 {
 	buf := traceAllStack()
 	// parse all goids
@@ -71,6 +72,7 @@ func getAllGoidByStack() []int64 {
 
 // foreachGoidByStack run a func for each goroutine's goid through stack;
 // This function could be very inefficient, but it's very safe.
+// Addition of new Gs during execution, which may be missed.
 func foreachGoidByStack(fun func(goid int64)) {
 	buf := traceAllStack()
 	for i := 0; i < len(buf); {
