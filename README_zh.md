@@ -125,7 +125,7 @@ inheritableThreadLocal in goroutine by Go: Hello world2
 
 ## `AllGoids() []int64`
 
-获取当前进程全部活跃`goroutine`的`goid`。
+获取当前进程全部活跃`goroutine`的`goid`。在执行过程中添加新的`goid`可能会被遗漏。
 
 在`go 1.12`及更旧的版本中，`AllGoids()`会尝试从`runtime.Stack`信息中解析获取全部协程信息，但此操作非常低效，非常不建议在高频逻辑中使用。
 
@@ -133,9 +133,9 @@ inheritableThreadLocal in goroutine by Go: Hello world2
 
 ## `ForeachGoid(fun func(goid int64))`
 
-为当前进程全部活跃`goroutine`的`goid`执行指定函数。
+为当前进程全部活跃`goroutine`的`goid`执行指定函数。在执行过程中添加新的`goid`可能会被遗漏。
 
-获取`goid`的方式同`AllGoids() []int64`。由于整个过程中会对`allglock`加锁，所以不要执行耗时较长的函数，否则将会影响协程的创建。
+获取`goid`的方式同`AllGoids() []int64`。
 
 ## `NewThreadLocal() ThreadLocal`
 

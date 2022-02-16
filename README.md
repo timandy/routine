@@ -125,7 +125,7 @@ If an error such as version incompatibility occurs, `Goid()` will try to downgra
 
 ## `AllGoids() []int64`
 
-Get the `goid` of all active `goroutine` of the current process.
+Get the `goid` of all active `goroutine` of the current process. Addition of new `goid` during execution, which may be missed.
 
 In `go 1.12` and older versions, `AllGoids()` will try to parse and get all the coroutine information from the `runtime.Stack` information, but this operation is very inefficient, and it is not recommended using it in high-frequency logic. .
 
@@ -133,9 +133,9 @@ In versions after `go 1.13`, `AllGoids()` will directly read the global coroutin
 
 ## `ForeachGoid(fun func(goid int64))`
 
-Execute the specified function for the `goid` of all active `goroutine`s in the current process.
+Execute the specified function for the `goid` of all active `goroutine`s in the current process. Addition of new `goid` during execution, which may be missed.
 
-The way to get `goids` is the same as `AllGoids() []int64`. Since `allglock` is locked during the whole process, do not execute functions that take a long time, otherwise it will affect the creation of coroutines.
+The way to get `goids` is the same as `AllGoids() []int64`.
 
 ## `NewThreadLocal() ThreadLocal`
 
