@@ -55,16 +55,11 @@ func (mp *threadLocalMap) expandAndSet(index int, value Any) {
 	mp.table = newArray
 }
 
-func createInheritedMap() *threadLocalMap {
-	parent := currentThread(false)
-	if parent == nil {
+func createInheritedMap(parentMap *threadLocalMap) *threadLocalMap {
+	if parentMap == nil {
 		return nil
 	}
-	mp := parent.inheritableThreadLocals
-	if mp == nil {
-		return nil
-	}
-	lookup := mp.table
+	lookup := parentMap.table
 	if lookup == nil {
 		return nil
 	}

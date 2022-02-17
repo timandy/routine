@@ -22,7 +22,7 @@ func (tls *inheritableThreadLocal) Id() int {
 }
 
 func (tls *inheritableThreadLocal) Get() Any {
-	t := currentThread(true)
+	t := currentThread()
 	mp := tls.getMap(t)
 	if mp != nil {
 		v := mp.get(tls)
@@ -34,7 +34,7 @@ func (tls *inheritableThreadLocal) Get() Any {
 }
 
 func (tls *inheritableThreadLocal) Set(value Any) {
-	t := currentThread(true)
+	t := currentThread()
 	mp := tls.getMap(t)
 	if mp != nil {
 		mp.set(tls, value)
@@ -44,10 +44,7 @@ func (tls *inheritableThreadLocal) Set(value Any) {
 }
 
 func (tls *inheritableThreadLocal) Remove() {
-	t := currentThread(false)
-	if t == nil {
-		return
-	}
+	t := currentThread()
 	mp := tls.getMap(t)
 	if mp != nil {
 		mp.remove(tls)

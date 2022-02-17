@@ -2,11 +2,9 @@ package routine
 
 import "fmt"
 
-// Go starts a new goroutine, and copy inheritableThreadLocals from current goroutine.
+// Go starts a new goroutine.
 // This function will auto invoke the fun and print error stack when panic occur in goroutine.
 func Go(fun func()) {
-	// backup
-	copied := createInheritedMap()
 	go func() {
 		// catch
 		defer func() {
@@ -14,38 +12,16 @@ func Go(fun func()) {
 				fmt.Println(NewStackError(err).Error())
 			}
 		}()
-		// restore
-		t := currentThread(copied != nil)
-		if t == nil {
-			//copied is nil
-			defer func() {
-				t = currentThread(false)
-				if t != nil {
-					t.threadLocals = nil
-					t.inheritableThreadLocals = nil
-				}
-			}()
-			fun()
-		} else {
-			backup := t.inheritableThreadLocals
-			defer func() {
-				t.threadLocals = nil
-				t.inheritableThreadLocals = backup
-			}()
-			t.threadLocals = nil
-			t.inheritableThreadLocals = copied
-			fun()
-		}
+		// invoke
+		fun()
 	}()
 }
 
-// GoWait starts a new goroutine, and copy inheritableThreadLocals from current goroutine.
+// GoWait starts a new goroutine.
 // This function return a Feature pointer, so we can wait by Feature.Get method.
 // If panic occur in goroutine, The panic will be trigger again when calling Feature.Get method.
 func GoWait(fun func()) Feature {
 	fea := NewFeature()
-	// backup
-	copied := createInheritedMap()
 	go func() {
 		// catch
 		defer func() {
@@ -53,41 +29,18 @@ func GoWait(fun func()) Feature {
 				fea.CompleteError(err)
 			}
 		}()
-		// restore
-		t := currentThread(copied != nil)
-		if t == nil {
-			//copied is nil
-			defer func() {
-				t = currentThread(false)
-				if t != nil {
-					t.threadLocals = nil
-					t.inheritableThreadLocals = nil
-				}
-			}()
-			fun()
-			fea.Complete(nil)
-		} else {
-			backup := t.inheritableThreadLocals
-			defer func() {
-				t.threadLocals = nil
-				t.inheritableThreadLocals = backup
-			}()
-			t.threadLocals = nil
-			t.inheritableThreadLocals = copied
-			fun()
-			fea.Complete(nil)
-		}
+		// invoke
+		fun()
+		fea.Complete(nil)
 	}()
 	return fea
 }
 
-// GoWaitResult starts a new goroutine, and copy inheritableThreadLocals from current goroutine.
+// GoWaitResult starts a new goroutine.
 // This function return a Feature pointer, so we can wait and get result by Feature.Get method.
 // If panic occur in goroutine, The panic will be trigger again when calling Feature.Get method.
 func GoWaitResult(fun func() Any) Feature {
 	fea := NewFeature()
-	// backup
-	copied := createInheritedMap()
 	go func() {
 		// catch
 		defer func() {
@@ -95,28 +48,8 @@ func GoWaitResult(fun func() Any) Feature {
 				fea.CompleteError(err)
 			}
 		}()
-		// restore
-		t := currentThread(copied != nil)
-		if t == nil {
-			//copied is nil
-			defer func() {
-				t = currentThread(false)
-				if t != nil {
-					t.threadLocals = nil
-					t.inheritableThreadLocals = nil
-				}
-			}()
-			fea.Complete(fun())
-		} else {
-			backup := t.inheritableThreadLocals
-			defer func() {
-				t.threadLocals = nil
-				t.inheritableThreadLocals = backup
-			}()
-			t.threadLocals = nil
-			t.inheritableThreadLocals = copied
-			fea.Complete(fun())
-		}
+		// invoke
+		fea.Complete(fun())
 	}()
 	return fea
 }
