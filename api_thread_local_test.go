@@ -354,7 +354,7 @@ func TestInheritableThreadLocalWithInitial_Concurrency(t *testing.T) {
 
 //===
 
-// BenchmarkThreadLocal-4                           7792273               159.2 ns/op             8 B/op          0 allocs/op
+// BenchmarkThreadLocal-4                          16281975                73.83 ns/op            8 B/op          0 allocs/op
 func BenchmarkThreadLocal(b *testing.B) {
 	tlsCount := 100
 	tlsSlice := make([]ThreadLocal, tlsCount)
@@ -378,7 +378,7 @@ func BenchmarkThreadLocal(b *testing.B) {
 	}
 }
 
-// BenchmarkThreadLocalWithInitial-4                7868341               151.1 ns/op             8 B/op          0 allocs/op
+// BenchmarkThreadLocalWithInitial-4               14642895                79.19 ns/op            8 B/op          0 allocs/op
 func BenchmarkThreadLocalWithInitial(b *testing.B) {
 	tlsCount := 100
 	tlsSlice := make([]ThreadLocal, tlsCount)
@@ -405,7 +405,7 @@ func BenchmarkThreadLocalWithInitial(b *testing.B) {
 	}
 }
 
-// BenchmarkInheritableThreadLocal-4                8228482               150.8 ns/op             8 B/op          0 allocs/op
+// BenchmarkInheritableThreadLocal-4               14822224                74.68 ns/op            7 B/op          0 allocs/op
 func BenchmarkInheritableThreadLocal(b *testing.B) {
 	tlsCount := 100
 	tlsSlice := make([]ThreadLocal, tlsCount)
@@ -429,7 +429,7 @@ func BenchmarkInheritableThreadLocal(b *testing.B) {
 	}
 }
 
-// BenchmarkInheritableThreadLocalWithInitial-4     7407096               159.1 ns/op             8 B/op          0 allocs/op
+// BenchmarkInheritableThreadLocalWithInitial-4    15584253                76.78 ns/op            7 B/op          0 allocs/op
 func BenchmarkInheritableThreadLocalWithInitial(b *testing.B) {
 	tlsCount := 100
 	tlsSlice := make([]ThreadLocal, tlsCount)
