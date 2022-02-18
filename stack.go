@@ -2,9 +2,7 @@ package routine
 
 import "runtime"
 
-const (
-	stackSize = 1024
-)
+const stackSize = 1024
 
 func traceStack() []byte {
 	buf := make([]byte, stackSize)
