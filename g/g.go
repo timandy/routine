@@ -5,5 +5,5 @@ package g
 
 import "unsafe"
 
-// getg returns the pointer to the current g.
+// getg returns the pointer to the current runtime.g.
 func getg() unsafe.Pointer

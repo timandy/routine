@@ -60,11 +60,11 @@ func createInheritedMap() *threadLocalMap {
 	if parent == nil {
 		return nil
 	}
-	mp := parent.inheritableThreadLocals
-	if mp == nil {
+	parentMap := parent.inheritableThreadLocals
+	if parentMap == nil {
 		return nil
 	}
-	lookup := mp.table
+	lookup := parentMap.table
 	if lookup == nil {
 		return nil
 	}
