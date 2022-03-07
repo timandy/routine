@@ -185,6 +185,18 @@ func TestInheritableThreadLocalCrossCoroutine(t *testing.T) {
 	finishWait.Wait() //wait sub goroutine done
 }
 
+func TestInheritableThreadLocalCreateBatch(t *testing.T) {
+	const count = 128
+	tlsList := make([]ThreadLocal, count)
+	for i := 0; i < count; i++ {
+		value := i
+		tlsList[i] = NewInheritableThreadLocalWithInitial(func() Any { return value })
+	}
+	for i := 0; i < count; i++ {
+		assert.Equal(t, i, tlsList[i].Get())
+	}
+}
+
 func TestInheritableThreadLocalCopy(t *testing.T) {
 	tls := NewInheritableThreadLocalWithInitial(func() Any {
 		return &person{Id: 1, Name: "Tim"}

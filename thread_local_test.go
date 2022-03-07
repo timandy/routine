@@ -185,6 +185,18 @@ func TestThreadLocalCrossCoroutine(t *testing.T) {
 	finishWait.Wait() //wait sub goroutine done
 }
 
+func TestThreadLocalCreateBatch(t *testing.T) {
+	const count = 128
+	tlsList := make([]ThreadLocal, count)
+	for i := 0; i < count; i++ {
+		value := i
+		tlsList[i] = NewThreadLocalWithInitial(func() Any { return value })
+	}
+	for i := 0; i < count; i++ {
+		assert.Equal(t, i, tlsList[i].Get())
+	}
+}
+
 type person struct {
 	Id   int
 	Name string
