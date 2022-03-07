@@ -28,7 +28,7 @@ go get github.com/timandy/routine
 
 ## 使用`goid`
 
-以下代码简单演示了`routine.Goid()`与`routine.AllGoids()`的使用：
+以下代码简单演示了`routine.Goid()`的使用：
 
 ```go
 package main
@@ -40,26 +40,23 @@ import (
 )
 
 func main() {
-	go func() {
-		time.Sleep(time.Second)
-	}()
 	goid := routine.Goid()
-	goids := routine.AllGoids()
-	fmt.Printf("curr goid: %v\n", goid)
-	fmt.Printf("all goids: %v\n", goids)
-	fmt.Print("each goid:")
-	routine.ForeachGoid(func(goid int64) {
-		fmt.Printf(" %v", goid)
-	})
+	fmt.Printf("cur goid: %v\n", goid)
+	go func() {
+		goid := routine.Goid()
+		fmt.Printf("sub goid: %v\n", goid)
+	}()
+
+	// 等待子协程执行完。
+	time.Sleep(time.Second)
 }
 ```
 
-此例中`main`函数启动了一个新的协程，因此`Goid()`返回了主协程`1`，`AllGoids()`返回了主协程及协程`18`，`ForeachGoid()`依次返回了主协程及协程`18`:
+此例中`main`函数启动了一个新的协程，因此`Goid()`返回了主协程`1`和子协程`6`:
 
 ```text
-curr goid: 1
-all goids: [1 18]
-each goid: 1 18
+cur goid: 1
+sub goid: 6
 ```
 
 ## 使用`ThreadLocal`
@@ -84,18 +81,19 @@ func main() {
 	fmt.Println("threadLocal:", threadLocal.Get())
 	fmt.Println("inheritableThreadLocal:", inheritableThreadLocal.Get())
 
-	// 其他协程无法读取之前赋值的“hello world”。
+	// 子协程无法读取之前赋值的“hello world”。
 	go func() {
 		fmt.Println("threadLocal in goroutine:", threadLocal.Get())
 		fmt.Println("inheritableThreadLocal in goroutine:", inheritableThreadLocal.Get())
 	}()
 
-	// 但是，可以通过 Go 函数启动一个新的 goroutine。当前主 goroutine 的所有可继承变量都可以自动传递。
+	// 但是，可以通过 Go/GoWait/GoWaitResul 函数启动一个新的子协程，当前协程的所有可继承变量都可以自动传递。
 	routine.Go(func() {
 		fmt.Println("threadLocal in goroutine by Go:", threadLocal.Get())
 		fmt.Println("inheritableThreadLocal in goroutine by Go:", inheritableThreadLocal.Get())
 	})
 
+	// 等待子协程执行完。
 	time.Sleep(time.Second)
 }
 ```
@@ -122,20 +120,6 @@ inheritableThreadLocal in goroutine by Go: Hello world2
 在正常情况下，`Goid()`优先尝试通过`go_tls`的方式直接获取，此操作性能极高，耗时通常只相当于`rand.Int()`的五分之一。
 
 若出现版本不兼容等错误时，`Goid()`会尝试降级，即从`runtime.Stack`信息中解析获取，此时性能会急剧下降约千倍，但它可以保证功能正常可用。
-
-## `AllGoids() []int64`
-
-获取当前进程全部活跃`goroutine`的`goid`。在执行过程中添加新的`goid`可能会被遗漏。
-
-在`go 1.12`及更旧的版本中，`AllGoids()`会尝试从`runtime.Stack`信息中解析获取全部协程信息，但此操作非常低效，非常不建议在高频逻辑中使用。
-
-在`go 1.13`之后的版本中，`AllGoids()`会通过`native`的方式直接读取`runtime`的全局协程池信息，在性能上得到了极大的提高，但考虑到生产环境中可能有万、百万级的协程数量，因此仍不建议在高频使用它。
-
-## `ForeachGoid(fun func(goid int64))`
-
-为当前进程全部活跃`goroutine`的`goid`执行指定函数。在执行过程中添加新的`goid`可能会被遗漏。
-
-获取`goid`的方式同`AllGoids() []int64`。
 
 ## `NewThreadLocal() ThreadLocal`
 
@@ -169,11 +153,15 @@ inheritableThreadLocal in goroutine by Go: Hello world2
 
 # 垃圾回收
 
-`routine`库内部维护了全局的`globalMap`变量，它存储了全部协程的上下文变量信息，在读写时基于协程的`goid`和协程变量的`ptr`进行变量寻址映射。
+`routine` 为每个协程分配了一个`thread` 结构，它存储了协程相关的上下文变量信息。
 
-在进程的整个生命周期中，它可能会创建于销毁无数个协程，那么这些协程的上下文变量如何清理呢？
+指向该结构的指针存储在协程结构的`g.labels`字段上。
 
-为解决这个问题，`routine`内部分配了一个全局的`gcTimer`，此定时器会在`globalMap`需要被清理时启动，定时扫描并清理`dead`协程在`globalMap`中缓存的上下文变量，从而避免可能出现的内存泄露隐患。
+当协程执行完毕退出时，`g.labels` 将被设置为 `nil`，不再引用 `thread` 结构。
+
+`thread` 结构将在 `GC` 下一次启动时被回收。
+
+如果`thread`中存储的数据也没有额外被引用，这些数据将被一并回收。
 
 # License
 

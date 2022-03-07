@@ -28,7 +28,7 @@ go get github.com/timandy/routine
 
 ## Use `goid`
 
-The following code simply demonstrates the use of `routine.Goid()` and `routine.AllGoids()`:
+The following code simply demonstrates the use of `routine.Goid()`:
 
 ```go
 package main
@@ -40,26 +40,23 @@ import (
 )
 
 func main() {
-	go func() {
-		time.Sleep(time.Second)
-	}()
 	goid := routine.Goid()
-	goids := routine.AllGoids()
-	fmt.Printf("curr goid: %v\n", goid)
-	fmt.Printf("all goids: %v\n", goids)
-	fmt.Print("each goid:")
-	routine.ForeachGoid(func(goid int64) {
-		fmt.Printf(" %v", goid)
-	})
+	fmt.Printf("cur goid: %v\n", goid)
+	go func() {
+		goid := routine.Goid()
+		fmt.Printf("sub goid: %v\n", goid)
+	}()
+
+	// Wait for the sub-coroutine to finish executing.
+	time.Sleep(time.Second)
 }
 ```
 
-In this example, the `main` function starts a new coroutine, so `Goid()` returns the main coroutine `1`, `AllGoids()` returns the main coroutine and the coroutine `18`, `ForeachGoid()` returns the main coroutine and coroutine `18` in turn:
+In this example, the `main` function starts a new coroutine, so `Goid()` returns the main coroutine `1` and the child coroutine `6`:
 
 ```text
-curr goid: 1
-all goids: [1 18]
-each goid: 1 18
+cur goid: 1
+sub goid: 6
 ```
 
 ## Use `ThreadLocal`
@@ -84,18 +81,19 @@ func main() {
 	fmt.Println("threadLocal:", threadLocal.Get())
 	fmt.Println("inheritableThreadLocal:", inheritableThreadLocal.Get())
 
-	// Other goroutines cannot read the previously assigned "hello world"
+	// The child coroutine cannot read the previously assigned "hello world".
 	go func() {
 		fmt.Println("threadLocal in goroutine:", threadLocal.Get())
 		fmt.Println("inheritableThreadLocal in goroutine:", inheritableThreadLocal.Get())
 	}()
 
-	// However, a new goroutine can be started via the Go function. All the inheritable variables of the current main goroutine can be passed away automatically.
+	// However, a new sub-coroutine can be started via the Go/GoWait/GoWaitResul function, and all inheritable variables of the current coroutine can be passed automatically.
 	routine.Go(func() {
 		fmt.Println("threadLocal in goroutine by Go:", threadLocal.Get())
 		fmt.Println("inheritableThreadLocal in goroutine by Go:", inheritableThreadLocal.Get())
 	})
 
+	// Wait for the sub-coroutine to finish executing.
 	time.Sleep(time.Second)
 }
 ```
@@ -122,20 +120,6 @@ Get the `goid` of the current `goroutine`.
 Under normal circumstances, `Goid()` first tries to obtain it directly through `go_tls`. This operation has extremely high performance and the time-consuming is usually only one-fifth of `rand.Int()`.
 
 If an error such as version incompatibility occurs, `Goid()` will try to downgrade, that is, parse it from the `runtime.Stack` information. At this time, the performance will drop sharply by about a thousand times, but it can ensure that the function is normally available.
-
-## `AllGoids() []int64`
-
-Get the `goid` of all active `goroutine` of the current process. Addition of new `goid` during execution, which may be missed.
-
-In `go 1.12` and older versions, `AllGoids()` will try to parse and get all the coroutine information from the `runtime.Stack` information, but this operation is very inefficient, and it is not recommended using it in high-frequency logic. .
-
-In versions after `go 1.13`, `AllGoids()` will directly read the global coroutine pool information of `runtime` through `native`, which has greatly improved performance, but considering the production environment There may be tens of thousands or millions of coroutines, so it is still not recommended using it at high frequencies.
-
-## `ForeachGoid(fun func(goid int64))`
-
-Execute the specified function for the `goid` of all active `goroutine`s in the current process. Addition of new `goid` during execution, which may be missed.
-
-The way to get `goids` is the same as `AllGoids() []int64`.
 
 ## `NewThreadLocal() ThreadLocal`
 
@@ -169,11 +153,15 @@ Start a new coroutine and automatically copy all contextual `inheritableThreadLo
 
 # Garbage Collection
 
-The `routine` library internally maintains the global `globalMap` variable, which stores all the context variable information of the coroutine, and performs variable addressing mapping based on the `goid` of the coroutine and the `ptr` of the coroutine variable when reading and writing.
+`routine` allocates a `thread` structure for each coroutine, which stores context variable information related to the coroutine.
 
-In the entire life cycle of a process, it may be created by destroying countless coroutines, so how to clean up the context variables of these `dead` coroutines?
+A pointer to this structure is stored on the `g.labels` field of the coroutine structure.
 
-To solve this problem, a global `gcTimer` is allocated internally by `routine`. This timer will be started when `globalMap` needs to be cleaned up. It scans and cleans up the context variables cached by `dead` coroutine in `globalMap` at regular intervals, to avoid possible hidden dangers of memory leaks.
+When the coroutine finishes executing and exits, `g.labels` will be set to `nil`, no longer referencing the `thread` structure.
+
+The `thread` structure will be reclaimed the next time the `GC` starts.
+
+If the data stored in `thread` is not additionally referenced, these data will be collected together.
 
 # License
 
