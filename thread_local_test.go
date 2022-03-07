@@ -160,6 +160,31 @@ func TestThreadLocalWithInitial(t *testing.T) {
 	assert.Equal(t, *src, p6)
 }
 
+func TestThreadLocalCrossCoroutine(t *testing.T) {
+	tls := NewThreadLocal()
+	tls.Set("Hello")
+	assert.Equal(t, "Hello", tls.Get().(string))
+	subWait := &sync.WaitGroup{}
+	subWait.Add(2)
+	finishWait := &sync.WaitGroup{}
+	finishWait.Add(2)
+	go func() {
+		subWait.Wait()
+		assert.Nil(t, tls.Get())
+		finishWait.Done()
+	}()
+	Go(func() {
+		subWait.Wait()
+		assert.Nil(t, tls.Get())
+		finishWait.Done()
+	})
+	tls.Remove()      //remove in parent goroutine should not affect child goroutine
+	subWait.Done()    //allow sub goroutine run
+	subWait.Done()    //allow sub goroutine run
+	finishWait.Wait() //wait sub goroutine done
+	finishWait.Wait() //wait sub goroutine done
+}
+
 type person struct {
 	Id   int
 	Name string
