@@ -62,7 +62,7 @@ func TestThreadGC(t *testing.T) {
 }
 
 func getMemStats() (uint64, int) {
-	var stats runtime.MemStats
+	stats := runtime.MemStats{}
 	runtime.GC()
 	runtime.ReadMemStats(&stats)
 	return stats.HeapAlloc, runtime.NumGoroutine()
