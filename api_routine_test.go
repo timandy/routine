@@ -72,6 +72,20 @@ func TestGo_Value(t *testing.T) {
 	assert.Equal(t, "World", inheritableTls.Get())
 }
 
+func TestGo_Cross(t *testing.T) {
+	tls := NewThreadLocal()
+	tls.Set("Hello")
+	assert.Equal(t, "Hello", tls.Get())
+	//
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	Go(func() {
+		assert.Nil(t, tls.Get())
+		wg.Done()
+	})
+	wg.Wait()
+}
+
 func TestGoWait_Error(t *testing.T) {
 	run := false
 	assert.Panics(t, func() {
@@ -127,6 +141,16 @@ func TestGoWait_Value(t *testing.T) {
 	//
 	assert.Equal(t, "Hello", tls.Get())
 	assert.Equal(t, "World", inheritableTls.Get())
+}
+
+func TestGoWait_Cross(t *testing.T) {
+	tls := NewThreadLocal()
+	tls.Set("Hello")
+	assert.Equal(t, "Hello", tls.Get())
+	//
+	GoWait(func() {
+		assert.Nil(t, tls.Get())
+	}).Get()
 }
 
 func TestGoWaitResult_Error(t *testing.T) {
@@ -189,4 +213,16 @@ func TestGoWaitResult_Value(t *testing.T) {
 	//
 	assert.Equal(t, "Hello", tls.Get())
 	assert.Equal(t, "World", inheritableTls.Get())
+}
+
+func TestGoWaitResult_Cross(t *testing.T) {
+	tls := NewThreadLocal()
+	tls.Set("Hello")
+	assert.Equal(t, "Hello", tls.Get())
+	//
+	result := GoWaitResult(func() Any {
+		assert.Nil(t, tls.Get())
+		return tls.Get()
+	}).Get()
+	assert.Nil(t, result)
 }
