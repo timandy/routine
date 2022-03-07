@@ -43,7 +43,7 @@ func TestString(t *testing.T) {
 
 //===
 
-//BenchmarkBytesSlow-4             156138324                7.011 ns/op          0 B/op          0 allocs/op
+// BenchmarkBytesSlow-4             264711098                4.545 ns/op          0 B/op          0 allocs/op
 func BenchmarkBytesSlow(b *testing.B) {
 	str := "Hello 世界"
 	b.ReportAllocs()
@@ -53,7 +53,7 @@ func BenchmarkBytesSlow(b *testing.B) {
 	}
 }
 
-//BenchmarkStringSlow-4            207544878                5.966 ns/op          0 B/op          0 allocs/op
+// BenchmarkStringSlow-4            296845936                3.879 ns/op          0 B/op          0 allocs/op
 func BenchmarkStringSlow(b *testing.B) {
 	buf := []byte("Hello 世界")
 	b.ReportAllocs()
@@ -63,7 +63,7 @@ func BenchmarkStringSlow(b *testing.B) {
 	}
 }
 
-//BenchmarkBytes-4                1000000000               0.3775 ns/op          0 B/op          0 allocs/op
+// BenchmarkBytes-4                1000000000               0.2596 ns/op          0 B/op          0 allocs/op
 func BenchmarkBytes(b *testing.B) {
 	str := "Hello 世界"
 	b.ReportAllocs()
@@ -73,7 +73,7 @@ func BenchmarkBytes(b *testing.B) {
 	}
 }
 
-//BenchmarkString-4               1000000000               0.3661 ns/op          0 B/op          0 allocs/op
+// BenchmarkString-4               1000000000               0.2602 ns/op          0 B/op          0 allocs/op
 func BenchmarkString(b *testing.B) {
 	buf := []byte("Hello 世界")
 	b.ReportAllocs()

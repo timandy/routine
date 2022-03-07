@@ -64,7 +64,7 @@ func TestGetGoidByStack(t *testing.T) {
 
 //===
 
-// BenchmarkGetGoidByNative-4             267225762             3.834 ns/op               0 B/op          0 allocs/op
+// BenchmarkGetGoidByNative-4                     363983250                3.270 ns/op            0 B/op          0 allocs/op
 func BenchmarkGetGoidByNative(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -73,7 +73,7 @@ func BenchmarkGetGoidByNative(b *testing.B) {
 	}
 }
 
-// BenchmarkGetGoidByStack-4         321638              3121 ns/op              64 B/op          1 allocs/op
+// BenchmarkGetGoidByStack-4                         363614                 3030 ns/op            0 B/op          0 allocs/op
 func BenchmarkGetGoidByStack(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
