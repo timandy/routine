@@ -4,12 +4,12 @@
 
 ### Features
 
-- Add zero-copy conversion method between bytes and string, see `bytesconv.Bytes()` and `bytesconv.String()` methods.
+- Add zero-copy conversion method between `bytes` and `string`, see `bytesconv.Bytes()` and `bytesconv.String()` methods.
 
 ### Changes
 
 - Modify the garbage collection mechanism, remove `gcTimer`, no longer perform garbage collection through timers.
-- Store the context in the `labels` field of the coroutine structure `g`. When the coroutine ends, the field will be set to `nil`, which will be automatically released in the next GC.
+- Store the context in the `labels` field of the coroutine structure `g`. When the coroutine ends, the field will be set to `nil`, which will be automatically released in the next `GC`.
 - Use `go:linkname` to invoke assembly code `getg()` directly to improve performance.
 - Implement the `getGoidByStack()` method by invoke `http.http2curGoroutineID()`.
 - Remove api `AllGoids()` and `ForeachGoid()`.
