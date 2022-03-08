@@ -109,7 +109,7 @@
 ### Features
 
 - Support go version range `go1.12` ~ `go1.17`(New support `go1.17`).
-- Enable github actions for continuous integration.
+- Enable GitHub actions for continuous integration.
 
 ### Known Issues
 
