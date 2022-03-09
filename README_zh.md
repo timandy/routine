@@ -163,10 +163,26 @@ inheritableThreadLocal in goroutine by Go: Hello world2
 
 如果`thread`中存储的数据也没有额外被引用，这些数据将被一并回收。
 
-# License
-
-MIT
-
 # 鸣谢
 
-这个库是从 [go-eden/routine](https://github.com/go-eden/routine) 分支出来的. 感谢 go-eden 的伟大工作!
+`routine` 是从 [go-eden/routine](https://github.com/go-eden/routine) 分支出来的，感谢原作者的贡献！
+
+# *许可证*
+
+`routine` 是在 [Apache License 2.0](LICENSE) 下发布的。
+
+```
+Copyright 2021-2022 TimAndy
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
