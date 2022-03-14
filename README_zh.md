@@ -6,15 +6,17 @@
 
 > [English Version](README.md)
 
-`routine`封装并提供了一些易用、高性能的`goroutine`上下文访问接口，它可以帮助你更优雅地访问协程上下文信息，但你也可能就此打开了潘多拉魔盒。
+`routine`封装并提供了一些易用、无竞争、高性能的`goroutine`上下文访问接口，它可以帮助你更优雅地访问协程上下文信息。
 
 # 介绍
 
 `Golang`语言从设计之初，就一直在不遗余力地向开发者屏蔽协程上下文的概念，包括协程`goid`的获取、进程内部协程状态、协程上下文存储等。
 
-如果你使用过其他语言如`C++/Java`等，那么你一定很熟悉`ThreadLocal`，而在开始使用`Golang`之后，你一定会为缺少类似`ThreadLocal`的便捷功能而深感困惑与苦恼。 当然你可以选择使用`Context`，让它携带着全部上下文信息，在所有函数的第一个输入参数中出现，然后在你的系统中到处穿梭。
+如果你使用过其他语言如`C++`、`Java`等，那么你一定很熟悉`ThreadLocal`，而在开始使用`Golang`之后，你一定会为缺少类似`ThreadLocal`的便捷功能而深感困惑与苦恼。
 
-而`routine`的核心目标就是开辟另一条路：将`goroutine local storage`引入`Golang`世界，同时也将协程信息暴露出来，以满足某些人可能有的需求。
+当然你可以选择使用`Context`，让它携带着全部上下文信息，在所有函数的第一个输入参数中出现，然后在你的系统中到处穿梭。
+
+而`routine`的核心目标就是开辟另一条路：将`goroutine local storage`引入`Golang`世界。
 
 # 使用演示
 
@@ -131,11 +133,11 @@ inheritableThreadLocal in goroutine by Go: Hello world2
 
 ## `NewInheritableThreadLocal() ThreadLocal`
 
-创建一个新的`ThreadLocal`实例，其存储的默认值为`nil`。当通过 `Go()`、`GoWait()`或`GoWaitResult()` 启动新协程时，当前协程的值会被复制到新协程。
+创建一个新的`ThreadLocal`实例，其存储的默认值为`nil`。当通过`Go()`、`GoWait()`或`GoWaitResult()`启动新协程时，当前协程的值会被复制到新协程。
 
 ## `NewInheritableThreadLocalWithInitial(supplier Supplier) ThreadLocal`
 
-创建一个新的`ThreadLocal`实例，其存储的默认值会通过调用`supplier()`生成。当通过 `Go()`、`GoWait()`或`GoWaitResult()` 启动新协程时，当前协程的值会被复制到新协程。
+创建一个新的`ThreadLocal`实例，其存储的默认值会通过调用`supplier()`生成。当通过`Go()`、`GoWait()`或`GoWaitResult()`启动新协程时，当前协程的值会被复制到新协程。
 
 ## `Go(fun func())`
 
@@ -153,23 +155,23 @@ inheritableThreadLocal in goroutine by Go: Hello world2
 
 # 垃圾回收
 
-`routine` 为每个协程分配了一个`thread` 结构，它存储了协程相关的上下文变量信息。
+`routine`为每个协程分配了一个`thread`结构，它存储了协程相关的上下文变量信息。
 
 指向该结构的指针存储在协程结构的`g.labels`字段上。
 
-当协程执行完毕退出时，`g.labels` 将被设置为 `nil`，不再引用 `thread` 结构。
+当协程执行完毕退出时，`g.labels`将被设置为`nil`，不再引用`thread`结构。
 
-`thread` 结构将在 `GC` 下一次启动时被回收。
+`thread`结构将在下次`GC`时被回收。
 
 如果`thread`中存储的数据也没有额外被引用，这些数据将被一并回收。
 
 # 鸣谢
 
-`routine` 是从 [go-eden/routine](https://github.com/go-eden/routine) 分支出来的，感谢原作者的贡献！
+`routine`是从 [go-eden/routine](https://github.com/go-eden/routine) 分支出来的，感谢原作者的贡献！
 
 # *许可证*
 
-`routine` 是在 [Apache License 2.0](LICENSE) 下发布的。
+`routine`是在 [Apache License 2.0](LICENSE) 下发布的。
 
 ```
 Copyright 2021-2022 TimAndy

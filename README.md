@@ -6,15 +6,17 @@
 
 > [中文版](README_zh.md)
 
-`routine` encapsulates and provides some easy-to-use, high-performance `goroutine` context access interfaces, which can help you access coroutine context information more elegantly, but you may also open Pandora's Box.
+`routine` encapsulates and provides some easy-to-use, non-competitive, high-performance `goroutine` context access interfaces, which can help you access coroutine context information more gracefully.
 
 # Introduce
 
-The `Golang` language has been sparing no effort to shield developers from the concept of coroutine context from the beginning of its design, including the acquisition of coroutine `goid`, the state of the coroutine within the process, and the storage of coroutine context.
+From the very beginning of its design, the `Golang` language has spared no effort to shield the concept of coroutine context from developers, including the acquisition of coroutine `goid`, the state of coroutine within the process, and the storage of coroutine context.
 
-If you have used other languages such as `C++/Java/...`, then you must be familiar with `ThreadLocal`, and after starting to use `Golang`, you will definitely feel confused and distressed by the lack of convenient functions similar to `ThreadLocal`. Of course, you can choose to use `Context`, let it carry all the context information, appear in the first input parameter of all functions, and then shuttle around in your system.
+If you have used other languages such as `C++`, `Java` and so on, then you must be familiar with `ThreadLocal`, but after starting to use `Golang`, you will be deeply confused and distressed by the lack of convenient functions like `ThreadLocal`.
 
-The core goal of `routine` is to open up another path: to introduce `goroutine local storage` into the world of `Golang`, and at the same time expose the coroutine information to meet the needs of some people.
+Of course, you can choose to use `Context`, which carries all the context information, appears in the first input parameter of all functions, and then shuttles around your system.
+
+And the core goal of `routine` is to open up another way: Introduce `goroutine local storage` to the `Golang` world.
 
 # Usage & Demo
 
@@ -159,7 +161,7 @@ A pointer to this structure is stored on the `g.labels` field of the coroutine s
 
 When the coroutine finishes executing and exits, `g.labels` will be set to `nil`, no longer referencing the `thread` structure.
 
-The `thread` structure will be reclaimed the next time the `GC` starts.
+The `thread` structure will be collected at the next `GC`.
 
 If the data stored in `thread` is not additionally referenced, these data will be collected together.
 
