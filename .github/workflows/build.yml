@@ -2,10 +2,12 @@ on:
   push:
     branches:
       - main
-      - feature/*
+      - release/**
+      - feature/**
   pull_request:
     branches:
       - main
+      - release/**
 
 jobs:
   build:
