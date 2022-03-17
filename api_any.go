@@ -1,4 +1,4 @@
 package routine
 
-// Any equals to interface{}.
+// Any is an alias for interface{} and is equivalent to interface{} in all ways.
 type Any = interface{}
