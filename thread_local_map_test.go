@@ -3,8 +3,46 @@ package routine
 import (
 	"github.com/stretchr/testify/assert"
 	"math/rand"
+	"sync"
 	"testing"
 )
+
+func TestCreateInheritedMap(t *testing.T) {
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		thd := currentThread(true)
+		assert.NotNil(t, thd)
+		assert.Nil(t, thd.inheritableThreadLocals)
+		thd.inheritableThreadLocals = &threadLocalMap{}
+		assert.Nil(t, thd.inheritableThreadLocals.table)
+		assert.Nil(t, createInheritedMap())
+		//
+		wg.Done()
+	}()
+	wg.Wait()
+}
+
+func TestCreateInheritedMapNil(t *testing.T) {
+	tls := NewInheritableThreadLocal()
+	tls.Set(nil)
+	srcValue := tls.Get()
+	assert.Nil(t, srcValue)
+	assert.True(t, srcValue == nil)
+
+	mp := createInheritedMap()
+	assert.NotNil(t, mp)
+	getValue := mp.get(tls)
+	assert.Nil(t, getValue)
+	assert.True(t, getValue == nil)
+
+	mp2 := createInheritedMap()
+	assert.NotNil(t, mp2)
+	assert.NotSame(t, mp, mp2)
+	getValue2 := mp2.get(tls)
+	assert.Nil(t, getValue2)
+	assert.True(t, getValue2 == nil)
+}
 
 func TestCreateInheritedMapValue(t *testing.T) {
 	tls := NewInheritableThreadLocal()
