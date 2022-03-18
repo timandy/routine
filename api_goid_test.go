@@ -10,6 +10,17 @@ func TestGoid(t *testing.T) {
 	assert.Equal(t, Goid(), Goid())
 }
 
+func TestGoidFallOver(t *testing.T) {
+	backup := goidOffset
+	defer func() {
+		goidOffset = backup
+	}()
+	//
+	goidOffset = 0
+	assert.NotEqual(t, 0, Goid())
+	assert.Equal(t, Goid(), Goid())
+}
+
 //===
 
 // BenchmarkGoid-4                                229975064                4.939 ns/op            0 B/op          0 allocs/op

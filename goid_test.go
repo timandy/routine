@@ -34,6 +34,33 @@ func TestGetGoidByNative(t *testing.T) {
 	wg.Wait()
 }
 
+func TestGetGoidByNativeFail(t *testing.T) {
+	backup := goidOffset
+	defer func() {
+		goidOffset = backup
+	}()
+	//
+	goidOffset = 0
+	for i := 0; i < 100; i++ {
+		nid, success := getGoidByNative()
+		assert.False(t, success)
+		assert.Equal(t, int64(0), nid)
+	}
+	//
+	wg := &sync.WaitGroup{}
+	wg.Add(100)
+	for i := 0; i < 100; i++ {
+		go func() {
+			nid2, success2 := getGoidByNative()
+			assert.False(t, success2)
+			assert.Equal(t, int64(0), nid2)
+			//
+			wg.Done()
+		}()
+	}
+	wg.Wait()
+}
+
 func TestGetGoidByStack(t *testing.T) {
 	nid, success := getGoidByNative()
 	assert.True(t, success)
