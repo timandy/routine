@@ -4,7 +4,7 @@
 
 ### Features
 
-- Support go version range `go1.12` ~ `go1.18`(New support `go1.18`).
+- Support go version range `go1.13` ~ `go1.18`(New support `go1.18`).
 
 ### Changes
 
