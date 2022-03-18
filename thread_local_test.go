@@ -2,6 +2,7 @@ package routine
 
 import (
 	"github.com/stretchr/testify/assert"
+	"math"
 	"sync"
 	"testing"
 )
@@ -13,6 +14,18 @@ func TestThreadLocal_Id(t *testing.T) {
 		return "Hello"
 	})
 	assert.Greater(t, tls2.Id(), tls.Id())
+}
+
+func TestThreadLocal_NextId(t *testing.T) {
+	backup := threadLocalIndex
+	defer func() {
+		threadLocalIndex = backup
+	}()
+	//
+	threadLocalIndex = math.MaxInt32
+	assert.Panics(t, func() {
+		nextThreadLocalId()
+	})
 }
 
 func TestThreadLocal(t *testing.T) {
