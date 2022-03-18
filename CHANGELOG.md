@@ -1,5 +1,22 @@
 <!--变更日志-->
 
+# v1.0.5 Release notes
+
+### Features
+
+- Support go version range `go1.12` ~ `go1.18`(New support `go1.18`).
+
+### Changes
+
+- Change license to `Apache-2.0`.
+- Upgrade dependencies to the latest version.
+
+# Links
+
+- Source code [https://github.com/timandy/routine/tree/v1.0.5](https://github.com/timandy/routine/tree/v1.0.5)
+
+---
+
 # v1.0.4 Release notes
 
 ### Features
