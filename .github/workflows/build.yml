@@ -35,7 +35,7 @@ jobs:
           go test -race -v -coverprofile='coverage.txt' -covermode=atomic ./...
 
       - name: Codecov
-        uses: codecov/codecov-action@v2.1.0
+        uses: codecov/codecov-action@v3
         with:
           name: Codecov on go${{ matrix.go }}
           fail_ci_if_error: false
