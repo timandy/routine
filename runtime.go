@@ -2,23 +2,18 @@ package routine
 
 import (
 	_ "github.com/timandy/routine/g"
-	_ "net/http"
-	_ "runtime/pprof"
+	"reflect"
 	"unsafe"
 )
 
-// getg returns the pointer to the current runtime.g.
-//go:linkname getg github.com/timandy/routine/g.getg
-func getg() unsafe.Pointer
+// getgp returns the pointer to the current runtime.g.
+//go:linkname getgp github.com/timandy/routine/g.getgp
+func getgp() unsafe.Pointer
 
-// curGoroutineID parse the current g's goid from caller stack.
-//go:linkname curGoroutineID net/http.http2curGoroutineID
-func curGoroutineID() uint64
+// getg0 returns the value of runtime.g0.
+//go:linkname getg0 github.com/timandy/routine/g.getg0
+func getg0() interface{}
 
-// getProfLabel get current g's labels which will be inherited by new goroutine.
-//go:linkname getProfLabel runtime/pprof.runtime_getProfLabel
-func getProfLabel() unsafe.Pointer
-
-// setProfLabel set current g's labels which will be inherited by new goroutine.
-//go:linkname setProfLabel runtime/pprof.runtime_setProfLabel
-func setProfLabel(labels unsafe.Pointer)
+// getgt returns the type of runtime.g.
+//go:linkname getgt github.com/timandy/routine/g.getgt
+func getgt() reflect.Type

@@ -1,59 +1,75 @@
 package routine
 
 import (
-	"runtime"
-	"strings"
+	"fmt"
+	"reflect"
 	"unsafe"
 )
 
 var (
-	goidOffset    uintptr
-	goidOffsetDic = map[string]uintptr{
-		"go1.13": 152,
-		"go1.14": 152,
-		"go1.15": 152,
-		"go1.16": 152,
-		"go1.17": 152,
-		"go1.18": 152,
-	}
+	offsetGoid         uintptr
+	offsetPaniconfault uintptr
+	offsetLabels       uintptr
 )
 
 func init() {
-	var offset uintptr
-	version := runtime.Version()
-	for k, v := range goidOffsetDic {
-		if k == version || strings.HasPrefix(version, k) {
-			offset = v
-			break
-		}
-	}
-	goidOffset = offset
+	gt := getgt()
+	offsetGoid = offset(gt, "goid")
+	offsetPaniconfault = offset(gt, "paniconfault")
+	offsetLabels = offset(gt, "labels")
 }
 
-// getGoidByNative parse the current goroutine's id from g.
-// This function could be very fast(like 1ns/op), but it may be failed.
-func getGoidByNative() (int64, bool) {
-	if goidOffset == 0 {
-		return 0, false
-	}
-	gp := getg()
+type g struct {
+	goid         int64
+	paniconfault *bool
+	labels       *unsafe.Pointer
+}
+
+//go:norace
+func (gp g) getPanicOnFault() bool {
+	return *gp.paniconfault
+}
+
+//go:norace
+func (gp g) setPanicOnFault(new bool) (old bool) {
+	old = *gp.paniconfault
+	*gp.paniconfault = new
+	return old
+}
+
+//go:norace
+func (gp g) getLabels() unsafe.Pointer {
+	return *gp.labels
+}
+
+//go:norace
+func (gp g) setLabels(labels unsafe.Pointer) {
+	*gp.labels = labels
+}
+
+// getg returns current coroutine struct.
+func getg() g {
+	gp := getgp()
 	if gp == nil {
-		return 0, false
+		panic("Failed to get gp from runtime natively.")
 	}
-	goid := (*int64)(add(gp, goidOffset))
-	if goid == nil {
-		return 0, false
+	return g{
+		goid:         *(*int64)(add(gp, offsetGoid)),
+		paniconfault: (*bool)(add(gp, offsetPaniconfault)),
+		labels:       (*unsafe.Pointer)(add(gp, offsetLabels)),
 	}
-	return *goid, true
 }
 
-// getGoidByStack parse the current goroutine's id from caller stack.
-// This function could be very slow(like 3000us/op), but it's very safe.
-func getGoidByStack() int64 {
-	return int64(curGoroutineID())
+// offset returns the offset of the specified field.
+func offset(t reflect.Type, f string) uintptr {
+	field, found := t.FieldByName(f)
+	if found {
+		return field.Offset
+	}
+	panic(fmt.Sprintf("No such field '%v' of struct '%v.%v'.", f, t.PkgPath(), t.Name()))
 }
 
-//add pointer addition operation.
+// add pointer addition operation.
 func add(p unsafe.Pointer, x uintptr) unsafe.Pointer {
 	return unsafe.Pointer(uintptr(p) + x)
 }

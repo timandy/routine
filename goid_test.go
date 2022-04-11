@@ -2,109 +2,120 @@ package routine
 
 import (
 	"github.com/stretchr/testify/assert"
-	"sync"
+	"reflect"
+	"runtime"
 	"testing"
+	"unsafe"
 )
 
-func TestGetGoidByNative(t *testing.T) {
-	sid := getGoidByStack()
-	assert.NotEqual(t, 0, sid)
-	//
-	for i := 0; i < 100; i++ {
-		nid, success := getGoidByNative()
-		assert.True(t, success)
-		assert.Equal(t, sid, nid)
-	}
-	//
-	wg := &sync.WaitGroup{}
-	wg.Add(100)
-	for i := 0; i < 100; i++ {
-		go func() {
-			sid2 := getGoidByStack()
-			assert.NotEqual(t, 0, sid2)
-			//
-			nid2, success2 := getGoidByNative()
-			assert.True(t, success2)
-			assert.Equal(t, sid2, nid2)
-			assert.NotEqual(t, sid, nid2)
-			//
-			wg.Done()
-		}()
-	}
-	wg.Wait()
+// curGoroutineID parse the current g's goid from caller stack.
+//go:linkname curGoroutineID net/http.http2curGoroutineID
+func curGoroutineID() int64
+
+// setPanicOnFault controls the runtime's behavior when a program faults at an unexpected (non-nil) address.
+//go:linkname setPanicOnFault runtime/debug.setPanicOnFault
+func setPanicOnFault(new bool) (old bool)
+
+// getProfLabel get current g's labels which will be inherited by new goroutine.
+//go:linkname getProfLabel runtime/pprof.runtime_getProfLabel
+func getProfLabel() unsafe.Pointer
+
+// setProfLabel set current g's labels which will be inherited by new goroutine.
+//go:linkname setProfLabel runtime/pprof.runtime_setProfLabel
+func setProfLabel(labels unsafe.Pointer)
+
+func TestGoidNative(t *testing.T) {
+	runTest(t, func() {
+		gp := getg()
+		runtime.GC()
+		assert.Equal(t, curGoroutineID(), gp.goid)
+	})
 }
 
-func TestGetGoidByNativeFail(t *testing.T) {
-	backup := goidOffset
-	defer func() {
-		goidOffset = backup
-	}()
-	//
-	goidOffset = 0
-	for i := 0; i < 100; i++ {
-		nid, success := getGoidByNative()
-		assert.False(t, success)
-		assert.Equal(t, int64(0), nid)
-	}
-	//
-	wg := &sync.WaitGroup{}
-	wg.Add(100)
-	for i := 0; i < 100; i++ {
-		go func() {
-			nid2, success2 := getGoidByNative()
-			assert.False(t, success2)
-			assert.Equal(t, int64(0), nid2)
-			//
-			wg.Done()
-		}()
-	}
-	wg.Wait()
+func TestPaniconfault(t *testing.T) {
+	runTest(t, func() {
+		gp := getg()
+		runtime.GC()
+		//read-1
+		assert.False(t, setPanicOnFault(false))
+		assert.False(t, gp.getPanicOnFault())
+		//read-2
+		setPanicOnFault(true)
+		assert.True(t, gp.getPanicOnFault())
+		//write-1
+		gp.setPanicOnFault(false)
+		assert.False(t, setPanicOnFault(false))
+		//write-2
+		gp.setPanicOnFault(true)
+		assert.True(t, setPanicOnFault(true))
+		//write-read-1
+		gp.setPanicOnFault(false)
+		assert.False(t, gp.getPanicOnFault())
+		//write-read-2
+		gp.setPanicOnFault(true)
+		assert.True(t, gp.getPanicOnFault())
+		//restore
+		gp.setPanicOnFault(false)
+	})
 }
 
-func TestGetGoidByStack(t *testing.T) {
-	nid, success := getGoidByNative()
-	assert.True(t, success)
-	assert.NotEqual(t, 0, nid)
-	//
-	for i := 0; i < 100; i++ {
-		sid := getGoidByStack()
-		assert.Equal(t, nid, sid)
-	}
-	//
-	wg := &sync.WaitGroup{}
-	wg.Add(100)
-	for i := 0; i < 100; i++ {
-		go func() {
-			nid2, success2 := getGoidByNative()
-			assert.True(t, success2)
-			assert.NotEqual(t, 0, nid2)
-			//
-			sid2 := getGoidByStack()
-			assert.Equal(t, nid2, sid2)
-			assert.NotEqual(t, nid, sid2)
-			//
-			wg.Done()
-		}()
-	}
-	wg.Wait()
+func TestProfLabel(t *testing.T) {
+	runTest(t, func() {
+		ptr := unsafe.Pointer(&struct{}{})
+		null := unsafe.Pointer(uintptr(0))
+		assert.NotEqual(t, ptr, null)
+		//
+		gp := getg()
+		runtime.GC()
+		//read-1
+		assert.Equal(t, null, getProfLabel())
+		assert.Equal(t, null, gp.getLabels())
+		//read-2
+		setProfLabel(ptr)
+		assert.Equal(t, ptr, gp.getLabels())
+		//write-1
+		gp.setLabels(nil)
+		assert.Equal(t, null, getProfLabel())
+		//write-2
+		gp.setLabels(ptr)
+		assert.Equal(t, ptr, getProfLabel())
+		//write-read-1
+		gp.setLabels(nil)
+		assert.Equal(t, null, gp.getLabels())
+		//write-read-2
+		gp.setLabels(ptr)
+		assert.Equal(t, ptr, gp.getLabels())
+		//restore
+		gp.setLabels(null)
+	})
+}
+
+func TestOffset(t *testing.T) {
+	runTest(t, func() {
+		assert.Panics(t, func() {
+			gt := reflect.TypeOf(0)
+			offset(gt, "hello")
+		})
+		assert.PanicsWithValue(t, "No such field 'hello' of struct 'runtime.g'.", func() {
+			gt := getgt()
+			offset(gt, "hello")
+		})
+	})
 }
 
 //===
 
-// BenchmarkGetGoidByNative-4                     363983250                3.270 ns/op            0 B/op          0 allocs/op
-func BenchmarkGetGoidByNative(b *testing.B) {
+// BenchmarkGohack-8                              186637413                5.734 ns/op            0 B/op          0 allocs/op
+func BenchmarkGohack(b *testing.B) {
+	_ = getg()
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, _ = getGoidByNative()
-	}
-}
-
-// BenchmarkGetGoidByStack-4                         363614                 3030 ns/op            0 B/op          0 allocs/op
-func BenchmarkGetGoidByStack(b *testing.B) {
-	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_ = getGoidByStack()
+		gp := getg()
+		_ = gp.goid
+		_ = gp.getLabels()
+		_ = gp.getPanicOnFault()
+		gp.setLabels(nil)
+		gp.setPanicOnFault(false)
 	}
 }
