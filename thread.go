@@ -18,13 +18,14 @@ type thread struct {
 }
 
 func currentThread(create bool) *thread {
-	goid := Goid()
-	label := getProfLabel()
+	gp := getg()
+	goid := gp.goid
+	label := gp.getLabels()
 	//nothing inherited
 	if label == nil {
 		if create {
 			newt := &thread{magic: threadMagic, id: goid}
-			setProfLabel(unsafe.Pointer(newt))
+			gp.setLabels(unsafe.Pointer(newt))
 			return newt
 		}
 		return nil
@@ -34,10 +35,10 @@ func currentThread(create bool) *thread {
 	if t.id != goid || t.magic != threadMagic {
 		if create {
 			newt := &thread{magic: threadMagic, id: goid}
-			setProfLabel(unsafe.Pointer(newt))
+			gp.setLabels(unsafe.Pointer(newt))
 			return newt
 		}
-		setProfLabel(nil)
+		gp.setLabels(nil)
 		return nil
 	}
 	//all is ok
