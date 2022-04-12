@@ -1,8 +1,11 @@
 package routine
 
 import (
+	"bytes"
+	"context"
 	"github.com/stretchr/testify/assert"
 	"runtime"
+	"runtime/pprof"
 	"sync"
 	"testing"
 	"time"
@@ -11,6 +14,45 @@ import (
 func TestCurrentThread(t *testing.T) {
 	assert.NotNil(t, currentThread(true))
 	assert.Same(t, currentThread(true), currentThread(true))
+}
+
+func TestPProf(t *testing.T) {
+	const concurrency = 10
+	const loopTimes = 10
+	tls := NewThreadLocal()
+	tls.Set("你好")
+	wg := &sync.WaitGroup{}
+	wg.Add(concurrency)
+	for i := 0; i < concurrency; i++ {
+		tmp := i
+		go func() {
+			for j := 0; j < loopTimes; j++ {
+				time.Sleep(100 * time.Millisecond)
+				tls.Set(tmp)
+				assert.Equal(t, tmp, tls.Get())
+				pprof.Do(context.Background(), pprof.Labels("key", "value"), func(ctx context.Context) {
+					label, find := pprof.Label(ctx, "key")
+					assert.True(t, find)
+					assert.Equal(t, "value", label)
+					//
+					assert.Nil(t, currentThread(false))
+					assert.Nil(t, tls.Get())
+					tls.Set("hi")
+					assert.Equal(t, "hi", tls.Get())
+					//
+					label2, find2 := pprof.Label(ctx, "key")
+					assert.True(t, find2)
+					assert.Equal(t, "value", label2)
+				})
+				assert.Nil(t, tls.Get())
+			}
+			wg.Done()
+		}()
+	}
+	assert.Nil(t, pprof.StartCPUProfile(&bytes.Buffer{}))
+	wg.Wait()
+	pprof.StopCPUProfile()
+	assert.Equal(t, "你好", tls.Get())
 }
 
 func TestThreadGC(t *testing.T) {
