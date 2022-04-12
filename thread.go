@@ -11,12 +11,15 @@ const threadMagic = int64('r')<<48 |
 	int64('e')
 
 type thread struct {
-	magic                   int64
-	id                      int64
+	labels                  map[string]string //pprof
+	magic                   int64             //mark
+	id                      int64             //goid
 	threadLocals            *threadLocalMap
 	inheritableThreadLocals *threadLocalMap
 }
 
+//go:norace
+//go:nocheckptr
 func currentThread(create bool) *thread {
 	gp := getg()
 	goid := gp.goid
@@ -24,17 +27,27 @@ func currentThread(create bool) *thread {
 	//nothing inherited
 	if label == nil {
 		if create {
-			newt := &thread{magic: threadMagic, id: goid}
+			newt := &thread{labels: nil, magic: threadMagic, id: goid}
 			gp.setLabels(unsafe.Pointer(newt))
 			return newt
 		}
 		return nil
 	}
-	//inherited need recreate
-	t := (*thread)(label)
-	if t.id != goid || t.magic != threadMagic {
+	//inherited map then create
+	t, magic, id := extract(gp, label)
+	if magic != threadMagic {
 		if create {
-			newt := &thread{magic: threadMagic, id: goid}
+			mp := *(*map[string]string)(label)
+			newt := &thread{labels: mp, magic: threadMagic, id: goid}
+			gp.setLabels(unsafe.Pointer(newt))
+			return newt
+		}
+		return nil
+	}
+	//inherited thread then recreate
+	if id != goid {
+		if create || t.labels != nil {
+			newt := &thread{labels: t.labels, magic: threadMagic, id: goid}
 			gp.setLabels(unsafe.Pointer(newt))
 			return newt
 		}
@@ -43,4 +56,17 @@ func currentThread(create bool) *thread {
 	}
 	//all is ok
 	return t
+}
+
+// extract catch fault error.
+//go:norace
+//go:nocheckptr
+func extract(gp g, label unsafe.Pointer) (t *thread, magic int64, id int64) {
+	old := gp.setPanicOnFault(true)
+	defer func() {
+		gp.setPanicOnFault(old)
+		recover()
+	}()
+	t = (*thread)(label)
+	return t, t.magic, t.id
 }
