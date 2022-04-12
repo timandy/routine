@@ -49,7 +49,7 @@ func TestThreadGC(t *testing.T) {
 	//=========GC
 	gatherWait.Done() //gather ok, release sub thread
 	fea.Get()         //wait sub thread finish
-	time.Sleep(time.Millisecond * 500)
+	time.Sleep(500 * time.Millisecond)
 	heapGC, numGC := getMemStats()
 	printMemStats("AfterGC", heapGC, numGC)
 	gcWait.Done()

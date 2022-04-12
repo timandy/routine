@@ -36,7 +36,7 @@ func TestGet(t *testing.T) {
 	run := false
 	fea := NewFeature()
 	go func() {
-		time.Sleep(time.Millisecond * 500)
+		time.Sleep(500 * time.Millisecond)
 		run = true
 		fea.Complete(nil)
 	}()
