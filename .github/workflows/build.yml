@@ -11,11 +11,36 @@ on:
 
 jobs:
   build:
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ macos-latest, ubuntu-latest, windows-latest ]
+        arch: [ 386, amd64, armv6, armv7, arm64 ]
         go: [ 1.13, 1.14, 1.15, 1.16, 1.17, 1.18 ]
-    runs-on: ${{ matrix.os }}
+        exclude:
+          - os: macos-latest
+            arch: 386
+          - os: macos-latest
+            arch: armv6
+          - os: macos-latest
+            arch: armv7
+          - os: macos-latest
+            arch: arm64
+          - os: windows-latest
+            arch: armv6
+          - os: windows-latest
+            arch: armv7
+          - os: windows-latest
+            arch: arm64
+        include:
+          - arch: armv6
+            archx: armv6
+          - arch: armv7
+            archx: armv7
+          - arch: arm64
+            archx: aarch64
+
     steps:
       - name: Checkout scm
         uses: actions/checkout@v3
@@ -25,17 +50,52 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
 
-      - name: Get dependencies
-        run: go get -t -v ./...
+      - name: 'Test with 386'
+        if: ${{ matrix.arch == '386' }}
+        env:
+          GOARCH: 386
+        run: go test -v -coverprofile='coverage.txt' -covermode=atomic ./...
 
-      - name: Test sources
-        run: |
-          set GOMAXPROCS=4
-          set GORACE=halt_on_error=1
-          go test -race -v -coverprofile='coverage.txt' -covermode=atomic ./...
+      - name: 'Test with amd64'
+        if: ${{ matrix.arch == 'amd64' }}
+        env:
+          GOARCH: amd64
+        run: go test -v -race -coverprofile='coverage.txt' -covermode=atomic ./...
+
+      - name: 'Build with armv6'
+        if: ${{ matrix.arch == 'armv6' }}
+        env:
+          GOARCH: arm
+          GOARM: 6
+        run: go test -v -c
+
+      - name: 'Build with armv7'
+        if: ${{ matrix.arch == 'armv7' }}
+        env:
+          GOARCH: arm
+          GOARM: 7
+        run: go test -v -c
+
+      - name: 'Build with arm64'
+        if: ${{ matrix.arch == 'arm64' }}
+        env:
+          GOARCH: arm64
+        run: go test -v -c
+
+      - name: 'Test with arm'
+        if: ${{ contains(matrix.arch, 'arm') }}
+        uses: uraimo/run-on-arch-action@v2
+        with:
+          arch: ${{ matrix.archx }}
+          distro: bullseye
+          dockerRunArgs: --mount type=bind,source="$(pwd)",target=/checkout,readonly
+          run: |
+            find /checkout -name '*.test' -type f -executable -print0 | \
+              xargs -t -0 -I '{}' sh -c '{} -test.v'
 
       - name: Codecov
-        uses: codecov/codecov-action@v2.1.0
+        if: ${{ !contains(matrix.arch, 'arm') }}
+        uses: codecov/codecov-action@v3
         with:
-          name: Codecov on go${{ matrix.go }}
+          name: Codecov on ${{ matrix.os }}/${{ matrix.arch }} go${{ matrix.go }}
           fail_ci_if_error: false
