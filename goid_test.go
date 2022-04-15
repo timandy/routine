@@ -62,7 +62,7 @@ func TestPaniconfault(t *testing.T) {
 func TestProfLabel(t *testing.T) {
 	runTest(t, func() {
 		ptr := unsafe.Pointer(&struct{}{})
-		null := unsafe.Pointer(uintptr(0))
+		null := unsafe.Pointer(nil)
 		assert.NotEqual(t, ptr, null)
 		//
 		gp := getg()
