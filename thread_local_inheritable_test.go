@@ -7,16 +7,16 @@ import (
 	"testing"
 )
 
-func TestInheritableThreadLocal_Id(t *testing.T) {
+func TestInheritableThreadLocalId(t *testing.T) {
 	tls := NewInheritableThreadLocal()
-	assert.GreaterOrEqual(t, tls.Id(), 0)
+	assert.GreaterOrEqual(t, tls.(*inheritableThreadLocal).id, 0)
 	tls2 := NewInheritableThreadLocalWithInitial(func() Any {
 		return "Hello"
 	})
-	assert.Greater(t, tls2.Id(), tls.Id())
+	assert.Greater(t, tls2.(*inheritableThreadLocal).id, tls.(*inheritableThreadLocal).id)
 }
 
-func TestInheritableThreadLocal_NextId(t *testing.T) {
+func TestInheritableThreadLocalNextId(t *testing.T) {
 	backup := inheritableThreadLocalIndex
 	defer func() {
 		inheritableThreadLocalIndex = backup

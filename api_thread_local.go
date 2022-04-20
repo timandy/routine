@@ -2,9 +2,6 @@ package routine
 
 // ThreadLocal provides goroutine-local variables.
 type ThreadLocal interface {
-	// Id returns the global id of instance.
-	Id() int
-
 	// Get returns the value in the current goroutine's local threadLocals or inheritableThreadLocals, if it was set before.
 	Get() Any
 

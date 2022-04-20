@@ -10,8 +10,7 @@ type threadLocalMap struct {
 	table []Any
 }
 
-func (mp *threadLocalMap) get(key ThreadLocal) Any {
-	index := key.Id()
+func (mp *threadLocalMap) get(index int) Any {
 	lookup := mp.table
 	if index < len(lookup) {
 		return lookup[index]
@@ -19,8 +18,7 @@ func (mp *threadLocalMap) get(key ThreadLocal) Any {
 	return unset
 }
 
-func (mp *threadLocalMap) set(key ThreadLocal, value Any) {
-	index := key.Id()
+func (mp *threadLocalMap) set(index int, value Any) {
 	lookup := mp.table
 	if index < len(lookup) {
 		lookup[index] = value
@@ -29,8 +27,7 @@ func (mp *threadLocalMap) set(key ThreadLocal, value Any) {
 	mp.expandAndSet(index, value)
 }
 
-func (mp *threadLocalMap) remove(key ThreadLocal) {
-	index := key.Id()
+func (mp *threadLocalMap) remove(index int) {
 	lookup := mp.table
 	if index < len(lookup) {
 		lookup[index] = unset
