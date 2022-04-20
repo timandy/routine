@@ -1,5 +1,27 @@
 <!--变更日志-->
 
+# v1.0.6 Release notes
+
+### Bugs
+
+- Fix fault error when pprof is running.
+
+### Features
+
+- Support more architectures `386`, `amd64`, `armv6`, `armv7`, `arm64`.
+
+### Changes
+
+- Read and write `coroutine` information through the `gohack` library, theoretically support unreleased `go` versions in the future.
+- When `runtime.g` cannot be obtained natively, `panic` directly instead of falling back to invoke `runtime.Stack()` method.
+- Remove api `ThreadLocal.Id()`.
+
+# Links
+
+- Source code [https://github.com/timandy/routine/tree/v1.0.6](https://github.com/timandy/routine/tree/v1.0.6)
+
+---
+
 # v1.0.5 Release notes
 
 ### Features
