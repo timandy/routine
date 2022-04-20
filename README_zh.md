@@ -119,9 +119,7 @@ inheritableThreadLocal in goroutine by Go: Hello world2
 
 获取当前`goroutine`的`goid`。
 
-在正常情况下，`Goid()`优先尝试通过`go_tls`的方式直接获取，此操作性能极高，耗时通常只相当于`rand.Int()`的五分之一。
-
-若出现版本不兼容等错误时，`Goid()`会尝试降级，即从`runtime.Stack`信息中解析获取，此时性能会急剧下降约千倍，但它可以保证功能正常可用。
+在`386`、`amd64`、`armv6`、`armv7`、`arm64`架构下通过汇编代码直接获取，此操作性能极高，耗时通常只相当于`rand.Int()`的五分之一。
 
 ## `NewThreadLocal() ThreadLocal`
 
@@ -164,6 +162,19 @@ inheritableThreadLocal in goroutine by Go: Hello world2
 `thread`结构将在下次`GC`时被回收。
 
 如果`thread`中存储的数据也没有额外被引用，这些数据将被一并回收。
+
+# 支持网格
+
+|             | **`darwin`** | **`linux`** | **`windows`** |             |
+|------------:|:------------:|:-----------:|:-------------:|:------------|
+|   **`386`** |              |      ✅      |       ✅       | **`386`**   |
+| **`amd64`** |      ✅       |      ✅      |       ✅       | **`amd64`** |
+| **`armv6`** |              |      ✅      |               | **`armv6`** |
+| **`armv7`** |              |      ✅      |               | **`armv7`** |
+| **`arm64`** |              |      ✅      |               | **`arm64`** |
+|             | **`darwin`** | **`linux`** | **`windows`** |             |
+
+✅：支持
 
 # 鸣谢
 
