@@ -7,14 +7,14 @@ type stackError struct {
 	stackTrace string
 }
 
-func (fe *stackError) Message() Any {
-	return fe.message
+func (se *stackError) Message() Any {
+	return se.message
 }
 
-func (fe *stackError) StackTrace() string {
-	return fe.stackTrace
+func (se *stackError) StackTrace() string {
+	return se.stackTrace
 }
 
-func (fe *stackError) Error() string {
-	return fmt.Sprintf("%v\n%v", fe.message, fe.stackTrace)
+func (se *stackError) Error() string {
+	return fmt.Sprintf("%v\n%v", se.message, se.stackTrace)
 }
