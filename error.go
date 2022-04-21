@@ -16,5 +16,9 @@ func (se *stackError) StackTrace() string {
 }
 
 func (se *stackError) Error() string {
-	return fmt.Sprintf("%v\n%v", se.message, se.stackTrace)
+	s := "StackError"
+	if message := fmt.Sprint(se.message); len(message) > 0 {
+		s = s + ": " + message
+	}
+	return s + "\n" + se.stackTrace
 }
