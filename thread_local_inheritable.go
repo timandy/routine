@@ -14,7 +14,7 @@ func nextInheritableThreadLocalId() int {
 
 type inheritableThreadLocal struct {
 	id       int
-	supplier func() Any
+	supplier Supplier
 }
 
 func (tls *inheritableThreadLocal) Get() Any {

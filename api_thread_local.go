@@ -12,8 +12,8 @@ type ThreadLocal interface {
 	Remove()
 }
 
-// Supplier provides a function which return Any type result.
-type Supplier = func() Any
+// Supplier provides a function that returns a value of type Any.
+type Supplier func() Any
 
 // NewThreadLocal create and return a new ThreadLocal instance.
 // The initial value is nil.

@@ -14,7 +14,7 @@ func nextThreadLocalId() int {
 
 type threadLocal struct {
 	id       int
-	supplier func() Any
+	supplier Supplier
 }
 
 func (tls *threadLocal) Get() Any {
