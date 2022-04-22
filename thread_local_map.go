@@ -1,6 +1,6 @@
 package routine
 
-var unset = &object{}
+var unset Any = &object{}
 
 type object struct {
 	value Any
