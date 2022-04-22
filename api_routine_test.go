@@ -6,6 +6,33 @@ import (
 	"testing"
 )
 
+func TestRunnable(t *testing.T) {
+	count := 0
+	var runnable Runnable
+	runnable = func() {
+		count++
+	}
+	runnable()
+	assert.Equal(t, 1, count)
+	//
+	var fun func()
+	fun = runnable
+	fun()
+	assert.Equal(t, 2, count)
+}
+
+func TestCallable(t *testing.T) {
+	var callable Callable
+	callable = func() interface{} {
+		return "Hello"
+	}
+	assert.Equal(t, "Hello", callable())
+	//
+	var fun func() Any
+	fun = callable
+	assert.Equal(t, "Hello", fun())
+}
+
 func TestGo_Error(t *testing.T) {
 	run := false
 	assert.NotPanics(t, func() {
