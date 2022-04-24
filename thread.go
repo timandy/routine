@@ -1,6 +1,9 @@
 package routine
 
-import "unsafe"
+import (
+	"runtime"
+	"unsafe"
+)
 
 const threadMagic = int64('r')<<48 |
 	int64('o')<<40 |
@@ -18,6 +21,15 @@ type thread struct {
 	inheritableThreadLocals *threadLocalMap
 }
 
+// finalizeThread reset thread's memory.
+func finalizeThread(t *thread) {
+	t.labels = nil
+	t.magic = 0
+	t.id = 0
+	t.threadLocals = nil
+	t.inheritableThreadLocals = nil
+}
+
 //go:norace
 //go:nocheckptr
 func currentThread(create bool) *thread {
@@ -28,6 +40,7 @@ func currentThread(create bool) *thread {
 	if label == nil {
 		if create {
 			newt := &thread{labels: nil, magic: threadMagic, id: goid}
+			runtime.SetFinalizer(newt, finalizeThread)
 			gp.setLabels(unsafe.Pointer(newt))
 			return newt
 		}
@@ -39,6 +52,7 @@ func currentThread(create bool) *thread {
 		if create {
 			mp := *(*map[string]string)(label)
 			newt := &thread{labels: mp, magic: threadMagic, id: goid}
+			runtime.SetFinalizer(newt, finalizeThread)
 			gp.setLabels(unsafe.Pointer(newt))
 			return newt
 		}
@@ -48,6 +62,7 @@ func currentThread(create bool) *thread {
 	if id != goid {
 		if create || t.labels != nil {
 			newt := &thread{labels: t.labels, magic: threadMagic, id: goid}
+			runtime.SetFinalizer(newt, finalizeThread)
 			gp.setLabels(unsafe.Pointer(newt))
 			return newt
 		}
