@@ -1,6 +1,9 @@
 package routine
 
-import "unsafe"
+import (
+	"runtime"
+	"unsafe"
+)
 
 const threadMagic = int64('r')<<48 |
 	int64('o')<<40 |
@@ -29,6 +32,7 @@ func currentThread(create bool) *thread {
 		if create {
 			newt := &thread{labels: nil, magic: threadMagic, id: goid}
 			gp.setLabels(unsafe.Pointer(newt))
+			threadFinalize(newt)
 			return newt
 		}
 		return nil
@@ -40,6 +44,7 @@ func currentThread(create bool) *thread {
 			mp := *(*map[string]string)(label)
 			newt := &thread{labels: mp, magic: threadMagic, id: goid}
 			gp.setLabels(unsafe.Pointer(newt))
+			threadFinalize(newt)
 			return newt
 		}
 		return nil
@@ -49,6 +54,7 @@ func currentThread(create bool) *thread {
 		if create || t.labels != nil {
 			newt := &thread{labels: t.labels, magic: threadMagic, id: goid}
 			gp.setLabels(unsafe.Pointer(newt))
+			threadFinalize(newt)
 			return newt
 		}
 		gp.setLabels(nil)
@@ -69,4 +75,10 @@ func extract(gp g, label unsafe.Pointer) (t *thread, magic int64, id int64) {
 	}()
 	t = (*thread)(label)
 	return t, t.magic, t.id
+}
+
+func threadFinalize(t *thread) {
+	runtime.SetFinalizer(t, func(p *thread) {
+		t.magic = 0
+	})
 }
