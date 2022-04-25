@@ -86,7 +86,7 @@ func TestThreadGC(t *testing.T) {
 	allocWait.Wait() //wait alloc done
 	heapAlloc, numAlloc := getMemStats()
 	printMemStats("Alloc", heapAlloc, numAlloc)
-	assert.Greater(t, heapAlloc, heapInit+allocSize*2)
+	assert.Greater(t, heapAlloc, heapInit+allocSize*2*0.9)
 	assert.Greater(t, numAlloc, numInit)
 	//=========GC
 	gatherWait.Done() //gather ok, release sub thread
