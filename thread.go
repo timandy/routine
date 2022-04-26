@@ -21,8 +21,8 @@ type thread struct {
 	inheritableThreadLocals *threadLocalMap
 }
 
-// finalizeThread reset thread's memory.
-func finalizeThread(t *thread) {
+// finalize reset thread's memory.
+func (t *thread) finalize() {
 	t.labels = nil
 	t.magic = 0
 	t.id = 0
@@ -40,7 +40,7 @@ func currentThread(create bool) *thread {
 	if label == nil {
 		if create {
 			newt := &thread{labels: nil, magic: threadMagic, id: goid}
-			runtime.SetFinalizer(newt, finalizeThread)
+			runtime.SetFinalizer(newt, (*thread).finalize)
 			gp.setLabels(unsafe.Pointer(newt))
 			return newt
 		}
@@ -52,7 +52,7 @@ func currentThread(create bool) *thread {
 		if create {
 			mp := *(*map[string]string)(label)
 			newt := &thread{labels: mp, magic: threadMagic, id: goid}
-			runtime.SetFinalizer(newt, finalizeThread)
+			runtime.SetFinalizer(newt, (*thread).finalize)
 			gp.setLabels(unsafe.Pointer(newt))
 			return newt
 		}
@@ -62,7 +62,7 @@ func currentThread(create bool) *thread {
 	if id != goid {
 		if create || t.labels != nil {
 			newt := &thread{labels: t.labels, magic: threadMagic, id: goid}
-			runtime.SetFinalizer(newt, finalizeThread)
+			runtime.SetFinalizer(newt, (*thread).finalize)
 			gp.setLabels(unsafe.Pointer(newt))
 			return newt
 		}
