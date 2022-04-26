@@ -31,13 +31,14 @@ func TestPProf(t *testing.T) {
 				tls.Set(tmp)
 				assert.Equal(t, tmp, tls.Get())
 				pprof.Do(context.Background(), pprof.Labels("key", "value"), func(ctx context.Context) {
+					assert.Nil(t, currentThread(false))
+					assert.Nil(t, tls.Get())
+					tls.Set("hi")
+					//
 					label, find := pprof.Label(ctx, "key")
 					assert.True(t, find)
 					assert.Equal(t, "value", label)
 					//
-					assert.Nil(t, currentThread(false))
-					assert.Nil(t, tls.Get())
-					tls.Set("hi")
 					assert.Equal(t, "hi", tls.Get())
 					//
 					label2, find2 := pprof.Label(ctx, "key")
