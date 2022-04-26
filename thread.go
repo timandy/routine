@@ -47,7 +47,7 @@ func currentThread(create bool) *thread {
 		return nil
 	}
 	//inherited map then create
-	t, magic, id := extract(gp, label)
+	t, magic, id := extractThread(gp, label)
 	if magic != threadMagic {
 		if create {
 			mp := *(*map[string]string)(label)
@@ -73,10 +73,10 @@ func currentThread(create bool) *thread {
 	return t
 }
 
-// extract catch fault error.
+// extractThread catch fault error.
 //go:norace
 //go:nocheckptr
-func extract(gp g, label unsafe.Pointer) (t *thread, magic int64, id int64) {
+func extractThread(gp g, label unsafe.Pointer) (t *thread, magic int64, id int64) {
 	old := gp.setPanicOnFault(true)
 	defer func() {
 		gp.setPanicOnFault(old)
