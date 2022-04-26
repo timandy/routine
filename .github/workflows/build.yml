@@ -1,3 +1,7 @@
+# Workflow file of GitHub Actions
+
+name: build
+
 on:
   push:
     branches:
