@@ -16,8 +16,8 @@ func TestComplete(t *testing.T) {
 
 func TestCompleteError(t *testing.T) {
 	defer func() {
-		if err := recover(); err != nil {
-			re := err.(RuntimeError)
+		if cause := recover(); cause != nil {
+			re := cause.(RuntimeError)
 			assert.NotNil(t, re)
 			assert.Equal(t, "1", re.Message())
 			assert.NotNil(t, re.StackTrace())

@@ -16,8 +16,8 @@ func Go(fun Runnable) {
 	go func() {
 		// catch
 		defer func() {
-			if err := recover(); err != nil {
-				fmt.Println(NewRuntimeError(err).Error())
+			if cause := recover(); cause != nil {
+				fmt.Println(NewRuntimeError(cause).Error())
 			}
 		}()
 		// restore
@@ -55,8 +55,8 @@ func GoWait(fun Runnable) Feature {
 	go func() {
 		// catch
 		defer func() {
-			if err := recover(); err != nil {
-				fea.CompleteError(err)
+			if cause := recover(); cause != nil {
+				fea.CompleteError(cause)
 			}
 		}()
 		// restore
@@ -97,8 +97,8 @@ func GoWaitResult(fun Callable) Feature {
 	go func() {
 		// catch
 		defer func() {
-			if err := recover(); err != nil {
-				fea.CompleteError(err)
+			if cause := recover(); cause != nil {
+				fea.CompleteError(cause)
 			}
 		}()
 		// restore
