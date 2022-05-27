@@ -2,6 +2,7 @@ package routine
 
 import (
 	"github.com/stretchr/testify/assert"
+	"strings"
 	"testing"
 	"time"
 )
@@ -14,19 +15,79 @@ func TestFuture_Complete(t *testing.T) {
 	assert.Equal(t, 1, fea.Get())
 }
 
-func TestFuture_CompleteError(t *testing.T) {
+func TestFuture_CompleteError_Common(t *testing.T) {
 	defer func() {
 		if cause := recover(); cause != nil {
 			err := cause.(RuntimeError)
 			assert.NotNil(t, err)
 			assert.Equal(t, "1", err.Message())
-			assert.NotNil(t, err.StackTrace())
+			lines := strings.Split(err.Error(), newLine)
+			//
+			line := lines[0]
+			assert.Equal(t, "RuntimeError: 1", line)
+			//
+			line = lines[1]
+			assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.(*feature).CompleteError() in "))
+			assert.True(t, strings.HasSuffix(line, "feature.go:20"))
+			//
+			line = lines[2]
+			assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestFuture_CompleteError_Common."))
+			assert.True(t, strings.HasSuffix(line, "feature_test.go:50"))
+			//
+			line = lines[3]
+			assert.True(t, strings.HasPrefix(line, "   at runtime.gopanic() in "))
+			//
+			line = lines[4]
+			assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestFuture_CompleteError_Common."))
+			assert.True(t, strings.HasSuffix(line, "feature_test.go:53"))
 		}
 	}()
-
+	//
 	fea := NewFeature()
 	go func() {
-		fea.CompleteError(1)
+		defer func() {
+			if cause := recover(); cause != nil {
+				fea.CompleteError(cause)
+			}
+		}()
+		panic(1)
+	}()
+	fea.Get()
+	assert.Fail(t, "should not be here")
+}
+
+func TestFuture_CompleteError_RuntimeError(t *testing.T) {
+	defer func() {
+		if cause := recover(); cause != nil {
+			err := cause.(RuntimeError)
+			assert.NotNil(t, err)
+			assert.Equal(t, "1", err.Message())
+			lines := strings.Split(err.Error(), newLine)
+			//
+			line := lines[0]
+			assert.Equal(t, "RuntimeError: 1", line)
+			//
+			line = lines[1]
+			assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestFuture_CompleteError_RuntimeError."))
+			assert.True(t, strings.HasSuffix(line, "feature_test.go:87"))
+			//
+			line = lines[2]
+			assert.True(t, strings.HasPrefix(line, "   at runtime.gopanic() in "))
+			//
+			line = lines[3]
+			assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestFuture_CompleteError_RuntimeError."))
+			assert.True(t, strings.HasSuffix(line, "feature_test.go:90"))
+		}
+	}()
+	//
+	fea := NewFeature()
+	go func() {
+		defer func() {
+			if cause := recover(); cause != nil {
+				fea.CompleteError(NewRuntimeError(cause))
+			}
+		}()
+		panic(1)
 	}()
 	fea.Get()
 	assert.Fail(t, "should not be here")

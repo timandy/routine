@@ -14,7 +14,11 @@ func (fea *feature) Complete(result Any) {
 }
 
 func (fea *feature) CompleteError(error Any) {
-	fea.error = NewRuntimeError(error)
+	if runtimeErr, isRuntimeErr := error.(RuntimeError); isRuntimeErr {
+		fea.error = runtimeErr
+	} else {
+		fea.error = NewRuntimeError(error)
+	}
 	fea.await.Done()
 }
 
