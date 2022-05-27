@@ -1,5 +1,21 @@
 <!--变更日志-->
 
+# v1.0.8 Release notes
+
+### Changes
+
+- Rename `StackError` to `RuntimeError`.
+- Support error nesting for `RuntimeError`.
+- Beautify the error message of `RuntimeError`.
+- Remove `bytesconv.Bytes()` and `bytesconv.String()` methods.
+- Restore to the previous value if an overflow occurs when getting the index of `ThreadLocal`.
+
+# Links
+
+- Source code [https://github.com/timandy/routine/tree/v1.0.8](https://github.com/timandy/routine/tree/v1.0.8)
+
+---
+
 # v1.0.7 Release notes
 
 ### Bugs
