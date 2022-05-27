@@ -7,6 +7,7 @@ var inheritableThreadLocalIndex int32 = -1
 func nextInheritableThreadLocalIndex() int {
 	index := atomic.AddInt32(&inheritableThreadLocalIndex, 1)
 	if index < 0 {
+		atomic.AddInt32(&inheritableThreadLocalIndex, -1)
 		panic("too many inheritable-thread-local indexed variables")
 	}
 	return int(index)

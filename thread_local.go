@@ -7,6 +7,7 @@ var threadLocalIndex int32 = -1
 func nextThreadLocalIndex() int {
 	index := atomic.AddInt32(&threadLocalIndex, 1)
 	if index < 0 {
+		atomic.AddInt32(&threadLocalIndex, -1)
 		panic("too many thread-local indexed variables")
 	}
 	return int(index)

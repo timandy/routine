@@ -26,6 +26,7 @@ func TestThreadLocal_NextIndex(t *testing.T) {
 	assert.Panics(t, func() {
 		nextThreadLocalIndex()
 	})
+	assert.Equal(t, math.MaxInt32, int(threadLocalIndex))
 }
 
 func TestThreadLocal_Common(t *testing.T) {

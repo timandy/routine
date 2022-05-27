@@ -26,6 +26,7 @@ func TestInheritableThreadLocal_NextIndex(t *testing.T) {
 	assert.Panics(t, func() {
 		nextInheritableThreadLocalIndex()
 	})
+	assert.Equal(t, math.MaxInt32, int(inheritableThreadLocalIndex))
 }
 
 func TestInheritableThreadLocal_Common(t *testing.T) {
