@@ -4,7 +4,7 @@ import "sync/atomic"
 
 var threadLocalIndex int32 = -1
 
-func nextThreadLocalId() int {
+func nextThreadLocalIndex() int {
 	index := atomic.AddInt32(&threadLocalIndex, 1)
 	if index < 0 {
 		panic("too many thread-local indexed variables")
@@ -13,7 +13,7 @@ func nextThreadLocalId() int {
 }
 
 type threadLocal struct {
-	id       int
+	index    int
 	supplier Supplier
 }
 
@@ -21,7 +21,7 @@ func (tls *threadLocal) Get() Any {
 	t := currentThread(true)
 	mp := tls.getMap(t)
 	if mp != nil {
-		v := mp.get(tls.id)
+		v := mp.get(tls.index)
 		if v != unset {
 			return v
 		}
@@ -33,7 +33,7 @@ func (tls *threadLocal) Set(value Any) {
 	t := currentThread(true)
 	mp := tls.getMap(t)
 	if mp != nil {
-		mp.set(tls.id, value)
+		mp.set(tls.index, value)
 	} else {
 		tls.createMap(t, value)
 	}
@@ -46,7 +46,7 @@ func (tls *threadLocal) Remove() {
 	}
 	mp := tls.getMap(t)
 	if mp != nil {
-		mp.remove(tls.id)
+		mp.remove(tls.index)
 	}
 }
 
@@ -56,7 +56,7 @@ func (tls *threadLocal) getMap(t *thread) *threadLocalMap {
 
 func (tls *threadLocal) createMap(t *thread, firstValue Any) {
 	mp := &threadLocalMap{}
-	mp.set(tls.id, firstValue)
+	mp.set(tls.index, firstValue)
 	t.threadLocals = mp
 }
 
@@ -64,7 +64,7 @@ func (tls *threadLocal) setInitialValue(t *thread) Any {
 	value := tls.initialValue()
 	mp := tls.getMap(t)
 	if mp != nil {
-		mp.set(tls.id, value)
+		mp.set(tls.index, value)
 	} else {
 		tls.createMap(t, value)
 	}

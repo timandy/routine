@@ -7,16 +7,16 @@ import (
 	"testing"
 )
 
-func TestThreadLocal_Id(t *testing.T) {
+func TestThreadLocal_Index(t *testing.T) {
 	tls := NewThreadLocal()
-	assert.GreaterOrEqual(t, tls.(*threadLocal).id, 0)
+	assert.GreaterOrEqual(t, tls.(*threadLocal).index, 0)
 	tls2 := NewThreadLocalWithInitial(func() Any {
 		return "Hello"
 	})
-	assert.Greater(t, tls2.(*threadLocal).id, tls.(*threadLocal).id)
+	assert.Greater(t, tls2.(*threadLocal).index, tls.(*threadLocal).index)
 }
 
-func TestThreadLocal_NextId(t *testing.T) {
+func TestThreadLocal_NextIndex(t *testing.T) {
 	backup := threadLocalIndex
 	defer func() {
 		threadLocalIndex = backup
@@ -24,7 +24,7 @@ func TestThreadLocal_NextId(t *testing.T) {
 	//
 	threadLocalIndex = math.MaxInt32
 	assert.Panics(t, func() {
-		nextThreadLocalId()
+		nextThreadLocalIndex()
 	})
 }
 

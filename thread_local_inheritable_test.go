@@ -7,16 +7,16 @@ import (
 	"testing"
 )
 
-func TestInheritableThreadLocal_Id(t *testing.T) {
+func TestInheritableThreadLocal_Index(t *testing.T) {
 	tls := NewInheritableThreadLocal()
-	assert.GreaterOrEqual(t, tls.(*inheritableThreadLocal).id, 0)
+	assert.GreaterOrEqual(t, tls.(*inheritableThreadLocal).index, 0)
 	tls2 := NewInheritableThreadLocalWithInitial(func() Any {
 		return "Hello"
 	})
-	assert.Greater(t, tls2.(*inheritableThreadLocal).id, tls.(*inheritableThreadLocal).id)
+	assert.Greater(t, tls2.(*inheritableThreadLocal).index, tls.(*inheritableThreadLocal).index)
 }
 
-func TestInheritableThreadLocal_NextId(t *testing.T) {
+func TestInheritableThreadLocal_NextIndex(t *testing.T) {
 	backup := inheritableThreadLocalIndex
 	defer func() {
 		inheritableThreadLocalIndex = backup
@@ -24,7 +24,7 @@ func TestInheritableThreadLocal_NextId(t *testing.T) {
 	//
 	inheritableThreadLocalIndex = math.MaxInt32
 	assert.Panics(t, func() {
-		nextInheritableThreadLocalId()
+		nextInheritableThreadLocalIndex()
 	})
 }
 
