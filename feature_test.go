@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func TestComplete(t *testing.T) {
+func TestFuture_Complete(t *testing.T) {
 	fea := NewFeature()
 	go func() {
 		fea.Complete(1)
@@ -14,7 +14,7 @@ func TestComplete(t *testing.T) {
 	assert.Equal(t, 1, fea.Get())
 }
 
-func TestCompleteError(t *testing.T) {
+func TestFuture_CompleteError(t *testing.T) {
 	defer func() {
 		if cause := recover(); cause != nil {
 			err := cause.(RuntimeError)
@@ -32,7 +32,7 @@ func TestCompleteError(t *testing.T) {
 	assert.Fail(t, "should not be here")
 }
 
-func TestGet(t *testing.T) {
+func TestFuture_Get(t *testing.T) {
 	run := false
 	fea := NewFeature()
 	go func() {

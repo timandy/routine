@@ -26,7 +26,7 @@ func TestSupplier(t *testing.T) {
 
 //===
 
-func TestThreadLocal_New(t *testing.T) {
+func TestNewThreadLocal_Single(t *testing.T) {
 	tls := NewThreadLocal()
 	tls.Set("Hello")
 	assert.Equal(t, "Hello", tls.Get())
@@ -46,7 +46,7 @@ func TestThreadLocal_New(t *testing.T) {
 	fea.Get()
 }
 
-func TestThreadLocal_Multi(t *testing.T) {
+func TestNewThreadLocal_Multi(t *testing.T) {
 	tls := NewThreadLocal()
 	tls2 := NewThreadLocal()
 	tls.Set("Hello")
@@ -64,7 +64,7 @@ func TestThreadLocal_Multi(t *testing.T) {
 	fea.Get()
 }
 
-func TestThreadLocal_Concurrency(t *testing.T) {
+func TestNewThreadLocal_Concurrency(t *testing.T) {
 	tls := NewThreadLocal()
 	tls2 := NewThreadLocal()
 	//
@@ -104,7 +104,7 @@ func TestThreadLocal_Concurrency(t *testing.T) {
 
 //===
 
-func TestThreadLocalWithInitial_New(t *testing.T) {
+func TestNewThreadLocalWithInitial_Single(t *testing.T) {
 	tls := NewThreadLocalWithInitial(func() Any {
 		return "Hello"
 	})
@@ -126,7 +126,7 @@ func TestThreadLocalWithInitial_New(t *testing.T) {
 	fea.Get()
 }
 
-func TestThreadLocalWithInitial_Multi(t *testing.T) {
+func TestNewThreadLocalWithInitial_Multi(t *testing.T) {
 	tls := NewThreadLocalWithInitial(func() Any {
 		return "Hello"
 	})
@@ -148,7 +148,7 @@ func TestThreadLocalWithInitial_Multi(t *testing.T) {
 	fea.Get()
 }
 
-func TestThreadLocalWithInitial_Concurrency(t *testing.T) {
+func TestNewThreadLocalWithInitial_Concurrency(t *testing.T) {
 	tls := NewThreadLocalWithInitial(func() Any {
 		return "Hello"
 	})
@@ -192,7 +192,7 @@ func TestThreadLocalWithInitial_Concurrency(t *testing.T) {
 
 //===
 
-func TestInheritableThreadLocal_New(t *testing.T) {
+func TestNewInheritableThreadLocal_Single(t *testing.T) {
 	tls := NewInheritableThreadLocal()
 	tls.Set("Hello")
 	assert.Equal(t, "Hello", tls.Get())
@@ -212,7 +212,7 @@ func TestInheritableThreadLocal_New(t *testing.T) {
 	fea.Get()
 }
 
-func TestInheritableThreadLocal_Multi(t *testing.T) {
+func TestNewInheritableThreadLocal_Multi(t *testing.T) {
 	tls := NewInheritableThreadLocal()
 	tls2 := NewInheritableThreadLocal()
 	tls.Set("Hello")
@@ -230,7 +230,7 @@ func TestInheritableThreadLocal_Multi(t *testing.T) {
 	fea.Get()
 }
 
-func TestInheritableThreadLocal_Concurrency(t *testing.T) {
+func TestNewInheritableThreadLocal_Concurrency(t *testing.T) {
 	tls := NewInheritableThreadLocal()
 	tls2 := NewInheritableThreadLocal()
 	//
@@ -270,7 +270,7 @@ func TestInheritableThreadLocal_Concurrency(t *testing.T) {
 
 //===
 
-func TestInheritableThreadLocalWithInitial_New(t *testing.T) {
+func TestNewInheritableThreadLocalWithInitial_Single(t *testing.T) {
 	tls := NewInheritableThreadLocalWithInitial(func() Any {
 		return "Hello"
 	})
@@ -292,7 +292,7 @@ func TestInheritableThreadLocalWithInitial_New(t *testing.T) {
 	fea.Get()
 }
 
-func TestInheritableThreadLocalWithInitial_Multi(t *testing.T) {
+func TestNewInheritableThreadLocalWithInitial_Multi(t *testing.T) {
 	tls := NewInheritableThreadLocalWithInitial(func() Any {
 		return "Hello"
 	})
@@ -314,7 +314,7 @@ func TestInheritableThreadLocalWithInitial_Multi(t *testing.T) {
 	fea.Get()
 }
 
-func TestInheritableThreadLocalWithInitial_Concurrency(t *testing.T) {
+func TestNewInheritableThreadLocalWithInitial_Concurrency(t *testing.T) {
 	tls := NewInheritableThreadLocalWithInitial(func() Any {
 		return "Hello"
 	})

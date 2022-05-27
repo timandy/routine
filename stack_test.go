@@ -20,7 +20,7 @@ func TestCaptureStackTrace(t *testing.T) {
 	assert.Equal(t, 16, frame2.Line)
 }
 
-func TestCaptureStackTraceDeep(t *testing.T) {
+func TestCaptureStackTrace_Deep(t *testing.T) {
 	stackTrace := captureStackDeep(20)
 	assert.Greater(t, len(stackTrace), 20)
 	frames := runtime.CallersFrames(stackTrace)

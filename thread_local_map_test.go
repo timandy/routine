@@ -23,7 +23,7 @@ func TestCreateInheritedMap(t *testing.T) {
 	wg.Wait()
 }
 
-func TestCreateInheritedMapNil(t *testing.T) {
+func TestCreateInheritedMap_Nil(t *testing.T) {
 	tls := NewInheritableThreadLocal()
 	tls.Set(nil)
 	srcValue := tls.Get()
@@ -44,7 +44,7 @@ func TestCreateInheritedMapNil(t *testing.T) {
 	assert.True(t, getValue2 == nil)
 }
 
-func TestCreateInheritedMapValue(t *testing.T) {
+func TestCreateInheritedMap_Value(t *testing.T) {
 	tls := NewInheritableThreadLocal()
 	value := rand.Uint64()
 	tls.Set(value)
@@ -66,7 +66,7 @@ func TestCreateInheritedMapValue(t *testing.T) {
 	assert.Equal(t, value, getValue2)
 }
 
-func TestCreateInheritedMapStruct(t *testing.T) {
+func TestCreateInheritedMap_Struct(t *testing.T) {
 	tls := NewInheritableThreadLocal()
 	value := personCloneable{Id: 1, Name: "Hello"}
 	tls.Set(value)
@@ -88,7 +88,7 @@ func TestCreateInheritedMapStruct(t *testing.T) {
 	assert.Equal(t, value, getValue2)
 }
 
-func TestCreateInheritedMapPointer(t *testing.T) {
+func TestCreateInheritedMap_Pointer(t *testing.T) {
 	tls := NewInheritableThreadLocal()
 	value := &person{Id: 1, Name: "Hello"}
 	tls.Set(value)
@@ -110,7 +110,7 @@ func TestCreateInheritedMapPointer(t *testing.T) {
 	assert.Equal(t, *value, *getValue2)
 }
 
-func TestCreateInheritedMapCloneable(t *testing.T) {
+func TestCreateInheritedMap_Cloneable(t *testing.T) {
 	tls := NewInheritableThreadLocal()
 	value := &personCloneable{Id: 1, Name: "Hello"}
 	tls.Set(value)

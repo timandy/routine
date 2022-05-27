@@ -5,15 +5,6 @@ import (
 	"testing"
 )
 
-type personCloneable struct {
-	Id   int
-	Name string
-}
-
-func (p *personCloneable) Clone() Any {
-	return &personCloneable{Id: p.Id, Name: p.Name}
-}
-
 func TestCloneable(t *testing.T) {
 	//struct can not be cast to interface
 	var value interface{} = personCloneable{Id: 1, Name: "Hello"}
@@ -25,7 +16,7 @@ func TestCloneable(t *testing.T) {
 	assert.True(t, ok2)
 }
 
-func TestClone(t *testing.T) {
+func TestCloneable_Clone(t *testing.T) {
 	//clone struct
 	pc := &personCloneable{Id: 1, Name: "Hello"}
 	assert.NotSame(t, pc, pc.Clone())
@@ -36,4 +27,13 @@ func TestClone(t *testing.T) {
 	pcs2 := make([]*personCloneable, 1)
 	copy(pcs2, pcs)
 	assert.Same(t, pc, pcs2[0])
+}
+
+type personCloneable struct {
+	Id   int
+	Name string
+}
+
+func (p *personCloneable) Clone() Any {
+	return &personCloneable{Id: p.Id, Name: p.Name}
 }
