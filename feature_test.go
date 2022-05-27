@@ -17,10 +17,10 @@ func TestComplete(t *testing.T) {
 func TestCompleteError(t *testing.T) {
 	defer func() {
 		if cause := recover(); cause != nil {
-			re := cause.(RuntimeError)
-			assert.NotNil(t, re)
-			assert.Equal(t, "1", re.Message())
-			assert.NotNil(t, re.StackTrace())
+			err := cause.(RuntimeError)
+			assert.NotNil(t, err)
+			assert.Equal(t, "1", err.Message())
+			assert.NotNil(t, err.StackTrace())
 		}
 	}()
 
