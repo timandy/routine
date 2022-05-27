@@ -19,7 +19,7 @@ func TestCompleteError(t *testing.T) {
 		if err := recover(); err != nil {
 			re := err.(RuntimeError)
 			assert.NotNil(t, re)
-			assert.Equal(t, 1, re.Message())
+			assert.Equal(t, "1", re.Message())
 			assert.NotNil(t, re.StackTrace())
 		}
 	}()
