@@ -8,23 +8,7 @@ import (
 	"unsafe"
 )
 
-// curGoroutineID parse the current g's goid from caller stack.
-//go:linkname curGoroutineID net/http.http2curGoroutineID
-func curGoroutineID() int64
-
-// setPanicOnFault controls the runtime's behavior when a program faults at an unexpected (non-nil) address.
-//go:linkname setPanicOnFault runtime/debug.setPanicOnFault
-func setPanicOnFault(new bool) (old bool)
-
-// getProfLabel get current g's labels which will be inherited by new goroutine.
-//go:linkname getProfLabel runtime/pprof.runtime_getProfLabel
-func getProfLabel() unsafe.Pointer
-
-// setProfLabel set current g's labels which will be inherited by new goroutine.
-//go:linkname setProfLabel runtime/pprof.runtime_setProfLabel
-func setProfLabel(labels unsafe.Pointer)
-
-func TestGoidNative(t *testing.T) {
+func TestG_Goid(t *testing.T) {
 	runTest(t, func() {
 		gp := getg()
 		runtime.GC()
@@ -32,7 +16,7 @@ func TestGoidNative(t *testing.T) {
 	})
 }
 
-func TestPaniconfault(t *testing.T) {
+func TestG_Paniconfault(t *testing.T) {
 	runTest(t, func() {
 		gp := getg()
 		runtime.GC()
@@ -59,7 +43,15 @@ func TestPaniconfault(t *testing.T) {
 	})
 }
 
-func TestProfLabel(t *testing.T) {
+func TestG_Gopc(t *testing.T) {
+	runTest(t, func() {
+		gp := getg()
+		runtime.GC()
+		assert.Greater(t, int64(*gp.gopc), int64(0))
+	})
+}
+
+func TestG_ProfLabel(t *testing.T) {
 	runTest(t, func() {
 		ptr := unsafe.Pointer(&struct{}{})
 		null := unsafe.Pointer(nil)
@@ -103,6 +95,22 @@ func TestOffset(t *testing.T) {
 	})
 }
 
+// curGoroutineID parse the current g's goid from caller stack.
+//go:linkname curGoroutineID net/http.http2curGoroutineID
+func curGoroutineID() int64
+
+// setPanicOnFault controls the runtime's behavior when a program faults at an unexpected (non-nil) address.
+//go:linkname setPanicOnFault runtime/debug.setPanicOnFault
+func setPanicOnFault(new bool) (old bool)
+
+// getProfLabel get current g's labels which will be inherited by new goroutine.
+//go:linkname getProfLabel runtime/pprof.runtime_getProfLabel
+func getProfLabel() unsafe.Pointer
+
+// setProfLabel set current g's labels which will be inherited by new goroutine.
+//go:linkname setProfLabel runtime/pprof.runtime_setProfLabel
+func setProfLabel(labels unsafe.Pointer)
+
 //===
 
 // BenchmarkGohack-8                              186637413                5.734 ns/op            0 B/op          0 allocs/op
@@ -113,6 +121,7 @@ func BenchmarkGohack(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		gp := getg()
 		_ = gp.goid
+		_ = gp.gopc
 		_ = gp.getLabels()
 		_ = gp.getPanicOnFault()
 		gp.setLabels(nil)

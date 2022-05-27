@@ -45,11 +45,13 @@ func TestGetgt(t *testing.T) {
 	fmt.Println("#numField:", numField)
 	fmt.Println("#offsetGoid:", offsetGoid)
 	fmt.Println("#offsetPaniconfault:", offsetPaniconfault)
+	fmt.Println("#offsetGopc:", offsetGopc)
 	fmt.Println("#offsetLabels:", offsetLabels)
 	//
 	assert.Greater(t, numField, 20)
 	assert.Greater(t, int(offsetGoid), 0)
 	assert.Greater(t, int(offsetPaniconfault), 0)
+	assert.Greater(t, int(offsetGopc), 0)
 	assert.Greater(t, int(offsetLabels), 0)
 	//
 	runTest(t, func() {
@@ -66,6 +68,7 @@ func TestGetgt(t *testing.T) {
 			assert.Equal(t, numField, tt.NumField())
 			assert.Equal(t, offsetGoid, offset(tt, "goid"))
 			assert.Equal(t, offsetPaniconfault, offset(tt, "paniconfault"))
+			assert.Equal(t, offsetGopc, offset(tt, "gopc"))
 			assert.Equal(t, offsetLabels, offset(tt, "labels"))
 
 		default:

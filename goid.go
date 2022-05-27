@@ -9,6 +9,7 @@ import (
 var (
 	offsetGoid         uintptr
 	offsetPaniconfault uintptr
+	offsetGopc         uintptr
 	offsetLabels       uintptr
 )
 
@@ -16,12 +17,14 @@ func init() {
 	gt := getgt()
 	offsetGoid = offset(gt, "goid")
 	offsetPaniconfault = offset(gt, "paniconfault")
+	offsetGopc = offset(gt, "gopc")
 	offsetLabels = offset(gt, "labels")
 }
 
 type g struct {
 	goid         int64
 	paniconfault *bool
+	gopc         *uintptr
 	labels       *unsafe.Pointer
 }
 
@@ -56,6 +59,7 @@ func getg() g {
 	return g{
 		goid:         *(*int64)(add(gp, offsetGoid)),
 		paniconfault: (*bool)(add(gp, offsetPaniconfault)),
+		gopc:         (*uintptr)(add(gp, offsetGopc)),
 		labels:       (*unsafe.Pointer)(add(gp, offsetLabels)),
 	}
 }
