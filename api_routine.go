@@ -56,7 +56,7 @@ func GoWait(fun Runnable) Feature {
 		// catch
 		defer func() {
 			if cause := recover(); cause != nil {
-				fea.CompleteError(cause)
+				fea.CompleteError(NewRuntimeError(cause))
 			}
 		}()
 		// restore
@@ -98,7 +98,7 @@ func GoWaitResult(fun Callable) Feature {
 		// catch
 		defer func() {
 			if cause := recover(); cause != nil {
-				fea.CompleteError(cause)
+				fea.CompleteError(NewRuntimeError(cause))
 			}
 		}()
 		// restore
