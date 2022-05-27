@@ -17,7 +17,7 @@ func Go(fun Runnable) {
 		// catch
 		defer func() {
 			if err := recover(); err != nil {
-				fmt.Println(NewStackError(err).Error())
+				fmt.Println(NewRuntimeError(err).Error())
 			}
 		}()
 		// restore

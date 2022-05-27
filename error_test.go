@@ -7,42 +7,42 @@ import (
 )
 
 func TestMessage(t *testing.T) {
-	se := NewStackError("Hello")
-	assert.Equal(t, "Hello", se.Message())
+	re := NewRuntimeError("Hello")
+	assert.Equal(t, "Hello", re.Message())
 
 	p := &person{Id: 1, Name: "Tim"}
-	se2 := NewStackError(p)
-	assert.Same(t, p, se2.Message())
+	re2 := NewRuntimeError(p)
+	assert.Same(t, p, re2.Message())
 }
 
 func TestStackTrace(t *testing.T) {
-	se := NewStackError("Hello")
-	assert.True(t, strings.HasPrefix(se.StackTrace(), "goroutine "))
-	assert.False(t, strings.HasSuffix(se.StackTrace(), "\n"))
+	re := NewRuntimeError("Hello")
+	assert.True(t, strings.HasPrefix(re.StackTrace(), "goroutine "))
+	assert.False(t, strings.HasSuffix(re.StackTrace(), "\n"))
 
 	p := &person{Id: 1, Name: "Tim"}
-	se2 := NewStackError(p)
-	assert.True(t, strings.HasPrefix(se2.StackTrace(), "goroutine "))
-	assert.False(t, strings.HasSuffix(se2.StackTrace(), "\n"))
+	re2 := NewRuntimeError(p)
+	assert.True(t, strings.HasPrefix(re2.StackTrace(), "goroutine "))
+	assert.False(t, strings.HasSuffix(re2.StackTrace(), "\n"))
 }
 
 func TestError(t *testing.T) {
-	err := NewStackError(nil)
-	assert.True(t, strings.HasPrefix(err.Error(), "StackError: <nil>\ngoroutine "))
+	err := NewRuntimeError(nil)
+	assert.True(t, strings.HasPrefix(err.Error(), "RuntimeError: <nil>\ngoroutine "))
 	assert.False(t, strings.HasSuffix(err.Error(), "\n"))
 	//
-	err2 := NewStackError("")
-	assert.True(t, strings.HasPrefix(err2.Error(), "StackError\ngoroutine "))
+	err2 := NewRuntimeError("")
+	assert.True(t, strings.HasPrefix(err2.Error(), "RuntimeError\ngoroutine "))
 	assert.False(t, strings.HasSuffix(err2.Error(), "\n"))
 	//
-	err3 := NewStackError("Hello")
-	assert.True(t, strings.HasPrefix(err3.Error(), "StackError: Hello\ngoroutine "))
+	err3 := NewRuntimeError("Hello")
+	assert.True(t, strings.HasPrefix(err3.Error(), "RuntimeError: Hello\ngoroutine "))
 	assert.False(t, strings.HasSuffix(err3.Error(), "\n"))
 	//
 	defer func() {
 		if msg := recover(); msg != nil {
-			err4 := NewStackError(msg)
-			assert.True(t, strings.HasPrefix(err4.Error(), "StackError: World\ngoroutine "))
+			err4 := NewRuntimeError(msg)
+			assert.True(t, strings.HasPrefix(err4.Error(), "RuntimeError: World\ngoroutine "))
 			assert.False(t, strings.HasSuffix(err4.Error(), "\n"))
 		}
 	}()

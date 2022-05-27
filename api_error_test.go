@@ -5,11 +5,11 @@ import (
 	"testing"
 )
 
-func TestNewStackError(t *testing.T) {
-	se := NewStackError("Hello")
-	assert.NotNil(t, se)
+func TestNewRuntimeError(t *testing.T) {
+	re := NewRuntimeError("Hello")
+	assert.NotNil(t, re)
 	//
-	p, ok := se.(*stackError)
-	assert.Same(t, p, se)
+	p, ok := re.(*runtimeError)
+	assert.Same(t, p, re)
 	assert.True(t, ok)
 }

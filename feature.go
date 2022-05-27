@@ -4,7 +4,7 @@ import "sync"
 
 type feature struct {
 	await  *sync.WaitGroup
-	error  StackError
+	error  RuntimeError
 	result Any
 }
 
@@ -14,7 +14,7 @@ func (fea *feature) Complete(result Any) {
 }
 
 func (fea *feature) CompleteError(error Any) {
-	fea.error = NewStackError(error)
+	fea.error = NewRuntimeError(error)
 	fea.await.Done()
 }
 

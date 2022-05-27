@@ -2,23 +2,23 @@ package routine
 
 import "fmt"
 
-type stackError struct {
+type runtimeError struct {
 	message    Any
 	stackTrace string
 }
 
-func (se *stackError) Message() Any {
-	return se.message
+func (re *runtimeError) Message() Any {
+	return re.message
 }
 
-func (se *stackError) StackTrace() string {
-	return se.stackTrace
+func (re *runtimeError) StackTrace() string {
+	return re.stackTrace
 }
 
-func (se *stackError) Error() string {
-	s := "StackError"
-	if message := fmt.Sprint(se.message); len(message) > 0 {
+func (re *runtimeError) Error() string {
+	s := "RuntimeError"
+	if message := fmt.Sprint(re.message); len(message) > 0 {
 		s = s + ": " + message
 	}
-	return s + "\n" + se.stackTrace
+	return s + "\n" + re.stackTrace
 }
