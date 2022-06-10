@@ -226,7 +226,7 @@ func TestInheritableThreadLocal_Copy(t *testing.T) {
 	assert.Equal(t, 2, p2.Id)
 	assert.Equal(t, "Andy", p2.Name)
 	//
-	fea := GoWait(func() {
+	fut := GoWait(func() {
 		p3 := tls.Get().(*person)
 		assert.Same(t, p1, p3)
 		assert.Equal(t, 1, p3.Id)
@@ -240,7 +240,7 @@ func TestInheritableThreadLocal_Copy(t *testing.T) {
 		p3.Name = "Tim2"
 		p4.Name = "Andy2"
 	})
-	fea.Get()
+	fut.Get()
 	//
 	p5 := tls.Get().(*person)
 	assert.Same(t, p1, p5)
@@ -268,7 +268,7 @@ func TestInheritableThreadLocal_Cloneable(t *testing.T) {
 	assert.Equal(t, 2, p2.Id)
 	assert.Equal(t, "Andy", p2.Name)
 	//
-	fea := GoWait(func() {
+	fut := GoWait(func() {
 		p3 := tls.Get().(*personCloneable) //p3 is clone from p1
 		assert.NotSame(t, p1, p3)
 		assert.Equal(t, 1, p3.Id)
@@ -282,7 +282,7 @@ func TestInheritableThreadLocal_Cloneable(t *testing.T) {
 		p3.Name = "Tim2"
 		p4.Name = "Andy2"
 	})
-	fea.Get()
+	fut.Get()
 	//
 	p5 := tls.Get().(*personCloneable)
 	assert.Same(t, p1, p5)

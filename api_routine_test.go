@@ -116,11 +116,11 @@ func TestGo_Cross(t *testing.T) {
 func TestGoWait_Error(t *testing.T) {
 	run := false
 	assert.Panics(t, func() {
-		fea := GoWait(func() {
+		fut := GoWait(func() {
 			run = true
 			panic("error")
 		})
-		fea.Get()
+		fut.Get()
 	})
 	assert.True(t, run)
 }
@@ -129,11 +129,11 @@ func TestGoWait_Nil(t *testing.T) {
 	assert.Nil(t, createInheritedMap())
 	//
 	run := false
-	fea := GoWait(func() {
+	fut := GoWait(func() {
 		assert.Nil(t, createInheritedMap())
 		run = true
 	})
-	assert.Nil(t, fea.Get())
+	assert.Nil(t, fut.Get())
 	assert.True(t, run)
 }
 
@@ -149,7 +149,7 @@ func TestGoWait_Value(t *testing.T) {
 	assert.NotNil(t, createInheritedMap())
 	//
 	run := false
-	fea := GoWait(func() {
+	fut := GoWait(func() {
 		assert.NotNil(t, createInheritedMap())
 		//
 		assert.Nil(t, tls.Get())
@@ -163,7 +163,7 @@ func TestGoWait_Value(t *testing.T) {
 		//
 		run = true
 	})
-	assert.Nil(t, fea.Get())
+	assert.Nil(t, fut.Get())
 	assert.True(t, run)
 	//
 	assert.Equal(t, "Hello", tls.Get())
@@ -183,14 +183,14 @@ func TestGoWait_Cross(t *testing.T) {
 func TestGoWaitResult_Error(t *testing.T) {
 	run := false
 	assert.Panics(t, func() {
-		fea := GoWaitResult(func() Any {
+		fut := GoWaitResult(func() Any {
 			run = true
 			if run {
 				panic("error")
 			}
 			return 1
 		})
-		fea.Get()
+		fut.Get()
 	})
 	assert.True(t, run)
 }
@@ -199,12 +199,12 @@ func TestGoWaitResult_Nil(t *testing.T) {
 	assert.Nil(t, createInheritedMap())
 	//
 	run := false
-	fea := GoWaitResult(func() Any {
+	fut := GoWaitResult(func() Any {
 		assert.Nil(t, createInheritedMap())
 		run = true
 		return true
 	})
-	assert.True(t, fea.Get().(bool))
+	assert.True(t, fut.Get().(bool))
 	assert.True(t, run)
 }
 
@@ -220,7 +220,7 @@ func TestGoWaitResult_Value(t *testing.T) {
 	assert.NotNil(t, createInheritedMap())
 	//
 	run := false
-	fea := GoWaitResult(func() Any {
+	fut := GoWaitResult(func() Any {
 		assert.NotNil(t, createInheritedMap())
 		//
 		assert.Nil(t, tls.Get())
@@ -235,7 +235,7 @@ func TestGoWaitResult_Value(t *testing.T) {
 		run = true
 		return true
 	})
-	assert.True(t, fea.Get().(bool))
+	assert.True(t, fut.Get().(bool))
 	assert.True(t, run)
 	//
 	assert.Equal(t, "Hello", tls.Get())

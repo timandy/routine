@@ -6,10 +6,10 @@ import (
 )
 
 func TestNewFuture(t *testing.T) {
-	fea := NewFuture()
-	assert.NotNil(t, fea)
+	fut := NewFuture()
+	assert.NotNil(t, fut)
 	//
-	p, ok := fea.(*future)
-	assert.Same(t, p, fea)
+	p, ok := fut.(*future)
+	assert.Same(t, p, fut)
 	assert.True(t, ok)
 }

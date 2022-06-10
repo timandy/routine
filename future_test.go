@@ -8,11 +8,11 @@ import (
 )
 
 func TestFuture_Complete(t *testing.T) {
-	fea := NewFuture()
+	fut := NewFuture()
 	go func() {
-		fea.Complete(1)
+		fut.Complete(1)
 	}()
-	assert.Equal(t, 1, fea.Get())
+	assert.Equal(t, 1, fut.Get())
 }
 
 func TestFuture_CompleteError_Common(t *testing.T) {
@@ -43,16 +43,16 @@ func TestFuture_CompleteError_Common(t *testing.T) {
 		}
 	}()
 	//
-	fea := NewFuture()
+	fut := NewFuture()
 	go func() {
 		defer func() {
 			if cause := recover(); cause != nil {
-				fea.CompleteError(cause)
+				fut.CompleteError(cause)
 			}
 		}()
 		panic(1)
 	}()
-	fea.Get()
+	fut.Get()
 	assert.Fail(t, "should not be here")
 }
 
@@ -80,27 +80,27 @@ func TestFuture_CompleteError_RuntimeError(t *testing.T) {
 		}
 	}()
 	//
-	fea := NewFuture()
+	fut := NewFuture()
 	go func() {
 		defer func() {
 			if cause := recover(); cause != nil {
-				fea.CompleteError(NewRuntimeError(cause))
+				fut.CompleteError(NewRuntimeError(cause))
 			}
 		}()
 		panic(1)
 	}()
-	fea.Get()
+	fut.Get()
 	assert.Fail(t, "should not be here")
 }
 
 func TestFuture_Get(t *testing.T) {
 	run := false
-	fea := NewFuture()
+	fut := NewFuture()
 	go func() {
 		time.Sleep(500 * time.Millisecond)
 		run = true
-		fea.Complete(nil)
+		fut.Complete(nil)
 	}()
-	assert.Nil(t, fea.Get())
+	assert.Nil(t, fut.Get())
 	assert.True(t, run)
 }
