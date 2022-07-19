@@ -8,24 +8,24 @@ type future struct {
 	result Any
 }
 
-func (fea *future) Complete(result Any) {
-	fea.result = result
-	fea.await.Done()
+func (fut *future) Complete(result Any) {
+	fut.result = result
+	fut.await.Done()
 }
 
-func (fea *future) CompleteError(error Any) {
+func (fut *future) CompleteError(error Any) {
 	if runtimeErr, isRuntimeErr := error.(RuntimeError); isRuntimeErr {
-		fea.error = runtimeErr
+		fut.error = runtimeErr
 	} else {
-		fea.error = NewRuntimeError(error)
+		fut.error = NewRuntimeError(error)
 	}
-	fea.await.Done()
+	fut.await.Done()
 }
 
-func (fea *future) Get() Any {
-	fea.await.Wait()
-	if fea.error != nil {
-		panic(fea.error)
+func (fut *future) Get() Any {
+	fut.await.Wait()
+	if fut.error != nil {
+		panic(fut.error)
 	}
-	return fea.result
+	return fut.result
 }
