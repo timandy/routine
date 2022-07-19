@@ -2,8 +2,8 @@ package routine
 
 import "sync"
 
-// Feature provide a way to wait for the sub-coroutine to finish executing, get the return value of the sub-coroutine, and catch the sub-coroutine panic.
-type Feature interface {
+// Future provide a way to wait for the sub-coroutine to finish executing, get the return value of the sub-coroutine, and catch the sub-coroutine panic.
+type Future interface {
 	// Complete notifies the parent coroutine that the task has completed and returns the execution result.
 	// This method is called by the child coroutine.
 	Complete(result Any)
@@ -18,9 +18,9 @@ type Feature interface {
 	Get() Any
 }
 
-// NewFeature Create a new instance.
-func NewFeature() Feature {
+// NewFuture Create a new instance.
+func NewFuture() Future {
 	await := &sync.WaitGroup{}
 	await.Add(1)
-	return &feature{await: await}
+	return &future{await: await}
 }

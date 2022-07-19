@@ -46,10 +46,10 @@ func Go(fun Runnable) {
 }
 
 // GoWait starts a new goroutine, and copy inheritableThreadLocals from current goroutine.
-// This function return a Feature pointer, so we can wait by Feature.Get method.
-// If panic occur in goroutine, The panic will be trigger again when calling Feature.Get method.
-func GoWait(fun Runnable) Feature {
-	fea := NewFeature()
+// This function return a Future pointer, so we can wait by Future.Get method.
+// If panic occur in goroutine, The panic will be trigger again when calling Future.Get method.
+func GoWait(fun Runnable) Future {
+	fea := NewFuture()
 	// backup
 	copied := createInheritedMap()
 	go func() {
@@ -88,10 +88,10 @@ func GoWait(fun Runnable) Feature {
 }
 
 // GoWaitResult starts a new goroutine, and copy inheritableThreadLocals from current goroutine.
-// This function return a Feature pointer, so we can wait and get result by Feature.Get method.
-// If panic occur in goroutine, The panic will be trigger again when calling Feature.Get method.
-func GoWaitResult(fun Callable) Feature {
-	fea := NewFeature()
+// This function return a Future pointer, so we can wait and get result by Future.Get method.
+// If panic occur in goroutine, The panic will be trigger again when calling Future.Get method.
+func GoWaitResult(fun Callable) Future {
+	fea := NewFuture()
 	// backup
 	copied := createInheritedMap()
 	go func() {

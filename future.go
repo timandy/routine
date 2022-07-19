@@ -2,18 +2,18 @@ package routine
 
 import "sync"
 
-type feature struct {
+type future struct {
 	await  *sync.WaitGroup
 	error  RuntimeError
 	result Any
 }
 
-func (fea *feature) Complete(result Any) {
+func (fea *future) Complete(result Any) {
 	fea.result = result
 	fea.await.Done()
 }
 
-func (fea *feature) CompleteError(error Any) {
+func (fea *future) CompleteError(error Any) {
 	if runtimeErr, isRuntimeErr := error.(RuntimeError); isRuntimeErr {
 		fea.error = runtimeErr
 	} else {
@@ -22,7 +22,7 @@ func (fea *feature) CompleteError(error Any) {
 	fea.await.Done()
 }
 
-func (fea *feature) Get() Any {
+func (fea *future) Get() Any {
 	fea.await.Wait()
 	if fea.error != nil {
 		panic(fea.error)

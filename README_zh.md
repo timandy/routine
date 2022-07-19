@@ -145,13 +145,13 @@ inheritableThreadLocal in goroutine by Go: Hello world2
 
 启动一个新的协程，同时自动将当前协程的全部上下文`inheritableThreadLocals`数据复制至新协程。子协程执行时的任何`panic`都会被捕获并自动打印堆栈。
 
-## `GoWait(fun func()) Feature`
+## `GoWait(fun func()) Future`
 
-启动一个新的协程，同时自动将当前协程的全部上下文`inheritableThreadLocals`数据复制至新协程。可以通过返回值的`Feature.Get()`方法等待子协程执行完毕。子协程执行时的任何`panic`都会被捕获并在调用`Feature.Get()`时再次抛出。
+启动一个新的协程，同时自动将当前协程的全部上下文`inheritableThreadLocals`数据复制至新协程。可以通过返回值的`Future.Get()`方法等待子协程执行完毕。子协程执行时的任何`panic`都会被捕获并在调用`Future.Get()`时再次抛出。
 
-## `GoWaitResult(fun func() Any) Feature`
+## `GoWaitResult(fun func() Any) Future`
 
-启动一个新的协程，同时自动将当前协程的全部上下文`inheritableThreadLocals`数据复制至新协程。可以通过返回值的`Feature.Get()`方法等待子协程执行完毕并获取返回值。子协程执行时的任何`panic`都会被捕获并在调用`Feature.Get()`时再次抛出。
+启动一个新的协程，同时自动将当前协程的全部上下文`inheritableThreadLocals`数据复制至新协程。可以通过返回值的`Future.Get()`方法等待子协程执行完毕并获取返回值。子协程执行时的任何`panic`都会被捕获并在调用`Future.Get()`时再次抛出。
 
 [更多API文档](https://pkg.go.dev/github.com/timandy/routine#section-documentation)
 
