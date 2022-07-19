@@ -46,8 +46,8 @@ func Go(fun Runnable) {
 }
 
 // GoWait starts a new goroutine, and copy inheritableThreadLocals from current goroutine.
-// This function return a Future pointer, so we can wait by Future.Get method.
-// If panic occur in goroutine, The panic will be trigger again when calling Future.Get method.
+// This function return a Future pointer, so we can wait by Future.Get or Future.GetWithTimeout method.
+// If panic occur in goroutine, The panic will be trigger again when calling Future.Get or Future.GetWithTimeout method.
 func GoWait(fun Runnable) Future {
 	fut := NewFuture()
 	// backup
@@ -56,7 +56,7 @@ func GoWait(fun Runnable) Future {
 		// catch
 		defer func() {
 			if cause := recover(); cause != nil {
-				fut.CompleteError(NewRuntimeError(cause))
+				fut.Fail(NewRuntimeError(cause))
 			}
 		}()
 		// restore
@@ -88,8 +88,8 @@ func GoWait(fun Runnable) Future {
 }
 
 // GoWaitResult starts a new goroutine, and copy inheritableThreadLocals from current goroutine.
-// This function return a Future pointer, so we can wait and get result by Future.Get method.
-// If panic occur in goroutine, The panic will be trigger again when calling Future.Get method.
+// This function return a Future pointer, so we can wait and get result by Future.Get or Future.GetWithTimeout method.
+// If panic occur in goroutine, The panic will be trigger again when calling Future.Get or Future.GetWithTimeout method.
 func GoWaitResult(fun Callable) Future {
 	fut := NewFuture()
 	// backup
@@ -98,7 +98,7 @@ func GoWaitResult(fun Callable) Future {
 		// catch
 		defer func() {
 			if cause := recover(); cause != nil {
-				fut.CompleteError(NewRuntimeError(cause))
+				fut.Fail(NewRuntimeError(cause))
 			}
 		}()
 		// restore
