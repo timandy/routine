@@ -15,35 +15,70 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.osv }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-latest, ubuntu-latest, windows-latest ]
-        arch: [ 386, amd64, armv6, armv7, arm64 ]
+        os: [ darwin, linux, windows, freebsd ]
+        arch: [ 386, amd64, armv6, armv7, arm64, ppc64, s390x ]
         go: [ 1.13, 1.14, 1.15, 1.16, 1.17, 1.18 ]
         exclude:
-          - os: macos-latest
+          # darwin excludes
+          - os: darwin
             arch: 386
-          - os: macos-latest
+          - os: darwin
             arch: armv6
-          - os: macos-latest
+          - os: darwin
             arch: armv7
-          - os: macos-latest
+          - os: darwin
             arch: arm64
-          - os: windows-latest
+          - os: darwin
+            arch: ppc64
+          - os: darwin
+            arch: s390x
+          # windows excludes
+          - os: windows
             arch: armv6
-          - os: windows-latest
+          - os: windows
             arch: armv7
-          - os: windows-latest
+          - os: windows
             arch: arm64
+          - os: windows
+            arch: ppc64
+          - os: windows
+            arch: s390x
+          # freebsd excludes
+          - os: freebsd
+            arch: armv6
+          - os: freebsd
+            arch: armv7
+          - os: freebsd
+            arch: arm64
+          - os: freebsd
+            arch: ppc64
+          - os: freebsd
+            arch: s390x
         include:
+          # combine runs on
+          - os: darwin
+            osv: macos-latest
+          - os: linux
+            osv: ubuntu-latest
+          - os: windows
+            osv: windows-latest
+          - os: freebsd
+            osv: macos-12
+          # combine vm env
           - arch: armv6
-            archx: armv6
+            archv: armv6
           - arch: armv7
-            archx: armv7
+            archv: armv7
           - arch: arm64
-            archx: aarch64
+            archv: aarch64
+          - arch: ppc64
+            archv: ppc64le
+          - arch: s390x
+            archv: s390x
 
     steps:
       - name: Checkout scm
@@ -54,51 +89,95 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
 
-      - name: 'Test with 386'
-        if: ${{ matrix.arch == '386' }}
+      # darwin
+      - name: 'Test on [darwin] arch [amd64]'
+        if: ${{ matrix.os == 'darwin' && contains('amd64', matrix.arch) }}
         env:
-          GOARCH: 386
-        run: go test -v -coverprofile='coverage.txt' -covermode=atomic ./...
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+        run: go test -v -race -coverprofile="coverage.txt" -covermode=atomic ./...
 
-      - name: 'Test with amd64'
-        if: ${{ matrix.arch == 'amd64' }}
+      # linux
+      - name: 'Test on [linux] arch [386]'
+        if: ${{ matrix.os == 'linux' && contains('386', matrix.arch) }}
         env:
-          GOARCH: amd64
-        run: go test -v -race -coverprofile='coverage.txt' -covermode=atomic ./...
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+        run: go test -v -coverprofile="coverage.txt" -covermode=atomic ./...
 
-      - name: 'Build with armv6'
-        if: ${{ matrix.arch == 'armv6' }}
+      - name: 'Test on [linux] arch [amd64]'
+        if: ${{ matrix.os == 'linux' && contains('amd64', matrix.arch) }}
         env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+        run: go test -v -race -coverprofile="coverage.txt" -covermode=atomic ./...
+
+      - name: 'Build for [linux] arch [armv6] '
+        if: ${{ matrix.os == 'linux' && contains('armv6', matrix.arch) }}
+        env:
+          GOOS: ${{ matrix.os }}
           GOARCH: arm
           GOARM: 6
-        run: go test -v -c
+        run: go test -v -c -covermode=atomic
 
-      - name: 'Build with armv7'
-        if: ${{ matrix.arch == 'armv7' }}
+      - name: 'Build for [linux] arch [armv7] '
+        if: ${{ matrix.os == 'linux' && contains('armv7', matrix.arch) }}
         env:
+          GOOS: ${{ matrix.os }}
           GOARCH: arm
           GOARM: 7
-        run: go test -v -c
+        run: go test -v -c -covermode=atomic
 
-      - name: 'Build with arm64'
-        if: ${{ matrix.arch == 'arm64' }}
+      - name: 'Build for [linux] arch [arm64, ppc64, s390x]'
+        if: ${{ matrix.os == 'linux' && contains('arm64, ppc64, s390x', matrix.arch) }}
         env:
-          GOARCH: arm64
-        run: go test -v -c
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+        run: go test -v -c -covermode=atomic
 
-      - name: 'Test with arm'
-        if: ${{ contains(matrix.arch, 'arm') }}
+      - name: 'Test on [linux] arch [armv6, armv7, arm64, ppc64, s390x]'
+        if: ${{ matrix.os == 'linux' && contains('armv6, armv7, arm64, ppc64, s390x', matrix.arch) }}
         uses: uraimo/run-on-arch-action@v2
         with:
-          arch: ${{ matrix.archx }}
+          arch: ${{ matrix.archv }}
           distro: bullseye
           dockerRunArgs: --mount type=bind,source="$(pwd)",target=/checkout,readonly
           run: |
             find /checkout -name '*.test' -type f -executable -print0 | \
-              xargs -t -0 -I '{}' sh -c '{} -test.v'
+              xargs -t -0 -I '{}' sh -c '{} -test.v -test.coverprofile="coverage.txt"'
+
+      # windows
+      - name: 'Test on [windows] arch [386]'
+        if: ${{ matrix.os == 'windows' && contains('386', matrix.arch) }}
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+        run: go test -v -coverprofile="coverage.txt" -covermode=atomic ./...
+
+      - name: 'Test on [windows] arch [amd64]'
+        if: ${{ matrix.os == 'windows' && contains('amd64', matrix.arch) }}
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+        run: go test -v -race -coverprofile="coverage.txt" -covermode=atomic ./...
+
+      # freebsd
+      - name: 'Build for [freebsd] arch [386, amd64]'
+        if: ${{ matrix.os == 'freebsd' && contains('386, amd64', matrix.arch) }}
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+        run: go test -v -c -covermode=atomic
+
+      - name: 'Test on [freebsd] arch [386, amd64]'
+        if: ${{ matrix.os == 'freebsd' && contains('386, amd64', matrix.arch) }}
+        uses: vmactions/freebsd-vm@v0.1.8
+        with:
+          run: |
+            find ./ -name '*.test' -type f -print0 | \
+              xargs -t -0 -I '{}' sh -c '{} -test.v -test.coverprofile="coverage.txt"'
 
       - name: Codecov
-        if: ${{ !contains(matrix.arch, 'arm') }}
         uses: codecov/codecov-action@v3
         with:
           name: Codecov on ${{ matrix.os }}/${{ matrix.arch }} go${{ matrix.go }}
