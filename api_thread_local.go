@@ -3,17 +3,17 @@ package routine
 // ThreadLocal provides goroutine-local variables.
 type ThreadLocal interface {
 	// Get returns the value in the current goroutine's local threadLocals or inheritableThreadLocals, if it was set before.
-	Get() Any
+	Get() any
 
 	// Set copy the value into the current goroutine's local threadLocals or inheritableThreadLocals.
-	Set(value Any)
+	Set(value any)
 
 	// Remove delete the value from the current goroutine's local threadLocals or inheritableThreadLocals.
 	Remove()
 }
 
-// Supplier provides a function that returns a value of type Any.
-type Supplier func() Any
+// Supplier provides a function that returns a value of type any.
+type Supplier func() any
 
 // NewThreadLocal create and return a new ThreadLocal instance.
 // The initial value is nil.

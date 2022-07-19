@@ -35,6 +35,6 @@ type personCloneable struct {
 	Name string
 }
 
-func (p *personCloneable) Clone() Any {
+func (p *personCloneable) Clone() any {
 	return &personCloneable{Id: p.Id, Name: p.Name}
 }

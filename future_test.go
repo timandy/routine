@@ -278,7 +278,7 @@ func TestFuture_GetWithTimeout_Timeout(t *testing.T) {
 
 func TestFuture_Routine_Complete(t *testing.T) {
 	var fut Future
-	fut = GoWaitResult(func() Any {
+	fut = GoWaitResult(func() any {
 		for i := 0; i < 5; i++ {
 			if fut.IsCanceled() {
 				panic("canceled")
@@ -292,7 +292,7 @@ func TestFuture_Routine_Complete(t *testing.T) {
 
 func TestFuture_Routine_Fail(t *testing.T) {
 	var fut Future
-	fut = GoWaitResult(func() Any {
+	fut = GoWaitResult(func() any {
 		panic("something error")
 	})
 	assert.Panics(t, func() {
@@ -305,7 +305,7 @@ func TestFuture_Routine_Fail(t *testing.T) {
 
 func TestFuture_Routine_Timeout(t *testing.T) {
 	var fut Future
-	fut = GoWaitResult(func() Any {
+	fut = GoWaitResult(func() any {
 		for i := 0; i < 5; i++ {
 			if fut.IsCanceled() {
 				panic("canceled")

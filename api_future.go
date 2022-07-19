@@ -14,24 +14,24 @@ type Future interface {
 	IsFailed() bool
 
 	// Complete notifies the parent coroutine that the task has completed normally and returns the execution result.
-	Complete(result Any)
+	Complete(result any)
 
 	// Cancel notifies the parent coroutine that the task is canceled due to special reason and returns stack information.
-	Cancel(reason Any)
+	Cancel(reason any)
 
 	// Fail notifies the parent coroutine that the task is terminated due to panic and returns stack information.
-	Fail(error Any)
+	Fail(error any)
 
 	// Get return the execution result of the sub-coroutine, if there is no result, return nil.
 	// If task is canceled, a panic with cancel reason will be raised.
 	// If panic is raised during the execution of the sub-coroutine, it will be raised again at this time.
-	Get() Any
+	Get() any
 
 	// GetWithTimeout return the execution result of the sub-coroutine, if there is no result, return nil.
 	// If task is canceled, a panic with cancel reason will be raised.
 	// If panic is raised during the execution of the sub-coroutine, it will be raised again at this time.
 	// If the deadline is reached, a panic with timeout error will be raised.
-	GetWithTimeout(timeout time.Duration) Any
+	GetWithTimeout(timeout time.Duration) any
 }
 
 // NewFuture Create a new instance.

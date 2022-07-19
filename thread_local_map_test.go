@@ -134,7 +134,7 @@ func TestCreateInheritedMap_Cloneable(t *testing.T) {
 }
 
 func TestFill(t *testing.T) {
-	a := make([]Any, 6)
+	a := make([]any, 6)
 	fill(a, 4, 5, unset)
 	for i := 0; i < 6; i++ {
 		if i == 4 {

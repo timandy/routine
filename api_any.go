@@ -1,4 +1,7 @@
+//go:build !go1.18
+// +build !go1.18
+
 package routine
 
-// Any is an alias for interface{} and is equivalent to interface{} in all ways.
-type Any = interface{}
+// any is an alias for interface{} and is equivalent to interface{} in all ways.
+type any = interface{}

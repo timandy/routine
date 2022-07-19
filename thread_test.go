@@ -77,7 +77,7 @@ func TestThreadGC(t *testing.T) {
 		go func() {
 			gcWait.Wait()
 		}()
-		fut2 := GoWaitResult(func() Any {
+		fut2 := GoWaitResult(func() any {
 			return 1
 		})
 		assert.Equal(t, 1, fut2.Get())

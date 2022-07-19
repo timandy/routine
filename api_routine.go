@@ -5,8 +5,8 @@ import "fmt"
 // Runnable provides a function without return values.
 type Runnable func()
 
-// Callable provides a function that returns a value of type Any.
-type Callable func() Any
+// Callable provides a function that returns a value of type any.
+type Callable func() any
 
 // Go starts a new goroutine, and copy inheritableThreadLocals from current goroutine.
 // This function will auto invoke the fun and print error stack when panic occur in goroutine.
