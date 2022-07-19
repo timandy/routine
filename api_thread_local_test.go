@@ -1,10 +1,11 @@
 package routine
 
 import (
-	"github.com/stretchr/testify/assert"
 	"math/rand"
 	"sync"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 const (

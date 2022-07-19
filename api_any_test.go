@@ -1,8 +1,9 @@
 package routine
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAny(t *testing.T) {

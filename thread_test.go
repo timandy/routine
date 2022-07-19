@@ -3,12 +3,13 @@ package routine
 import (
 	"bytes"
 	"context"
-	"github.com/stretchr/testify/assert"
 	"runtime"
 	"runtime/pprof"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCurrentThread(t *testing.T) {

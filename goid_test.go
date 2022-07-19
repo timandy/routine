@@ -1,11 +1,12 @@
 package routine
 
 import (
-	"github.com/stretchr/testify/assert"
 	"reflect"
 	"runtime"
 	"testing"
 	"unsafe"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestG_Goid(t *testing.T) {

@@ -1,9 +1,10 @@
 package routine
 
 import (
-	"github.com/stretchr/testify/assert"
 	"runtime"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCaptureStackTrace(t *testing.T) {
@@ -11,13 +12,13 @@ func TestCaptureStackTrace(t *testing.T) {
 	assert.Greater(t, len(stackTrace), 2)
 	frame, _ := runtime.CallersFrames(stackTrace).Next()
 	assert.Equal(t, "github.com/timandy/routine.TestCaptureStackTrace", frame.Function)
-	assert.Equal(t, 10, frame.Line)
+	assert.Equal(t, 11, frame.Line)
 	//
 	stackTrace2 := captureStackSkip(1)
 	assert.Greater(t, len(stackTrace2), 2)
 	frame2, _ := runtime.CallersFrames(stackTrace2).Next()
 	assert.Equal(t, "github.com/timandy/routine.TestCaptureStackTrace", frame2.Function)
-	assert.Equal(t, 16, frame2.Line)
+	assert.Equal(t, 17, frame2.Line)
 }
 
 func TestCaptureStackTrace_Deep(t *testing.T) {
@@ -28,12 +29,12 @@ func TestCaptureStackTrace_Deep(t *testing.T) {
 	frame, more := frames.Next()
 	assert.True(t, more)
 	assert.Equal(t, "github.com/timandy/routine.captureStackDeepRecursive", frame.Function)
-	assert.Equal(t, 57, frame.Line)
+	assert.Equal(t, 58, frame.Line)
 	//
 	frame2, more2 := frames.Next()
 	assert.True(t, more2)
 	assert.Equal(t, "github.com/timandy/routine.captureStackDeepRecursive", frame2.Function)
-	assert.Equal(t, 55, frame2.Line)
+	assert.Equal(t, 56, frame2.Line)
 }
 
 func TestCaptureStackTrace_Overflow(t *testing.T) {
