@@ -66,6 +66,10 @@ func TestGetgt(t *testing.T) {
 		case "arm":
 			fallthrough
 		case "arm64":
+			fallthrough
+		case "ppc64":
+			fallthrough
+		case "s390x":
 			assert.Equal(t, numField, tt.NumField())
 			assert.Equal(t, offsetGoid, offset(tt, "goid"))
 			assert.Equal(t, offsetPaniconfault, offset(tt, "paniconfault"))
