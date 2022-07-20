@@ -71,13 +71,13 @@ func TestThreadGC(t *testing.T) {
 	heapInit, numInit := getMemStats()
 	printMemStats("Init", heapInit, numInit)
 	//
-	fut := GoWait(func() {
+	fut := GoWait(func(token CancelToken) {
 		tls.Set(make([]byte, allocSize))
 		tls2.Set(make([]byte, allocSize))
 		go func() {
 			gcWait.Wait()
 		}()
-		fut2 := GoWaitResult(func() Any {
+		fut2 := GoWaitResult(func(token CancelToken) Any {
 			return 1
 		})
 		assert.Equal(t, 1, fut2.Get())

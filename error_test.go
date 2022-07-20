@@ -12,7 +12,7 @@ func TestRuntimeError_Goid(t *testing.T) {
 	goid := Goid()
 	err := NewRuntimeError(nil)
 	assert.Equal(t, goid, err.Goid())
-	fut := GoWait(func() {
+	fut := GoWait(func(token CancelToken) {
 		assert.Equal(t, goid, err.Goid())
 		assert.NotEqual(t, Goid(), err.Goid())
 	})
@@ -23,7 +23,7 @@ func TestRuntimeError_Gopc(t *testing.T) {
 	gopc := *getg().gopc
 	err := NewRuntimeError(nil)
 	assert.Equal(t, gopc, err.Gopc())
-	fut := GoWait(func() {
+	fut := GoWait(func(token CancelToken) {
 		assert.Equal(t, gopc, err.Gopc())
 		assert.NotEqual(t, *getg().gopc, err.Gopc())
 	})
@@ -242,7 +242,7 @@ func TestArgumentNilError_Goid(t *testing.T) {
 	goid := Goid()
 	err := NewArgumentNilError("number", nil)
 	assert.Equal(t, goid, err.Goid())
-	fut := GoWait(func() {
+	fut := GoWait(func(token CancelToken) {
 		assert.Equal(t, goid, err.Goid())
 		assert.NotEqual(t, Goid(), err.Goid())
 	})
@@ -253,7 +253,7 @@ func TestArgumentNilError_Gopc(t *testing.T) {
 	gopc := *getg().gopc
 	err := NewArgumentNilError("number", nil)
 	assert.Equal(t, gopc, err.Gopc())
-	fut := GoWait(func() {
+	fut := GoWait(func(token CancelToken) {
 		assert.Equal(t, gopc, err.Gopc())
 		assert.NotEqual(t, *getg().gopc, err.Gopc())
 	})
