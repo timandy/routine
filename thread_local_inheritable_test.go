@@ -1,10 +1,11 @@
 package routine
 
 import (
-	"github.com/stretchr/testify/assert"
 	"math"
 	"sync"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestInheritableThreadLocal_Index(t *testing.T) {

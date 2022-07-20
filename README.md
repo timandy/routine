@@ -39,8 +39,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/timandy/routine"
 	"time"
+
+	"github.com/timandy/routine"
 )
 
 func main() {
@@ -72,8 +73,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/timandy/routine"
 	"time"
+
+	"github.com/timandy/routine"
 )
 
 var threadLocal = routine.NewThreadLocal()

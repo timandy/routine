@@ -2,11 +2,12 @@ package routine
 
 import (
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"runtime"
 	"runtime/debug"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewRuntimeError_Nil(t *testing.T) {

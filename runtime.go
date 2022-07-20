@@ -1,9 +1,10 @@
 package routine
 
 import (
-	_ "github.com/timandy/routine/g"
 	"reflect"
 	"unsafe"
+
+	_ "github.com/timandy/routine/g"
 )
 
 // getgp returns the pointer to the current runtime.g.
