@@ -302,7 +302,7 @@ func TestFuture_Routine_Complete(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	//
-	fut := GoWaitResult(func(token CancelToken) Any {
+	fut := GoWaitResult(func(token CancelToken) any {
 		defer wg.Done()
 		//
 		if token.IsCanceled() {
@@ -320,7 +320,7 @@ func TestFuture_Routine_Cancel(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	//
-	fut := GoWaitResult(func(token CancelToken) Any {
+	fut := GoWaitResult(func(token CancelToken) any {
 		defer wg.Done()
 		//
 		token.Cancel()
@@ -341,7 +341,7 @@ func TestFuture_Routine_CancelInParent(t *testing.T) {
 	wg.Add(1)
 	//
 	finished := false
-	fut := GoWaitResult(func(token CancelToken) Any {
+	fut := GoWaitResult(func(token CancelToken) any {
 		defer wg.Done()
 		//
 		for i := 0; i < 10; i++ {
@@ -367,7 +367,7 @@ func TestFuture_Routine_Fail(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	//
-	fut := GoWaitResult(func(token CancelToken) Any {
+	fut := GoWaitResult(func(token CancelToken) any {
 		defer wg.Done()
 		//
 		if token.IsCanceled() {
@@ -389,7 +389,7 @@ func TestFuture_Routine_Timeout(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	//
-	fut := GoWaitResult(func(token CancelToken) Any {
+	fut := GoWaitResult(func(token CancelToken) any {
 		defer wg.Done()
 		//
 		for i := 0; i < 10; i++ {

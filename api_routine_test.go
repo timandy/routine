@@ -44,7 +44,7 @@ func TestCancelCallable(t *testing.T) {
 	}
 	assert.Equal(t, "Hello", cancelCallable(nil))
 	//
-	var fun func(CancelToken) Any
+	var fun func(CancelToken) any
 	fun = cancelCallable
 	assert.Equal(t, "Hello", fun(nil))
 }
@@ -199,7 +199,7 @@ func TestGoWait_Cross(t *testing.T) {
 func TestGoWaitResult_Error(t *testing.T) {
 	run := false
 	assert.Panics(t, func() {
-		fut := GoWaitResult(func(token CancelToken) Any {
+		fut := GoWaitResult(func(token CancelToken) any {
 			run = true
 			if run {
 				panic("error")
@@ -215,7 +215,7 @@ func TestGoWaitResult_Nil(t *testing.T) {
 	assert.Nil(t, createInheritedMap())
 	//
 	run := false
-	fut := GoWaitResult(func(token CancelToken) Any {
+	fut := GoWaitResult(func(token CancelToken) any {
 		assert.Nil(t, createInheritedMap())
 		run = true
 		return true
@@ -236,7 +236,7 @@ func TestGoWaitResult_Value(t *testing.T) {
 	assert.NotNil(t, createInheritedMap())
 	//
 	run := false
-	fut := GoWaitResult(func(token CancelToken) Any {
+	fut := GoWaitResult(func(token CancelToken) any {
 		assert.NotNil(t, createInheritedMap())
 		//
 		assert.Nil(t, tls.Get())
@@ -263,7 +263,7 @@ func TestGoWaitResult_Cross(t *testing.T) {
 	tls.Set("Hello")
 	assert.Equal(t, "Hello", tls.Get())
 	//
-	result := GoWaitResult(func(token CancelToken) Any {
+	result := GoWaitResult(func(token CancelToken) any {
 		assert.Nil(t, tls.Get())
 		return tls.Get()
 	}).Get()

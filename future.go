@@ -20,7 +20,7 @@ type future struct {
 	await  sync.WaitGroup
 	status futureStatus
 	error  RuntimeError
-	result Any
+	result any
 }
 
 func (fut *future) IsDone() bool {
@@ -41,7 +41,7 @@ func (fut *future) IsFailed() bool {
 	return fut.status == failed
 }
 
-func (fut *future) Complete(result Any) {
+func (fut *future) Complete(result any) {
 	fut.lock.Lock()
 	defer fut.lock.Unlock()
 	if fut.status != running {
@@ -63,7 +63,7 @@ func (fut *future) Cancel() {
 	fut.await.Done()
 }
 
-func (fut *future) Fail(error Any) {
+func (fut *future) Fail(error any) {
 	fut.lock.Lock()
 	defer fut.lock.Unlock()
 	if fut.status != running {
@@ -78,7 +78,7 @@ func (fut *future) Fail(error Any) {
 	fut.await.Done()
 }
 
-func (fut *future) Get() Any {
+func (fut *future) Get() any {
 	fut.await.Wait()
 	if fut.status == completed {
 		return fut.result
@@ -86,7 +86,7 @@ func (fut *future) Get() Any {
 	panic(fut.error)
 }
 
-func (fut *future) GetWithTimeout(timeout time.Duration) Any {
+func (fut *future) GetWithTimeout(timeout time.Duration) any {
 	resultChan := make(chan struct{})
 	errorChan := make(chan struct{})
 	go func() {

@@ -51,7 +51,7 @@ func (re *runtimeError) Error() string {
 	return runtimeErrorError(re)
 }
 
-func runtimeErrorNew(cause Any) (goid int64, gopc uintptr, msg string, stackTrace []uintptr, innerErr RuntimeError) {
+func runtimeErrorNew(cause any) (goid int64, gopc uintptr, msg string, stackTrace []uintptr, innerErr RuntimeError) {
 	runtimeErr, isRuntimeErr := cause.(RuntimeError)
 	if !isRuntimeErr {
 		if err, isErr := cause.(error); isErr {
@@ -69,7 +69,7 @@ func runtimeErrorNewWithMessage(message string) (goid int64, gopc uintptr, msg s
 	return gp.goid, *gp.gopc, message, captureStackTrace(2, 100), nil
 }
 
-func runtimeErrorNewWithMessageCause(message string, cause Any) (goid int64, gopc uintptr, msg string, stackTrace []uintptr, innerErr RuntimeError) {
+func runtimeErrorNewWithMessageCause(message string, cause any) (goid int64, gopc uintptr, msg string, stackTrace []uintptr, innerErr RuntimeError) {
 	runtimeErr, isRuntimeErr := cause.(RuntimeError)
 	if !isRuntimeErr {
 		causeMsg := ""

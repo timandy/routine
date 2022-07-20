@@ -7,7 +7,7 @@ import (
 )
 
 func TestAny(t *testing.T) {
-	var value1 Any
+	var value1 any
 	value1 = 1
 	acceptAny(value1)
 	acceptInterface(value1)
@@ -22,7 +22,7 @@ func TestAny(t *testing.T) {
 }
 
 //goland:noinspection GoUnusedParameter
-func acceptAny(value Any) {
+func acceptAny(value any) {
 }
 
 //goland:noinspection GoUnusedParameter

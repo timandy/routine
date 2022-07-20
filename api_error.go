@@ -22,7 +22,7 @@ type RuntimeError interface {
 }
 
 // NewRuntimeError create a new RuntimeError instance.
-func NewRuntimeError(cause Any) RuntimeError {
+func NewRuntimeError(cause any) RuntimeError {
 	goid, gopc, msg, stackTrace, innerErr := runtimeErrorNew(cause)
 	return &runtimeError{goid: goid, gopc: gopc, message: msg, stackTrace: stackTrace, cause: innerErr}
 }
@@ -34,7 +34,7 @@ func NewRuntimeErrorWithMessage(message string) RuntimeError {
 }
 
 // NewRuntimeErrorWithMessageCause create a new RuntimeError instance.
-func NewRuntimeErrorWithMessageCause(message string, cause Any) RuntimeError {
+func NewRuntimeErrorWithMessageCause(message string, cause any) RuntimeError {
 	goid, gopc, msg, stackTrace, innerErr := runtimeErrorNewWithMessageCause(message, cause)
 	return &runtimeError{goid: goid, gopc: gopc, message: msg, stackTrace: stackTrace, cause: innerErr}
 }

@@ -11,7 +11,7 @@ import (
 func TestThreadLocal_Index(t *testing.T) {
 	tls := NewThreadLocal()
 	assert.GreaterOrEqual(t, tls.(*threadLocal).index, 0)
-	tls2 := NewThreadLocalWithInitial(func() Any {
+	tls2 := NewThreadLocalWithInitial(func() any {
 		return "Hello"
 	})
 	assert.Greater(t, tls2.(*threadLocal).index, tls.(*threadLocal).index)
@@ -78,7 +78,7 @@ func TestThreadLocal_Common(t *testing.T) {
 
 func TestThreadLocal_Mixed(t *testing.T) {
 	tls := NewThreadLocal()
-	tls2 := NewThreadLocalWithInitial(func() Any {
+	tls2 := NewThreadLocalWithInitial(func() any {
 		return "Hello"
 	})
 	assert.Nil(t, tls.Get())
@@ -125,13 +125,13 @@ func TestThreadLocal_Mixed(t *testing.T) {
 func TestThreadLocal_WithInitial(t *testing.T) {
 	src := &person{Id: 1, Name: "Tim"}
 	tls := NewThreadLocalWithInitial(nil)
-	tls2 := NewThreadLocalWithInitial(func() Any {
+	tls2 := NewThreadLocalWithInitial(func() any {
 		return nil
 	})
-	tls3 := NewThreadLocalWithInitial(func() Any {
+	tls3 := NewThreadLocalWithInitial(func() any {
 		return src
 	})
-	tls4 := NewThreadLocalWithInitial(func() Any {
+	tls4 := NewThreadLocalWithInitial(func() any {
 		return *src
 	})
 
@@ -205,7 +205,7 @@ func TestThreadLocal_CreateBatch(t *testing.T) {
 	tlsList := make([]ThreadLocal, count)
 	for i := 0; i < count; i++ {
 		value := i
-		tlsList[i] = NewThreadLocalWithInitial(func() Any { return value })
+		tlsList[i] = NewThreadLocalWithInitial(func() any { return value })
 	}
 	for i := 0; i < count; i++ {
 		assert.Equal(t, i, tlsList[i].Get())

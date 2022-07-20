@@ -393,7 +393,7 @@ func (ae *ArgumentNilError) ParamName() string {
 	return ae.paramName
 }
 
-func NewArgumentNilError(paramName string, cause Any) *ArgumentNilError {
+func NewArgumentNilError(paramName string, cause any) *ArgumentNilError {
 	goid, gopc, msg, stackTrace, innerErr := runtimeErrorNew(cause)
 	return &ArgumentNilError{goid: goid, gopc: gopc, message: msg, paramName: paramName, stackTrace: stackTrace, cause: innerErr}
 }

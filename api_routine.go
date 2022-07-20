@@ -8,8 +8,8 @@ type Runnable func()
 // CancelRunnable provides a cancellable function without return values.
 type CancelRunnable func(token CancelToken)
 
-// CancelCallable provides a cancellable function that returns a value of type Any.
-type CancelCallable func(token CancelToken) Any
+// CancelCallable provides a cancellable function that returns a value of type any.
+type CancelCallable func(token CancelToken) any
 
 // Go starts a new goroutine, and copy inheritableThreadLocals from current goroutine.
 // This function will auto invoke the fun and print error stack when panic occur in goroutine.
