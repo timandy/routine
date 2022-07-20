@@ -6,11 +6,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewFeature(t *testing.T) {
-	fea := NewFeature()
+func TestNewFuture(t *testing.T) {
+	fea := NewFuture()
 	assert.NotNil(t, fea)
 	//
-	p, ok := fea.(*feature)
+	p, ok := fea.(*future)
 	assert.Same(t, p, fea)
 	assert.True(t, ok)
 }
