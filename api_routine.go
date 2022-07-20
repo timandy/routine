@@ -49,14 +49,14 @@ func Go(fun Runnable) {
 // This function return a Future pointer, so we can wait by Future.Get method.
 // If panic occur in goroutine, The panic will be trigger again when calling Future.Get method.
 func GoWait(fun Runnable) Future {
-	fea := NewFuture()
+	fut := NewFuture()
 	// backup
 	copied := createInheritedMap()
 	go func() {
 		// catch
 		defer func() {
 			if cause := recover(); cause != nil {
-				fea.CompleteError(NewRuntimeError(cause))
+				fut.CompleteError(NewRuntimeError(cause))
 			}
 		}()
 		// restore
@@ -71,7 +71,7 @@ func GoWait(fun Runnable) Future {
 				}
 			}()
 			fun()
-			fea.Complete(nil)
+			fut.Complete(nil)
 		} else {
 			backup := t.inheritableThreadLocals
 			defer func() {
@@ -81,24 +81,24 @@ func GoWait(fun Runnable) Future {
 			t.threadLocals = nil
 			t.inheritableThreadLocals = copied
 			fun()
-			fea.Complete(nil)
+			fut.Complete(nil)
 		}
 	}()
-	return fea
+	return fut
 }
 
 // GoWaitResult starts a new goroutine, and copy inheritableThreadLocals from current goroutine.
 // This function return a Future pointer, so we can wait and get result by Future.Get method.
 // If panic occur in goroutine, The panic will be trigger again when calling Future.Get method.
 func GoWaitResult(fun Callable) Future {
-	fea := NewFuture()
+	fut := NewFuture()
 	// backup
 	copied := createInheritedMap()
 	go func() {
 		// catch
 		defer func() {
 			if cause := recover(); cause != nil {
-				fea.CompleteError(NewRuntimeError(cause))
+				fut.CompleteError(NewRuntimeError(cause))
 			}
 		}()
 		// restore
@@ -112,7 +112,7 @@ func GoWaitResult(fun Callable) Future {
 					t.inheritableThreadLocals = nil
 				}
 			}()
-			fea.Complete(fun())
+			fut.Complete(fun())
 		} else {
 			backup := t.inheritableThreadLocals
 			defer func() {
@@ -121,8 +121,8 @@ func GoWaitResult(fun Callable) Future {
 			}()
 			t.threadLocals = nil
 			t.inheritableThreadLocals = copied
-			fea.Complete(fun())
+			fut.Complete(fun())
 		}
 	}()
-	return fea
+	return fut
 }
