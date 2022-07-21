@@ -78,8 +78,8 @@ import (
 	"github.com/timandy/routine"
 )
 
-var threadLocal = routine.NewThreadLocal()
-var inheritableThreadLocal = routine.NewInheritableThreadLocal()
+var threadLocal = routine.NewThreadLocal[string]()
+var inheritableThreadLocal = routine.NewInheritableThreadLocal[string]()
 
 func main() {
 	threadLocal.Set("hello world")
@@ -109,9 +109,9 @@ func main() {
 ```text
 threadLocal: hello world
 inheritableThreadLocal: Hello world2
-threadLocal in goroutine: <nil>
-inheritableThreadLocal in goroutine: <nil>
-threadLocal in goroutine by Go: <nil>
+threadLocal in goroutine:
+inheritableThreadLocal in goroutine:
+threadLocal in goroutine by Go:
 inheritableThreadLocal in goroutine by Go: Hello world2
 ```
 
@@ -125,31 +125,31 @@ inheritableThreadLocal in goroutine by Go: Hello world2
 
 在`386`、`amd64`、`armv6`、`armv7`、`arm64`、`ppc64`、`s390x`架构下通过汇编代码直接获取，此操作性能极高，耗时通常只相当于`rand.Int()`的五分之一。
 
-## `NewThreadLocal() ThreadLocal`
+## `NewThreadLocal[T any]() ThreadLocal[T]`
 
-创建一个新的`ThreadLocal`实例，其存储的默认值为`nil`。
+创建一个新的`ThreadLocal[T]`实例，其存储的初始值为类型`T`的默认值。
 
-## `NewThreadLocalWithInitial(supplier Supplier) ThreadLocal`
+## `NewThreadLocalWithInitial[T any](supplier Supplier[T]) ThreadLocal[T]`
 
-创建一个新的`ThreadLocal`实例，其存储的默认值会通过调用`supplier()`生成。
+创建一个新的`ThreadLocal[T]`实例，其存储的初始值为方法`supplier()`的返回值。
 
-## `NewInheritableThreadLocal() ThreadLocal`
+## `NewInheritableThreadLocal[T any]() ThreadLocal[T]`
 
-创建一个新的`ThreadLocal`实例，其存储的默认值为`nil`。当通过`Go()`、`GoWait()`或`GoWaitResult()`启动新协程时，当前协程的值会被复制到新协程。
+创建一个新的`ThreadLocal[T]`实例，其存储的初始值为类型`T`的默认值。当通过`Go()`、`GoWait()`或`GoWaitResult()`启动新协程时，当前协程的值会被复制到新协程。
 
-## `NewInheritableThreadLocalWithInitial(supplier Supplier) ThreadLocal`
+## `NewInheritableThreadLocalWithInitial[T any](supplier Supplier[T]) ThreadLocal[T]`
 
-创建一个新的`ThreadLocal`实例，其存储的默认值会通过调用`supplier()`生成。当通过`Go()`、`GoWait()`或`GoWaitResult()`启动新协程时，当前协程的值会被复制到新协程。
+创建一个新的`ThreadLocal[T]`实例，其存储的初始值为方法`supplier()`的返回值。当通过`Go()`、`GoWait()`或`GoWaitResult()`启动新协程时，当前协程的值会被复制到新协程。
 
 ## `Go(fun Runnable)`
 
 启动一个新的协程，同时自动将当前协程的全部上下文`inheritableThreadLocals`数据复制至新协程。子协程执行时的任何`panic`都会被捕获并自动打印堆栈。
 
-## `GoWait(fun CancelRunnable) Future`
+## `GoWait(fun CancelRunnable) Future[any]`
 
 启动一个新的协程，同时自动将当前协程的全部上下文`inheritableThreadLocals`数据复制至新协程。可以通过返回值的`Future.Get()`或`Future.GetWithTimeout()`方法等待子协程执行完毕。子协程执行时的任何`panic`都会被捕获并在调用`Future.Get()`或`Future.GetWithTimeout()`时再次抛出。
 
-## `GoWaitResult(fun CancelCallable) Future`
+## `GoWaitResult[T any](fun CancelCallable[T]) Future[T]`
 
 启动一个新的协程，同时自动将当前协程的全部上下文`inheritableThreadLocals`数据复制至新协程。可以通过返回值的`Future.Get()`或`Future.GetWithTimeout()`方法等待子协程执行完毕并获取返回值。子协程执行时的任何`panic`都会被捕获并在调用`Future.Get()`或`Future.GetWithTimeout()`时再次抛出。
 
