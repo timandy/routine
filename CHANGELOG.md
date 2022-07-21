@@ -1,5 +1,24 @@
 <!--变更日志-->
 
+# v1.0.9 Release notes
+
+### Features
+
+- Support arch `386` & `amd64` on `freebsd` and arch `ppc64` & `s390x` on `linux`.
+- Support `Cancel()` and `GetWithTimeout()` methods for type `Future`.
+- Support checking whether the tasks created by `GoWait(CancelRunnable)` and `GoWaitResult(CancelCallable)` methods are canceled.
+
+### Changes
+
+- Fix spell error of type `Future`.
+- Rename type `Any` to `any`.
+
+# Links
+
+- Source code [https://github.com/timandy/routine/tree/v1.0.9](https://github.com/timandy/routine/tree/v1.0.9)
+
+---
+
 # v1.0.8 Release notes
 
 ### Changes
