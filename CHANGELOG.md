@@ -1,5 +1,17 @@
 <!--变更日志-->
 
+# v2.0.0 Release notes
+
+### Features
+
+- Support `generic` programming, so `go1.18` or `newer` version is required.
+
+# Links
+
+- Source code [https://github.com/timandy/routine/tree/v2.0.0](https://github.com/timandy/routine/tree/v2.0.0)
+
+---
+
 # v1.0.9 Release notes
 
 ### Features
