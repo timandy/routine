@@ -75,7 +75,7 @@ func createInheritedMap() *threadLocalMap {
 	return &threadLocalMap{table: table}
 }
 
-func fill(a []any, fromIndex int, toIndex int, val any) {
+func fill[T any](a []T, fromIndex int, toIndex int, val T) {
 	for i := fromIndex; i < toIndex; i++ {
 		a[i] = val
 	}

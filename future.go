@@ -15,33 +15,33 @@ const (
 	failed
 )
 
-type future struct {
+type future[T any] struct {
 	lock   sync.RWMutex
 	await  sync.WaitGroup
 	status futureStatus
 	error  RuntimeError
-	result any
+	result T
 }
 
-func (fut *future) IsDone() bool {
+func (fut *future[T]) IsDone() bool {
 	fut.lock.RLock()
 	defer fut.lock.RUnlock()
 	return fut.status != running
 }
 
-func (fut *future) IsCanceled() bool {
+func (fut *future[T]) IsCanceled() bool {
 	fut.lock.RLock()
 	defer fut.lock.RUnlock()
 	return fut.status == canceled
 }
 
-func (fut *future) IsFailed() bool {
+func (fut *future[T]) IsFailed() bool {
 	fut.lock.RLock()
 	defer fut.lock.RUnlock()
 	return fut.status == failed
 }
 
-func (fut *future) Complete(result any) {
+func (fut *future[T]) Complete(result T) {
 	fut.lock.Lock()
 	defer fut.lock.Unlock()
 	if fut.status != running {
@@ -52,7 +52,7 @@ func (fut *future) Complete(result any) {
 	fut.await.Done()
 }
 
-func (fut *future) Cancel() {
+func (fut *future[T]) Cancel() {
 	fut.lock.Lock()
 	defer fut.lock.Unlock()
 	if fut.status != running {
@@ -63,7 +63,7 @@ func (fut *future) Cancel() {
 	fut.await.Done()
 }
 
-func (fut *future) Fail(error any) {
+func (fut *future[T]) Fail(error any) {
 	fut.lock.Lock()
 	defer fut.lock.Unlock()
 	if fut.status != running {
@@ -78,7 +78,7 @@ func (fut *future) Fail(error any) {
 	fut.await.Done()
 }
 
-func (fut *future) Get() any {
+func (fut *future[T]) Get() T {
 	fut.await.Wait()
 	if fut.status == completed {
 		return fut.result
@@ -86,7 +86,7 @@ func (fut *future) Get() any {
 	panic(fut.error)
 }
 
-func (fut *future) GetWithTimeout(timeout time.Duration) any {
+func (fut *future[T]) GetWithTimeout(timeout time.Duration) T {
 	resultChan := make(chan struct{})
 	errorChan := make(chan struct{})
 	go func() {
@@ -112,7 +112,7 @@ func (fut *future) GetWithTimeout(timeout time.Duration) any {
 	}
 }
 
-func (fut *future) timeout(timeout time.Duration) {
+func (fut *future[T]) timeout(timeout time.Duration) {
 	fut.lock.Lock()
 	defer fut.lock.Unlock()
 	if fut.status != running {

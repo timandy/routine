@@ -7,17 +7,17 @@ import (
 )
 
 func TestCancelToken(t *testing.T) {
-	fut := NewFuture()
+	fut := NewFuture[any]()
 	token, ok := fut.(CancelToken)
 	assert.Same(t, fut, token)
 	assert.True(t, ok)
 }
 
 func TestNewFuture(t *testing.T) {
-	fut := NewFuture()
+	fut := NewFuture[any]()
 	assert.NotNil(t, fut)
 	//
-	p, ok := fut.(*future)
+	p, ok := fut.(*future[any])
 	assert.Same(t, p, fut)
 	assert.True(t, ok)
 }

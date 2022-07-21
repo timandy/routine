@@ -9,7 +9,7 @@ type Runnable func()
 type CancelRunnable func(token CancelToken)
 
 // CancelCallable provides a cancellable function that returns a value of type any.
-type CancelCallable func(token CancelToken) any
+type CancelCallable[T any] func(token CancelToken) T
 
 // Go starts a new goroutine, and copy inheritableThreadLocals from current goroutine.
 // This function will auto invoke the fun and print error stack when panic occur in goroutine.
@@ -51,8 +51,8 @@ func Go(fun Runnable) {
 // GoWait starts a new goroutine, and copy inheritableThreadLocals from current goroutine.
 // This function return a Future pointer, so we can wait by Future.Get or Future.GetWithTimeout method.
 // If panic occur in goroutine, The panic will be trigger again when calling Future.Get or Future.GetWithTimeout method.
-func GoWait(fun CancelRunnable) Future {
-	fut := NewFuture()
+func GoWait(fun CancelRunnable) Future[any] {
+	fut := NewFuture[any]()
 	// backup
 	copied := createInheritedMap()
 	go func() {
@@ -93,8 +93,8 @@ func GoWait(fun CancelRunnable) Future {
 // GoWaitResult starts a new goroutine, and copy inheritableThreadLocals from current goroutine.
 // This function return a Future pointer, so we can wait and get result by Future.Get or Future.GetWithTimeout method.
 // If panic occur in goroutine, The panic will be trigger again when calling Future.Get or Future.GetWithTimeout method.
-func GoWaitResult(fun CancelCallable) Future {
-	fut := NewFuture()
+func GoWaitResult[T any](fun CancelCallable[T]) Future[T] {
+	fut := NewFuture[T]()
 	// backup
 	copied := createInheritedMap()
 	go func() {

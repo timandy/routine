@@ -10,38 +10,38 @@ import (
 )
 
 func TestFuture_IsDone(t *testing.T) {
-	fut := NewFuture()
+	fut := NewFuture[*int]()
 	assert.False(t, fut.IsDone())
 	fut.Complete(nil)
 	assert.True(t, fut.IsDone())
 	//
-	fut2 := NewFuture()
+	fut2 := NewFuture[*int]()
 	assert.False(t, fut2.IsDone())
 	fut2.Cancel()
 	assert.True(t, fut2.IsDone())
 	//
-	fut3 := NewFuture()
+	fut3 := NewFuture[*int]()
 	assert.False(t, fut3.IsDone())
 	fut3.Fail(nil)
 	assert.True(t, fut3.IsDone())
 }
 
 func TestFuture_IsCanceled(t *testing.T) {
-	fut := NewFuture()
+	fut := NewFuture[int]()
 	assert.False(t, fut.IsCanceled())
 	fut.Cancel()
 	assert.True(t, fut.IsCanceled())
 }
 
 func TestFuture_IsFailed(t *testing.T) {
-	fut := NewFuture()
+	fut := NewFuture[int]()
 	assert.False(t, fut.IsFailed())
 	fut.Fail(nil)
 	assert.True(t, fut.IsFailed())
 }
 
 func TestFuture_Complete_AfterCancel(t *testing.T) {
-	fut := NewFuture()
+	fut := NewFuture[int]()
 	go func() {
 		fut.Cancel()
 	}()
@@ -60,7 +60,7 @@ func TestFuture_Complete_AfterCancel(t *testing.T) {
 }
 
 func TestFuture_Complete_Common(t *testing.T) {
-	fut := NewFuture()
+	fut := NewFuture[int]()
 	go func() {
 		fut.Complete(1)
 	}()
@@ -73,7 +73,7 @@ func TestFuture_Complete_Common(t *testing.T) {
 }
 
 func TestFuture_Cancel_AfterComplete(t *testing.T) {
-	fut := NewFuture()
+	fut := NewFuture[int]()
 	go func() {
 		fut.Complete(1)
 	}()
@@ -84,7 +84,7 @@ func TestFuture_Cancel_AfterComplete(t *testing.T) {
 }
 
 func TestFuture_Cancel_Common(t *testing.T) {
-	fut := NewFuture()
+	fut := NewFuture[int]()
 	go func() {
 		fut.Cancel()
 	}()
@@ -92,12 +92,12 @@ func TestFuture_Cancel_Common(t *testing.T) {
 		fut.Get()
 	})
 	assert.True(t, fut.IsCanceled())
-	assert.Equal(t, "Task was canceled.", fut.(*future).error.Message())
-	assert.Nil(t, fut.(*future).error.Cause())
+	assert.Equal(t, "Task was canceled.", fut.(*future[int]).error.Message())
+	assert.Nil(t, fut.(*future[int]).error.Cause())
 }
 
 func TestFuture_Cancel_RuntimeError(t *testing.T) {
-	fut3 := NewFuture()
+	fut3 := NewFuture[int]()
 	go func() {
 		fut3.Cancel()
 	}()
@@ -105,12 +105,12 @@ func TestFuture_Cancel_RuntimeError(t *testing.T) {
 		fut3.Get()
 	})
 	assert.True(t, fut3.IsCanceled())
-	assert.Equal(t, "Task was canceled.", fut3.(*future).error.Message())
-	assert.Nil(t, fut3.(*future).error.Cause())
+	assert.Equal(t, "Task was canceled.", fut3.(*future[int]).error.Message())
+	assert.Nil(t, fut3.(*future[int]).error.Cause())
 }
 
 func TestFuture_Fail_AfterComplete(t *testing.T) {
-	fut := NewFuture()
+	fut := NewFuture[int]()
 	go func() {
 		fut.Complete(1)
 	}()
@@ -132,7 +132,7 @@ func TestFuture_Fail_Common(t *testing.T) {
 			assert.Equal(t, "RuntimeError: 1", line)
 			//
 			line = lines[1]
-			assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.(*future).Fail() in "))
+			assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.(*future[...]).Fail() in "))
 			assert.True(t, strings.HasSuffix(line, "future.go:74"))
 			//
 			line = lines[2]
@@ -148,7 +148,7 @@ func TestFuture_Fail_Common(t *testing.T) {
 		}
 	}()
 	//
-	fut := NewFuture()
+	fut := NewFuture[int]()
 	go func() {
 		defer func() {
 			if cause := recover(); cause != nil {
@@ -185,7 +185,7 @@ func TestFuture_Fail_RuntimeError(t *testing.T) {
 		}
 	}()
 	//
-	fut := NewFuture()
+	fut := NewFuture[int]()
 	go func() {
 		defer func() {
 			if cause := recover(); cause != nil {
@@ -200,7 +200,7 @@ func TestFuture_Fail_RuntimeError(t *testing.T) {
 
 func TestFuture_Get_Nil(t *testing.T) {
 	run := false
-	fut := NewFuture()
+	fut := NewFuture[*int]()
 	go func() {
 		time.Sleep(100 * time.Millisecond)
 		run = true
@@ -212,7 +212,7 @@ func TestFuture_Get_Nil(t *testing.T) {
 
 func TestFuture_Get_Common(t *testing.T) {
 	run := false
-	fut := NewFuture()
+	fut := NewFuture[int]()
 	go func() {
 		time.Sleep(100 * time.Millisecond)
 		run = true
@@ -227,7 +227,7 @@ func TestFuture_GetWithTimeout_Complete(t *testing.T) {
 	wg.Add(1)
 	//
 	run := false
-	fut := NewFuture()
+	fut := NewFuture[int]()
 	go func() {
 		defer wg.Done()
 		//
@@ -248,7 +248,7 @@ func TestFuture_GetWithTimeout_Fail(t *testing.T) {
 	wg.Add(1)
 	//
 	run := false
-	fut := NewFuture()
+	fut := NewFuture[int]()
 	go func() {
 		defer wg.Done()
 		//
@@ -264,8 +264,8 @@ func TestFuture_GetWithTimeout_Fail(t *testing.T) {
 	assert.True(t, run)
 	//
 	assert.True(t, fut.IsFailed())
-	assert.Equal(t, "1", fut.(*future).error.Message())
-	assert.Nil(t, fut.(*future).error.Cause())
+	assert.Equal(t, "1", fut.(*future[int]).error.Message())
+	assert.Nil(t, fut.(*future[int]).error.Cause())
 	//
 	wg.Wait()
 }
@@ -275,7 +275,7 @@ func TestFuture_GetWithTimeout_Timeout(t *testing.T) {
 	wg.Add(1)
 	//
 	run := false
-	fut := NewFuture()
+	fut := NewFuture[*int]()
 	go func() {
 		defer wg.Done()
 		//
@@ -292,8 +292,8 @@ func TestFuture_GetWithTimeout_Timeout(t *testing.T) {
 	assert.False(t, run)
 	//
 	assert.True(t, fut.IsCanceled())
-	assert.Equal(t, "Task execution timeout after 1ms.", fut.(*future).error.Message())
-	assert.Nil(t, fut.(*future).error.Cause())
+	assert.Equal(t, "Task execution timeout after 1ms.", fut.(*future[*int]).error.Message())
+	assert.Nil(t, fut.(*future[*int]).error.Cause())
 	//
 	wg.Wait()
 }
@@ -302,7 +302,7 @@ func TestFuture_Routine_Complete(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	//
-	fut := GoWaitResult(func(token CancelToken) any {
+	fut := GoWaitResult(func(token CancelToken) int {
 		defer wg.Done()
 		//
 		if token.IsCanceled() {
@@ -320,7 +320,7 @@ func TestFuture_Routine_Cancel(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	//
-	fut := GoWaitResult(func(token CancelToken) any {
+	fut := GoWaitResult(func(token CancelToken) int {
 		defer wg.Done()
 		//
 		token.Cancel()
@@ -330,8 +330,8 @@ func TestFuture_Routine_Cancel(t *testing.T) {
 		fut.GetWithTimeout(100 * time.Millisecond)
 	})
 	assert.True(t, fut.IsCanceled())
-	assert.Equal(t, "Task was canceled.", fut.(*future).error.Message())
-	assert.Nil(t, fut.(*future).error.Cause())
+	assert.Equal(t, "Task was canceled.", fut.(*future[int]).error.Message())
+	assert.Nil(t, fut.(*future[int]).error.Cause())
 	//
 	wg.Wait()
 }
@@ -341,7 +341,7 @@ func TestFuture_Routine_CancelInParent(t *testing.T) {
 	wg.Add(1)
 	//
 	finished := false
-	fut := GoWaitResult(func(token CancelToken) any {
+	fut := GoWaitResult(func(token CancelToken) int {
 		defer wg.Done()
 		//
 		for i := 0; i < 10; i++ {
@@ -359,15 +359,15 @@ func TestFuture_Routine_CancelInParent(t *testing.T) {
 	//
 	assert.False(t, finished)
 	assert.True(t, fut.IsCanceled())
-	assert.Equal(t, "Task was canceled.", fut.(*future).error.Message())
-	assert.Nil(t, fut.(*future).error.Cause())
+	assert.Equal(t, "Task was canceled.", fut.(*future[int]).error.Message())
+	assert.Nil(t, fut.(*future[int]).error.Cause())
 }
 
 func TestFuture_Routine_Fail(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	//
-	fut := GoWaitResult(func(token CancelToken) any {
+	fut := GoWaitResult(func(token CancelToken) int {
 		defer wg.Done()
 		//
 		if token.IsCanceled() {
@@ -379,8 +379,8 @@ func TestFuture_Routine_Fail(t *testing.T) {
 		fut.GetWithTimeout(100 * time.Millisecond)
 	})
 	assert.True(t, fut.IsFailed())
-	assert.Equal(t, "something error", fut.(*future).error.Message())
-	assert.Nil(t, fut.(*future).error.Cause())
+	assert.Equal(t, "something error", fut.(*future[int]).error.Message())
+	assert.Nil(t, fut.(*future[int]).error.Cause())
 	//
 	wg.Wait()
 }
@@ -389,7 +389,7 @@ func TestFuture_Routine_Timeout(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	//
-	fut := GoWaitResult(func(token CancelToken) any {
+	fut := GoWaitResult(func(token CancelToken) int {
 		defer wg.Done()
 		//
 		for i := 0; i < 10; i++ {
@@ -404,8 +404,8 @@ func TestFuture_Routine_Timeout(t *testing.T) {
 		fut.GetWithTimeout(1 * time.Millisecond)
 	})
 	assert.True(t, fut.IsCanceled())
-	assert.Equal(t, "Task execution timeout after 1ms.", fut.(*future).error.Message())
-	assert.Nil(t, fut.(*future).error.Cause())
+	assert.Equal(t, "Task execution timeout after 1ms.", fut.(*future[int]).error.Message())
+	assert.Nil(t, fut.(*future[int]).error.Cause())
 	//
 	wg.Wait()
 }
@@ -417,7 +417,7 @@ func TestFuture_Routine_TimeoutThenComplete(t *testing.T) {
 	fut := GoWait(func(token CancelToken) {
 		defer wg.Done()
 		//
-		ft := token.(*future)
+		ft := token.(*future[any])
 		ft.lock.Lock()
 		defer ft.lock.Unlock()
 		ft.result = 1
@@ -438,7 +438,7 @@ func TestFuture_Routine_TimeoutThenCancel(t *testing.T) {
 	fut := GoWait(func(token CancelToken) {
 		defer wg.Done()
 		//
-		ft := token.(*future)
+		ft := token.(*future[any])
 		ft.lock.Lock()
 		defer ft.lock.Unlock()
 		ft.error = NewRuntimeError("canceled.")
@@ -451,8 +451,8 @@ func TestFuture_Routine_TimeoutThenCancel(t *testing.T) {
 	})
 	//
 	assert.True(t, fut.IsCanceled())
-	assert.Equal(t, "canceled.", fut.(*future).error.Message())
-	assert.Nil(t, fut.(*future).error.Cause())
+	assert.Equal(t, "canceled.", fut.(*future[any]).error.Message())
+	assert.Nil(t, fut.(*future[any]).error.Cause())
 	assert.Panics(t, func() {
 		fut.Get()
 	})
@@ -467,7 +467,7 @@ func TestFuture_Routine_TimeoutThenFail(t *testing.T) {
 	fut := GoWait(func(token CancelToken) {
 		defer wg.Done()
 		//
-		ft := token.(*future)
+		ft := token.(*future[any])
 		ft.lock.Lock()
 		defer ft.lock.Unlock()
 		ft.error = NewRuntimeError("failed.")
@@ -480,8 +480,8 @@ func TestFuture_Routine_TimeoutThenFail(t *testing.T) {
 	})
 	//
 	assert.True(t, fut.IsFailed())
-	assert.Equal(t, "failed.", fut.(*future).error.Message())
-	assert.Nil(t, fut.(*future).error.Cause())
+	assert.Equal(t, "failed.", fut.(*future[any]).error.Message())
+	assert.Nil(t, fut.(*future[any]).error.Cause())
 	assert.Panics(t, func() {
 		fut.Get()
 	})
