@@ -171,7 +171,7 @@ jobs:
 
       - name: 'Test on [freebsd] arch [386, amd64]'
         if: ${{ matrix.os == 'freebsd' && contains('386, amd64', matrix.arch) }}
-        uses: vmactions/freebsd-vm@v0.2.0
+        uses: vmactions/freebsd-vm@v0.2.3
         with:
           run: |
             find ./ -name '*.test' -type f -print0 | \
