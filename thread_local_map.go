@@ -3,7 +3,6 @@ package routine
 var unset any = &object{}
 
 type object struct {
-	value any
 }
 
 type threadLocalMap struct {

@@ -8,6 +8,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestObject(t *testing.T) {
+	var value any = &object{}
+	assert.NotSame(t, unset, value)
+	//
+	var value2 any = &object{}
+	assert.Same(t, value2, value)
+}
+
 func TestCreateInheritedMap(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
