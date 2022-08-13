@@ -9,43 +9,37 @@ import (
 
 func TestRunnable(t *testing.T) {
 	count := 0
-	var runnable Runnable
-	runnable = func() {
+	var runnable Runnable = func() {
 		count++
 	}
 	runnable()
 	assert.Equal(t, 1, count)
 	//
-	var fun func()
-	fun = runnable
+	var fun func() = runnable
 	fun()
 	assert.Equal(t, 2, count)
 }
 
 func TestCancelRunnable(t *testing.T) {
 	count := 0
-	var cancelRunnable CancelRunnable
-	cancelRunnable = func(token CancelToken) {
+	var cancelRunnable CancelRunnable = func(token CancelToken) {
 		count++
 	}
 	cancelRunnable(nil)
 	assert.Equal(t, 1, count)
 	//
-	var fun func(CancelToken)
-	fun = cancelRunnable
+	var fun func(CancelToken) = cancelRunnable
 	fun(nil)
 	assert.Equal(t, 2, count)
 }
 
 func TestCancelCallable(t *testing.T) {
-	var cancelCallable CancelCallable
-	cancelCallable = func(token CancelToken) interface{} {
+	var cancelCallable CancelCallable = func(token CancelToken) interface{} {
 		return "Hello"
 	}
 	assert.Equal(t, "Hello", cancelCallable(nil))
 	//
-	var fun func(CancelToken) any
-	fun = cancelCallable
+	var fun func(CancelToken) any = cancelCallable
 	assert.Equal(t, "Hello", fun(nil))
 }
 

@@ -14,14 +14,12 @@ const (
 )
 
 func TestSupplier(t *testing.T) {
-	var supplier Supplier
-	supplier = func() interface{} {
+	var supplier Supplier = func() interface{} {
 		return "Hello"
 	}
 	assert.Equal(t, "Hello", supplier())
 	//
-	var fun func() any
-	fun = supplier
+	var fun func() any = supplier
 	assert.Equal(t, "Hello", fun())
 }
 

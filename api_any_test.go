@@ -7,13 +7,11 @@ import (
 )
 
 func TestAny(t *testing.T) {
-	var value1 any
-	value1 = 1
+	var value1 any = 1
 	acceptAny(value1)
 	acceptInterface(value1)
 	//
-	var value2 interface{}
-	value2 = 2
+	var value2 interface{} = 2
 	acceptAny(value2)
 	acceptInterface(value2)
 	//
