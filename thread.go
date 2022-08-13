@@ -81,7 +81,7 @@ func extractThread(gp g, label unsafe.Pointer) (t *thread, magic int64, id int64
 	old := gp.setPanicOnFault(true)
 	defer func() {
 		gp.setPanicOnFault(old)
-		recover()
+		recover() //nolint:errcheck
 	}()
 	t = (*thread)(label)
 	return t, t.magic, t.id
