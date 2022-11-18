@@ -2,6 +2,7 @@ package routine
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 	"runtime"
 	"sync"
@@ -36,6 +37,12 @@ func TestGetg0(t *testing.T) {
 func TestGetgt(t *testing.T) {
 	fmt.Println("*** GOOS:", runtime.GOOS, "***")
 	fmt.Println("*** GOARCH:", runtime.GOARCH, "***")
+	if GOARM := os.Getenv("GOARM"); len(GOARM) > 0 {
+		fmt.Println("*** GOARM:", GOARM, "***")
+	}
+	if GOMIPS := os.Getenv("GOMIPS"); len(GOMIPS) > 0 {
+		fmt.Println("*** GOMIPS:", GOMIPS, "***")
+	}
 	//
 	gt := getgt()
 	runtime.GC()
@@ -58,27 +65,11 @@ func TestGetgt(t *testing.T) {
 	runTest(t, func() {
 		tt := getgt()
 		runtime.GC()
-		switch runtime.GOARCH {
-		case "386":
-			fallthrough
-		case "amd64":
-			fallthrough
-		case "arm":
-			fallthrough
-		case "arm64":
-			fallthrough
-		case "ppc64":
-			fallthrough
-		case "s390x":
-			assert.Equal(t, numField, tt.NumField())
-			assert.Equal(t, offsetGoid, offset(tt, "goid"))
-			assert.Equal(t, offsetPaniconfault, offset(tt, "paniconfault"))
-			assert.Equal(t, offsetGopc, offset(tt, "gopc"))
-			assert.Equal(t, offsetLabels, offset(tt, "labels"))
-
-		default:
-			panic("Not support GOARCH: " + runtime.GOARCH)
-		}
+		assert.Equal(t, numField, tt.NumField())
+		assert.Equal(t, offsetGoid, offset(tt, "goid"))
+		assert.Equal(t, offsetPaniconfault, offset(tt, "paniconfault"))
+		assert.Equal(t, offsetGopc, offset(tt, "gopc"))
+		assert.Equal(t, offsetLabels, offset(tt, "labels"))
 	})
 }
 
