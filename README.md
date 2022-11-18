@@ -2,6 +2,7 @@
 
 [![Build Status](https://github.com/timandy/routine/actions/workflows/build.yml/badge.svg)](https://github.com/timandy/routine/actions)
 [![Codecov](https://codecov.io/gh/timandy/routine/branch/main/graph/badge.svg)](https://app.codecov.io/gh/timandy/routine)
+[![Go Report Card](https://goreportcard.com/badge/github.com/timandy/routine)](https://goreportcard.com/report/github.com/timandy/routine)
 [![Documentation](https://pkg.go.dev/badge/github.com/timandy/routine.svg)](https://pkg.go.dev/github.com/timandy/routine)
 [![Release](https://img.shields.io/github/release/timandy/routine.svg)](https://github.com/timandy/routine/releases)
 [![License](https://img.shields.io/github/license/timandy/routine.svg)](https://github.com/timandy/routine/blob/main/LICENSE)
@@ -123,7 +124,7 @@ This chapter introduces in detail all the interfaces encapsulated by the `routin
 
 Get the `goid` of the current `goroutine`.
 
-It can be obtained directly through assembly code under `386`, `amd64`, `armv6`, `armv7`, `arm64`, `ppc64`, `s390x` architectures. This operation has extremely high performance and the time-consuming is usually only one-fifth of `rand.Int()`.
+It can be obtained directly through assembly code under `386`, `amd64`, `armv6`, `armv7`, `arm64`, `loong64`, `mips`, `mipsle`, `mips64`, `mips64le`, `ppc64`, `ppc64le`, `riscv64`, `s390x`, `wasm` architectures. This operation has extremely high performance and the time-consuming is usually only one-fifth of `rand.Int()`.
 
 ## `NewThreadLocal() ThreadLocal`
 
@@ -169,22 +170,30 @@ If the data stored in `thread` is not additionally referenced, these data will b
 
 # Support Grid
 
-|             | **`darwin`** | **`linux`** | **`windows`** | **`freebsd`** |             |
-|------------:|:------------:|:-----------:|:-------------:|:-------------:|:------------|
-|   **`386`** |              |      ✅      |       ✅       |       ✅       | **`386`**   |
-| **`amd64`** |      ✅       |      ✅      |       ✅       |       ✅       | **`amd64`** |
-| **`armv6`** |              |      ✅      |               |               | **`armv6`** |
-| **`armv7`** |              |      ✅      |               |               | **`armv7`** |
-| **`arm64`** |      ✅       |      ✅      |               |               | **`arm64`** |
-| **`ppc64`** |              |      ✅      |               |               | **`ppc64`** |
-| **`s390x`** |              |      ✅      |               |               | **`s390x`** |
-|             | **`darwin`** | **`linux`** | **`windows`** | **`freebsd`** |             |
+|                | **`darwin`** | **`linux`** | **`windows`** | **`freebsd`** | **`js`** |                |
+|---------------:|:------------:|:-----------:|:-------------:|:-------------:|:--------:|:---------------|
+|      **`386`** |              |      ✅      |       ✅       |       ✅       |          | **`386`**      |
+|    **`amd64`** |      ✅       |      ✅      |       ✅       |       ✅       |          | **`amd64`**    |
+|    **`armv6`** |              |      ✅      |               |               |          | **`armv6`**    |
+|    **`armv7`** |              |      ✅      |               |               |          | **`armv7`**    |
+|    **`arm64`** |      ✅       |      ✅      |               |               |          | **`arm64`**    |
+|  **`loong64`** |              |      ✅      |               |               |          | **`loong64`**  |
+|     **`mips`** |              |      ✅      |               |               |          | **`mips`**     |
+|   **`mipsle`** |              |      ✅      |               |               |          | **`mipsle`**   |
+|   **`mips64`** |              |      ✅      |               |               |          | **`mips64`**   |
+| **`mips64le`** |              |      ✅      |               |               |          | **`mips64le`** |
+|    **`ppc64`** |              |      ✅      |               |               |          | **`ppc64`**    |
+|  **`ppc64le`** |              |      ✅      |               |               |          | **`ppc64le`**  |
+|  **`riscv64`** |              |      ✅      |               |               |          | **`riscv64`**  |
+|    **`s390x`** |              |      ✅      |               |               |          | **`s390x`**    |
+|     **`wasm`** |              |             |               |               |    ✅     | **`wasm`**     |
+|                | **`darwin`** | **`linux`** | **`windows`** | **`freebsd`** | **`js`** |                |
 
 ✅: Supported
 
 # Thanks
 
-`routine` is forked from [go-eden/routine](https://github.com/go-eden/routine), thanks to the original author for his contribution!
+Thanks to all [contributors](https://github.com/timandy/routine/graphs/contributors) for their contributions!
 
 # *License*
 
