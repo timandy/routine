@@ -9,9 +9,11 @@ import (
 )
 
 // getgp returns the pointer to the current runtime.g.
+//go:nosplit
 func getgp() unsafe.Pointer
 
 // getg0 returns the value of runtime.g0.
+//go:nosplit
 func getg0() interface{}
 
 // getgt returns the type of runtime.g.
