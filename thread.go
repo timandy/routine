@@ -31,6 +31,7 @@ func (t *thread) finalize() {
 }
 
 // currentThread returns a pointer to the currently executing goroutine's thread struct.
+//
 //go:norace
 //go:nocheckptr
 func currentThread(create bool) *thread {
@@ -75,6 +76,7 @@ func currentThread(create bool) *thread {
 }
 
 // extractThread extract thread from unsafe.Pointer and catch fault error.
+//
 //go:norace
 //go:nocheckptr
 func extractThread(gp g, label unsafe.Pointer) (t *thread, magic int64, id int64) {

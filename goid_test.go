@@ -97,18 +97,22 @@ func TestOffset(t *testing.T) {
 }
 
 // curGoroutineID parse the current g's goid from caller stack.
+//
 //go:linkname curGoroutineID net/http.http2curGoroutineID
 func curGoroutineID() int64
 
 // setPanicOnFault controls the runtime's behavior when a program faults at an unexpected (non-nil) address.
+//
 //go:linkname setPanicOnFault runtime/debug.setPanicOnFault
 func setPanicOnFault(new bool) (old bool)
 
 // getProfLabel get current g's labels which will be inherited by new goroutine.
+//
 //go:linkname getProfLabel runtime/pprof.runtime_getProfLabel
 func getProfLabel() unsafe.Pointer
 
 // setProfLabel set current g's labels which will be inherited by new goroutine.
+//
 //go:linkname setProfLabel runtime/pprof.runtime_setProfLabel
 func setProfLabel(labels unsafe.Pointer)
 
