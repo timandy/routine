@@ -21,7 +21,7 @@ jobs:
       matrix:
         os: [ darwin, linux, windows, freebsd ]
         arch: [ 386, amd64, armv6, armv7, arm64, ppc64, s390x ]
-        go: [ 1.13, 1.14, 1.15, 1.16, 1.17, 1.18 ]
+        go: [ 1.13, 1.14, 1.15, 1.16, 1.17, 1.18, 1.19 ]
         exclude:
           # darwin excludes
           - os: darwin
