@@ -48,12 +48,12 @@ jobs:
 
   Test:
     needs: Lint
-    runs-on: ${{ matrix.osv }}
+    runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ darwin, linux, windows, freebsd ]
-        arch: [ 386, amd64, armv6, armv7, arm64, ppc64, s390x ]
+        os: [ darwin, linux, windows, freebsd, js ]
+        arch: [ 386, amd64, armv6, armv7, arm64, loong64, mips, mipsle, mips64, mips64le, ppc64, ppc64le, riscv64, s390x, wasm ]
         go: [ 1.13, 1.14, 1.15, 1.16, 1.17, 1.18, 1.19 ]
         exclude:
           # darwin excludes
@@ -66,9 +66,49 @@ jobs:
           - os: darwin
             arch: arm64
           - os: darwin
+            arch: loong64
+          - os: darwin
+            arch: mips
+          - os: darwin
+            arch: mipsle
+          - os: darwin
+            arch: mips64
+          - os: darwin
+            arch: mips64le
+          - os: darwin
             arch: ppc64
           - os: darwin
+            arch: ppc64le
+          - os: darwin
+            arch: riscv64
+          - os: darwin
             arch: s390x
+          - os: darwin
+            arch: wasm
+          # linux excludes
+          - os: linux
+            arch: loong64
+            go: 1.13
+          - os: linux
+            arch: loong64
+            go: 1.14
+          - os: linux
+            arch: loong64
+            go: 1.15
+          - os: linux
+            arch: loong64
+            go: 1.16
+          - os: linux
+            arch: loong64
+            go: 1.17
+          - os: linux
+            arch: loong64
+            go: 1.18
+          - os: linux
+            arch: riscv64
+            go: 1.13
+          - os: linux
+            arch: wasm
           # windows excludes
           - os: windows
             arch: armv6
@@ -77,9 +117,25 @@ jobs:
           - os: windows
             arch: arm64
           - os: windows
+            arch: loong64
+          - os: windows
+            arch: mips
+          - os: windows
+            arch: mipsle
+          - os: windows
+            arch: mips64
+          - os: windows
+            arch: mips64le
+          - os: windows
             arch: ppc64
           - os: windows
+            arch: ppc64le
+          - os: windows
+            arch: riscv64
+          - os: windows
             arch: s390x
+          - os: windows
+            arch: wasm
           # freebsd excludes
           - os: freebsd
             arch: armv6
@@ -88,30 +144,66 @@ jobs:
           - os: freebsd
             arch: arm64
           - os: freebsd
+            arch: loong64
+          - os: freebsd
+            arch: mips
+          - os: freebsd
+            arch: mipsle
+          - os: freebsd
+            arch: mips64
+          - os: freebsd
+            arch: mips64le
+          - os: freebsd
             arch: ppc64
           - os: freebsd
+            arch: ppc64le
+          - os: freebsd
+            arch: riscv64
+          - os: freebsd
+            arch: s390x
+          - os: freebsd
+            arch: wasm
+          # js excludes
+          - os: js
+            arch: 386
+          - os: js
+            arch: amd64
+          - os: js
+            arch: armv6
+          - os: js
+            arch: armv7
+          - os: js
+            arch: arm64
+          - os: js
+            arch: loong64
+          - os: js
+            arch: mips
+          - os: js
+            arch: mipsle
+          - os: js
+            arch: mips64
+          - os: js
+            arch: mips64le
+          - os: js
+            arch: ppc64
+          - os: js
+            arch: ppc64le
+          - os: js
+            arch: riscv64
+          - os: js
             arch: s390x
         include:
           # combine runs on
           - os: darwin
-            osv: macos-latest
+            runs-on: macos-latest
           - os: linux
-            osv: ubuntu-latest
+            runs-on: ubuntu-22.04
           - os: windows
-            osv: windows-latest
+            runs-on: windows-latest
           - os: freebsd
-            osv: macos-12
-          # combine vm env
-          - arch: armv6
-            archv: armv6
-          - arch: armv7
-            archv: armv7
-          - arch: arm64
-            archv: aarch64
-          - arch: ppc64
-            archv: ppc64le
-          - arch: s390x
-            archv: s390x
+            runs-on: macos-12
+          - os: js
+            runs-on: ubuntu-latest
 
     steps:
       - name: Checkout scm
@@ -124,7 +216,7 @@ jobs:
 
       # darwin
       - name: 'Test on [darwin] arch [amd64]'
-        if: ${{ matrix.os == 'darwin' && contains('amd64', matrix.arch) }}
+        if: ${{ matrix.os == 'darwin' && contains(fromJson('["amd64"]'), matrix.arch) }}
         env:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
@@ -132,63 +224,80 @@ jobs:
 
       # linux
       - name: 'Test on [linux] arch [386]'
-        if: ${{ matrix.os == 'linux' && contains('386', matrix.arch) }}
+        if: ${{ matrix.os == 'linux' && contains(fromJson('["386"]'), matrix.arch) }}
         env:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
         run: go test -v -coverprofile="coverage.txt" -covermode=atomic ./...
 
       - name: 'Test on [linux] arch [amd64]'
-        if: ${{ matrix.os == 'linux' && contains('amd64', matrix.arch) }}
+        if: ${{ matrix.os == 'linux' && contains(fromJson('["amd64"]'), matrix.arch) }}
         env:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
         run: go test -v -race -coverprofile="coverage.txt" -covermode=atomic ./...
 
-      - name: 'Build for [linux] arch [armv6] '
-        if: ${{ matrix.os == 'linux' && contains('armv6', matrix.arch) }}
+      - name: 'Setup qemu-user-static on [linux] arch [armv6, armv7, arm64, mips, mipsle, mips64, mips64le, ppc64, ppc64le, riscv64, s390x]'
+        if: ${{ matrix.os == 'linux' && contains(fromJson('["armv6", "armv7", "arm64", "mips", "mipsle", "mips64", "mips64le", "ppc64", "ppc64le", "riscv64", "s390x"]'), matrix.arch) }}
+        run: sudo apt-get -y install qemu-user-static
+
+      - name: 'Test on [linux] arch [armv6]'
+        if: ${{ matrix.os == 'linux' && contains(fromJson('["armv6"]'), matrix.arch) }}
         env:
           GOOS: ${{ matrix.os }}
           GOARCH: arm
           GOARM: 6
-        run: go test -v -c -covermode=atomic
+        run: go test -v -coverprofile="coverage.txt" -covermode=atomic ./...
 
-      - name: 'Build for [linux] arch [armv7] '
-        if: ${{ matrix.os == 'linux' && contains('armv7', matrix.arch) }}
+      - name: 'Test on [linux] arch [armv7]'
+        if: ${{ matrix.os == 'linux' && contains(fromJson('["armv7"]'), matrix.arch) }}
         env:
           GOOS: ${{ matrix.os }}
           GOARCH: arm
           GOARM: 7
-        run: go test -v -c -covermode=atomic
+        run: go test -v -coverprofile="coverage.txt" -covermode=atomic ./...
 
-      - name: 'Build for [linux] arch [arm64, ppc64, s390x]'
-        if: ${{ matrix.os == 'linux' && contains('arm64, ppc64, s390x', matrix.arch) }}
+      - name: 'Test on [linux] arch [mips, mipsle]'
+        if: ${{ matrix.os == 'linux' && contains(fromJson('["mips", "mipsle"]'), matrix.arch) }}
         env:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
-        run: go test -v -c -covermode=atomic
+          GOMIPS: softfloat
+        run: go test -v -coverprofile="coverage.txt" -covermode=atomic ./...
 
-      - name: 'Test on [linux] arch [armv6, armv7, arm64, ppc64, s390x]'
-        if: ${{ matrix.os == 'linux' && contains('armv6, armv7, arm64, ppc64, s390x', matrix.arch) }}
-        uses: uraimo/run-on-arch-action@v2
-        with:
-          arch: ${{ matrix.archv }}
-          distro: bullseye
-          dockerRunArgs: --mount type=bind,source="$(pwd)",target=/checkout,readonly
-          run: |
-            find /checkout -name '*.test' -type f -executable -print0 | \
-              xargs -t -0 -I '{}' sh -c '{} -test.v -test.coverprofile="coverage.txt"'
+      - name: 'Test on [linux] arch [arm64, mips64, mips64le, ppc64, ppc64le, riscv64, s390x]'
+        if: ${{ matrix.os == 'linux' && contains(fromJson('["arm64", "mips64", "mips64le", "ppc64", "ppc64le", "riscv64", "s390x"]'), matrix.arch) }}
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+        run: go test -v -coverprofile="coverage.txt" -covermode=atomic ./...
+
+      - name: 'Setup qemu-loongarch64-static on [linux] arch [loong64]'
+        if: ${{ matrix.os == 'linux' && contains(fromJson('["loong64"]'), matrix.arch) }}
+        run: |
+          sudo wget -O /usr/bin/qemu-loongarch64-static https://github.com/loongson/build-tools/releases/download/2022.09.06/qemu-loongarch64
+          sudo chmod +x /usr/bin/qemu-loongarch64-static
+          sudo mkdir -p /usr/libexec/qemu-binfmt
+          sudo ln -s /usr/bin/qemu-loongarch64-static /usr/libexec/qemu-binfmt/loongarch64-binfmt-P
+          sudo sh -c 'echo ":qemu-loongarch64:M::\x7fELF\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x02\x01:\xff\xff\xff\xff\xff\xff\xff\xfc\x00\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff:/usr/libexec/qemu-binfmt/loongarch64-binfmt-P:" > /proc/sys/fs/binfmt_misc/register'
+
+      - name: 'Test on [linux] arch [loong64]'
+        if: ${{ matrix.os == 'linux' && contains(fromJson('["loong64"]'), matrix.arch) }}
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+        run: go test -v -coverprofile="coverage.txt" -covermode=atomic ./...
 
       # windows
       - name: 'Test on [windows] arch [386]'
-        if: ${{ matrix.os == 'windows' && contains('386', matrix.arch) }}
+        if: ${{ matrix.os == 'windows' && contains(fromJson('["386"]'), matrix.arch) }}
         env:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
         run: go test -v -coverprofile="coverage.txt" -covermode=atomic ./...
 
       - name: 'Test on [windows] arch [amd64]'
-        if: ${{ matrix.os == 'windows' && contains('amd64', matrix.arch) }}
+        if: ${{ matrix.os == 'windows' && contains(fromJson('["amd64"]'), matrix.arch) }}
         env:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
@@ -196,19 +305,33 @@ jobs:
 
       # freebsd
       - name: 'Build for [freebsd] arch [386, amd64]'
-        if: ${{ matrix.os == 'freebsd' && contains('386, amd64', matrix.arch) }}
+        if: ${{ matrix.os == 'freebsd' && contains(fromJson('["386", "amd64"]'), matrix.arch) }}
         env:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
         run: go test -v -c -covermode=atomic
 
       - name: 'Test on [freebsd] arch [386, amd64]'
-        if: ${{ matrix.os == 'freebsd' && contains('386, amd64', matrix.arch) }}
+        if: ${{ matrix.os == 'freebsd' && contains(fromJson('["386", "amd64"]'), matrix.arch) }}
         uses: vmactions/freebsd-vm@v0
         with:
-          run: |
-            find ./ -name '*.test' -type f -print0 | \
-              xargs -t -0 -I '{}' sh -c '{} -test.v -test.coverprofile="coverage.txt"'
+          run: ./routine.test -test.v -test.coverprofile="coverage.txt"
+
+      # js
+      - name: 'Setup Node.js on [js] arch [wasm]'
+        if: ${{ matrix.os == 'js' && contains(fromJson('["wasm"]'), matrix.arch) }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: lts/*
+
+      - name: 'Test on [js] arch [wasm]'
+        if: ${{ matrix.os == 'js' && contains(fromJson('["wasm"]'), matrix.arch) }}
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+        run: |
+          PATH=$PATH:$(go env | grep GOROOT | awk -F '=' '{print $2}' | awk -F '"' '{print $2}')/misc/wasm
+          go test -v -coverprofile="coverage.txt" -covermode=atomic ./...
 
       - name: Codecov
         uses: codecov/codecov-action@v3
