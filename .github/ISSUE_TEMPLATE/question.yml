@@ -1,0 +1,32 @@
+name: Questions
+description: Create an issue for help
+title: "[Question] <title>"
+labels: [ "question" ]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to fill out this issue!
+
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue for this?
+      description: Please search to see if an issue already exists for the issue you encountered.
+      options:
+        - label: I have searched the existing issues
+          required: true
+
+  - type: textarea
+    attributes:
+      label: Question
+      description: the question you want to ask.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](../blob/main/CODE_OF_CONDUCT.md)
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true
