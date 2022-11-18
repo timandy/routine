@@ -1,5 +1,22 @@
 <!--变更日志-->
 
+# v1.1.0 Release notes
+
+### Features
+
+- Support more arch `loong64`, `mips`, `mipsle`, `mips64`, `mips64le`, `ppc64le`, `riscv64`, `wasm`.
+
+### Changes
+
+- Upgrade dependencies to the latest version.
+- Modify continuous integration script to support go1.19.
+
+# Links
+
+- Source code [https://github.com/timandy/routine/tree/v1.1.0](https://github.com/timandy/routine/tree/v1.1.0)
+
+---
+
 # v1.0.9 Release notes
 
 ### Features
