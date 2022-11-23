@@ -97,12 +97,14 @@ func (fut *future) GetWithTimeout(timeout time.Duration) any {
 		}
 		close(errorChan)
 	}()
+	timer := time.NewTimer(timeout)
+	defer timer.Stop()
 	select {
 	case <-resultChan:
 		return fut.result
 	case <-errorChan:
 		panic(fut.error)
-	case <-time.After(timeout):
+	case <-timer.C:
 		fut.timeout(timeout)
 		fut.await.Wait()
 		if fut.status == completed {
