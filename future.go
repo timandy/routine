@@ -87,22 +87,18 @@ func (fut *future) Get() any {
 }
 
 func (fut *future) GetWithTimeout(timeout time.Duration) any {
-	resultChan := make(chan struct{})
-	errorChan := make(chan struct{})
+	waitChan := make(chan struct{})
 	go func() {
 		fut.await.Wait()
-		if fut.status == completed {
-			close(resultChan)
-			return
-		}
-		close(errorChan)
+		close(waitChan)
 	}()
 	timer := time.NewTimer(timeout)
 	defer timer.Stop()
 	select {
-	case <-resultChan:
-		return fut.result
-	case <-errorChan:
+	case <-waitChan:
+		if fut.status == completed {
+			return fut.result
+		}
 		panic(fut.error)
 	case <-timer.C:
 		fut.timeout(timeout)
