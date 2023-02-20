@@ -1,4 +1,4 @@
-// Copyright 2022 TimAndy. All rights reserved.
+// Copyright 2023 TimAndy. All rights reserved.
 // Licensed under the Apache-2.0 license that can be found in the LICENSE file.
 
 //go:build ppc64 || ppc64le

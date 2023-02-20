@@ -200,7 +200,7 @@ inheritableThreadLocal in goroutine by Go: Hello world2
 `routine`是在 [Apache License 2.0](LICENSE) 下发布的。
 
 ```
-Copyright 2021-2022 TimAndy
+Copyright 2021-2023 TimAndy
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
