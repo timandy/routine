@@ -1,5 +1,23 @@
 <!--变更日志-->
 
+# v1.1.1 Release notes
+
+### Features
+
+- Support go version range `go1.13` ~ `go1.20`(New support `go1.20`).
+
+### Changes
+
+- Fix a memory leak risk caused by Timer.
+- Reduce memory by using less chan.
+- Update copyright.
+
+# Links
+
+- Source code [https://github.com/timandy/routine/tree/v1.1.1](https://github.com/timandy/routine/tree/v1.1.1)
+
+---
+
 # v1.1.0 Release notes
 
 ### Features
