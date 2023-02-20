@@ -54,7 +54,7 @@ jobs:
       matrix:
         os: [ darwin, linux, windows, freebsd, js ]
         arch: [ 386, amd64, armv6, armv7, arm64, loong64, mips, mipsle, mips64, mips64le, ppc64, ppc64le, riscv64, s390x, wasm ]
-        go: [ 1.13, 1.14, 1.15, 1.16, 1.17, 1.18, 1.19 ]
+        go: [ '1.13', '1.14', '1.15', '1.16', '1.17', '1.18', '1.19', '1.20' ]
         exclude:
           # darwin excludes
           - os: darwin
