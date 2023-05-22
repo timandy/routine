@@ -5,6 +5,9 @@ import "fmt"
 // Runnable provides a function without return values.
 type Runnable func()
 
+// Callable provides a function that returns a value of type any.
+type Callable func() any
+
 // CancelRunnable provides a cancellable function without return values.
 type CancelRunnable func(token CancelToken)
 
