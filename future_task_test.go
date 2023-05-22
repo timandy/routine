@@ -132,19 +132,19 @@ func TestFuture_Fail_Common(t *testing.T) {
 			assert.Equal(t, "RuntimeError: 1", line)
 			//
 			line = lines[1]
-			assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.(*future).Fail() in "))
-			assert.True(t, strings.HasSuffix(line, "future.go:74"))
+			assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.(*futureTask).Fail() in "))
+			assert.True(t, strings.HasSuffix(line, "future_task.go:74"))
 			//
 			line = lines[2]
 			assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestFuture_Fail_Common."))
-			assert.True(t, strings.HasSuffix(line, "future_test.go:155"))
+			assert.True(t, strings.HasSuffix(line, "future_task_test.go:155"))
 			//
 			line = lines[3]
 			assert.True(t, strings.HasPrefix(line, "   at runtime.gopanic() in "))
 			//
 			line = lines[4]
 			assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestFuture_Fail_Common."))
-			assert.True(t, strings.HasSuffix(line, "future_test.go:158"))
+			assert.True(t, strings.HasSuffix(line, "future_task_test.go:158"))
 		}
 	}()
 	//
@@ -174,14 +174,14 @@ func TestFuture_Fail_RuntimeError(t *testing.T) {
 			//
 			line = lines[1]
 			assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestFuture_Fail_RuntimeError."))
-			assert.True(t, strings.HasSuffix(line, "future_test.go:192"))
+			assert.True(t, strings.HasSuffix(line, "future_task_test.go:192"))
 			//
 			line = lines[2]
 			assert.True(t, strings.HasPrefix(line, "   at runtime.gopanic() in "))
 			//
 			line = lines[3]
 			assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestFuture_Fail_RuntimeError."))
-			assert.True(t, strings.HasSuffix(line, "future_test.go:195"))
+			assert.True(t, strings.HasSuffix(line, "future_task_test.go:195"))
 		}
 	}()
 	//
