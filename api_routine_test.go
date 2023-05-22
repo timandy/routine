@@ -21,6 +21,16 @@ func TestRunnable(t *testing.T) {
 	assert.Equal(t, 2, count)
 }
 
+func TestCallable(t *testing.T) {
+	var callable Callable = func() interface{} {
+		return "Hello"
+	}
+	assert.Equal(t, "Hello", callable())
+	//
+	var fun func() any = callable
+	assert.Equal(t, "Hello", fun())
+}
+
 func TestCancelRunnable(t *testing.T) {
 	count := 0
 	var cancelRunnable CancelRunnable = func(token CancelToken) {
