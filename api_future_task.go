@@ -2,6 +2,9 @@ package routine
 
 import "time"
 
+// FutureCallable provides a future function that returns a value of type any.
+type FutureCallable func(task FutureTask) any
+
 // CancelToken propagates notification that operations should be canceled.
 type CancelToken interface {
 	// IsCanceled returns true if task was canceled.
@@ -41,11 +44,17 @@ type FutureTask interface {
 	// If panic is raised during the execution of the sub-coroutine, it will be raised again at this time.
 	// If the deadline is reached, a panic with timeout error will be raised.
 	GetWithTimeout(timeout time.Duration) any
+
+	// Run execute the task, the method can be called repeatedly, but the task will only execute once.
+	Run()
 }
 
 // NewFutureTask Create a new instance.
-func NewFutureTask() FutureTask {
-	task := &futureTask{}
+func NewFutureTask(callable FutureCallable) FutureTask {
+	if callable == nil {
+		panic("callable can not be nil.")
+	}
+	task := &futureTask{callable: callable}
 	task.await.Add(1)
 	return task
 }

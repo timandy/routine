@@ -7,14 +7,18 @@ import (
 )
 
 func TestCancelToken(t *testing.T) {
-	task := NewFutureTask()
+	task := NewFutureTask(func(task FutureTask) any { return nil })
 	token, ok := task.(CancelToken)
 	assert.Same(t, task, token)
 	assert.True(t, ok)
 }
 
 func TestNewFutureTask(t *testing.T) {
-	task := NewFutureTask()
+	assert.Panics(t, func() {
+		NewFutureTask(nil)
+	})
+	//
+	task := NewFutureTask(func(task FutureTask) any { return nil })
 	assert.NotNil(t, task)
 	//
 	p, ok := task.(*futureTask)
