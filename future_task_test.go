@@ -25,6 +25,11 @@ func TestFutureTask_IsDone(t *testing.T) {
 	assert.False(t, task3.IsDone())
 	task3.Fail(nil)
 	assert.True(t, task3.IsDone())
+	//
+	task4 := NewFutureTask(func(task FutureTask) any { return nil })
+	assert.False(t, task4.IsDone())
+	task4.(*futureTask).state = taskStateRunning
+	assert.False(t, task4.IsDone())
 }
 
 func TestFutureTask_IsCanceled(t *testing.T) {
@@ -51,13 +56,29 @@ func TestFutureTask_Complete_AfterCancel(t *testing.T) {
 	})
 	assert.True(t, task.IsCanceled())
 	//
-	go func() {
-		task.Complete(2)
-	}()
+	task.Complete(2)
 	assert.Panics(t, func() {
 		task.Get()
 	})
 	assert.True(t, task.IsCanceled())
+}
+
+func TestFutureTask_Complete_AfterComplete(t *testing.T) {
+	task := NewFutureTask(func(task FutureTask) any { return 1 })
+	task.Run()
+	assert.Equal(t, 1, task.Get())
+	task.Complete(2)
+	assert.Equal(t, 1, task.Get())
+	//
+	run := false
+	task2 := NewFutureTask(func(task FutureTask) any {
+		run = true
+		return 1
+	})
+	task2.Complete(2)
+	task2.Run()
+	assert.Equal(t, 2, task2.Get())
+	assert.False(t, run)
 }
 
 func TestFutureTask_Complete_Common(t *testing.T) {
@@ -138,14 +159,14 @@ func TestFutureTask_Fail_Common(t *testing.T) {
 			//
 			line = lines[2]
 			assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestFutureTask_Fail_Common."))
-			assert.True(t, strings.HasSuffix(line, "future_task_test.go:156"))
+			assert.True(t, strings.HasSuffix(line, "future_task_test.go:177"))
 			//
 			line = lines[3]
 			assert.True(t, strings.HasPrefix(line, "   at runtime.gopanic() in "))
 			//
 			line = lines[4]
 			assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestFutureTask_Fail_Common."))
-			assert.True(t, strings.HasSuffix(line, "future_task_test.go:159"))
+			assert.True(t, strings.HasSuffix(line, "future_task_test.go:180"))
 		}
 	}()
 	//
@@ -175,14 +196,14 @@ func TestFutureTask_Fail_RuntimeError(t *testing.T) {
 			//
 			line = lines[1]
 			assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestFutureTask_Fail_RuntimeError."))
-			assert.True(t, strings.HasSuffix(line, "future_task_test.go:193"))
+			assert.True(t, strings.HasSuffix(line, "future_task_test.go:214"))
 			//
 			line = lines[2]
 			assert.True(t, strings.HasPrefix(line, "   at runtime.gopanic() in "))
 			//
 			line = lines[3]
 			assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestFutureTask_Fail_RuntimeError."))
-			assert.True(t, strings.HasSuffix(line, "future_task_test.go:196"))
+			assert.True(t, strings.HasSuffix(line, "future_task_test.go:217"))
 		}
 	}()
 	//
@@ -297,6 +318,158 @@ func TestFutureTask_GetWithTimeout_Timeout(t *testing.T) {
 	assert.Nil(t, task.(*futureTask).error.Cause())
 	//
 	wg.Wait()
+}
+
+func TestFutureTask_Run_AfterCancel(t *testing.T) {
+	run := false
+	task := NewFutureTask(func(task FutureTask) any {
+		run = true
+		return nil
+	})
+	task.Cancel()
+	task.Run()
+	assert.Panics(t, func() {
+		task.Get()
+	})
+	assert.True(t, task.IsCanceled())
+	assert.False(t, run)
+}
+
+func TestFutureTask_Run_AfterFail(t *testing.T) {
+	run := false
+	task := NewFutureTask(func(task FutureTask) any {
+		run = true
+		return nil
+	})
+	task.Fail("failed.")
+	task.Run()
+	assert.Panics(t, func() {
+		task.Get()
+	})
+	assert.True(t, task.IsFailed())
+	assert.False(t, run)
+}
+
+func TestFutureTask_Run_AfterComplete(t *testing.T) {
+	run := false
+	task := NewFutureTask(func(task FutureTask) any {
+		run = true
+		return nil
+	})
+	task.Complete(1)
+	task.Run()
+	assert.Equal(t, 1, task.Get())
+	assert.True(t, task.IsDone())
+	assert.False(t, run)
+}
+
+func TestFutureTask_Run_AfterRun(t *testing.T) {
+	var run int32 = 0
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	wg2 := &sync.WaitGroup{}
+	wg2.Add(1)
+	task := NewFutureTask(func(task FutureTask) any {
+		atomic.AddInt32(&run, 1)
+		wg.Done()
+		wg2.Wait()
+		return 1
+	})
+	go task.Run()
+	wg.Wait()
+	task.Run()
+	wg2.Done()
+	assert.Equal(t, 1, task.Get())
+	assert.True(t, task.IsDone())
+	assert.Equal(t, int32(1), atomic.LoadInt32(&run))
+}
+
+func TestFutureTask_Run_Normal(t *testing.T) {
+	run := false
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	task := NewFutureTask(func(task FutureTask) any {
+		run = true
+		return 1
+	})
+	go task.Run()
+	assert.Equal(t, 1, task.Get())
+	assert.True(t, task.IsDone())
+	assert.True(t, run)
+}
+
+func TestFutureTask_Run_Error(t *testing.T) {
+	run := false
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	task := NewFutureTask(func(task FutureTask) any {
+		run = true
+		panic(1)
+	})
+	go task.Run()
+	assert.Panics(t, func() {
+		task.Get()
+	})
+	assert.True(t, task.IsFailed())
+	assert.True(t, run)
+	//
+	defer func() {
+		cause := recover()
+		assert.NotNil(t, cause)
+		assert.Implements(t, (*RuntimeError)(nil), cause)
+		err := cause.(RuntimeError)
+		assert.Equal(t, "1", err.Message())
+		lines := strings.Split(err.Error(), newLine)
+		assert.Equal(t, 7, len(lines))
+		//
+		line := lines[0]
+		assert.Equal(t, "RuntimeError: 1", line)
+		//
+		line = lines[1]
+		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.(*futureTask).Run."))
+		assert.True(t, strings.HasSuffix(line, "future_task.go:105"))
+	}()
+	task.Get()
+	assert.Fail(t, "should not be here")
+}
+
+func TestFutureTask_Run_RuntimeError(t *testing.T) {
+	run := false
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	task := NewFutureTask(func(task FutureTask) any {
+		run = true
+		err := NewRuntimeError(1)
+		panic(err)
+	})
+	go task.Run()
+	assert.Panics(t, func() {
+		task.Get()
+	})
+	assert.True(t, task.IsFailed())
+	assert.True(t, run)
+	//
+	defer func() {
+		cause := recover()
+		assert.NotNil(t, cause)
+		assert.Implements(t, (*RuntimeError)(nil), cause)
+		err := cause.(RuntimeError)
+		assert.Equal(t, "", err.Message())
+		lines := strings.Split(err.Error(), newLine)
+		assert.Equal(t, 11, len(lines))
+		//
+		line := lines[0]
+		assert.Equal(t, "RuntimeError", line)
+		//
+		line = lines[1]
+		assert.Equal(t, line, " ---> RuntimeError: 1")
+		//
+		line = lines[2]
+		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestFutureTask_Run_RuntimeError."))
+		assert.True(t, strings.HasSuffix(line, "future_task_test.go:442"))
+	}()
+	task.Get()
+	assert.Fail(t, "should not be here")
 }
 
 func TestFutureTask_Routine_Complete(t *testing.T) {
