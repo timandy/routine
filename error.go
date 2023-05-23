@@ -1,11 +1,11 @@
 package routine
 
 import (
+	"bytes"
 	"fmt"
 	"reflect"
 	"runtime"
 	"strconv"
-	"strings"
 	"unicode"
 )
 
@@ -89,13 +89,13 @@ func runtimeErrorNewWithMessageCause(message string, cause any) (goid int64, gop
 }
 
 func runtimeErrorError(re RuntimeError) string {
-	builder := &strings.Builder{}
+	builder := &bytes.Buffer{}
 	runtimeErrorPrintStackTrace(re, builder)
 	runtimeErrorPrintCreatedBy(re, builder)
 	return builder.String()
 }
 
-func runtimeErrorPrintStackTrace(re RuntimeError, builder *strings.Builder) {
+func runtimeErrorPrintStackTrace(re RuntimeError, builder *bytes.Buffer) {
 	builder.WriteString(runtimeErrorTypeName(re))
 	message := re.Message()
 	if len(message) > 0 {
@@ -113,10 +113,12 @@ func runtimeErrorPrintStackTrace(re RuntimeError, builder *strings.Builder) {
 	}
 	stackTrace := re.StackTrace()
 	if stackTrace != nil {
+		savePoint := builder.Len()
+		skippedPanic := false
 		frames := runtime.CallersFrames(stackTrace)
 		for {
 			frame, more := frames.Next()
-			if len(frame.Function) > 0 && frame.Function != "runtime.goexit" {
+			if showFrame(frame.Function) {
 				builder.WriteString(newLine)
 				builder.WriteString("   ")
 				builder.WriteString(wordAt)
@@ -128,6 +130,9 @@ func runtimeErrorPrintStackTrace(re RuntimeError, builder *strings.Builder) {
 				builder.WriteString(frame.File)
 				builder.WriteString(":")
 				builder.WriteString(strconv.Itoa(frame.Line))
+			} else if skipFrame(frame.Function, skippedPanic) {
+				builder.Truncate(savePoint)
+				skippedPanic = true
 			}
 			if !more {
 				break
@@ -136,7 +141,7 @@ func runtimeErrorPrintStackTrace(re RuntimeError, builder *strings.Builder) {
 	}
 }
 
-func runtimeErrorPrintCreatedBy(re RuntimeError, builder *strings.Builder) {
+func runtimeErrorPrintCreatedBy(re RuntimeError, builder *bytes.Buffer) {
 	goid := re.Goid()
 	if goid == 1 {
 		return

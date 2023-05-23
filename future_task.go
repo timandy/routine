@@ -102,7 +102,7 @@ func (task *futureTask) Run() {
 	if atomic.CompareAndSwapInt32(&task.state, taskStateNew, taskStateRunning) {
 		defer func() {
 			if cause := recover(); cause != nil {
-				task.Fail(NewRuntimeError(cause))
+				task.Fail(cause)
 			}
 		}()
 		result := task.callable(task)
