@@ -15,7 +15,7 @@ const (
 	failed
 )
 
-type future struct {
+type futureTask struct {
 	lock   sync.RWMutex
 	await  sync.WaitGroup
 	status futureStatus
@@ -23,100 +23,100 @@ type future struct {
 	result any
 }
 
-func (fut *future) IsDone() bool {
-	fut.lock.RLock()
-	defer fut.lock.RUnlock()
-	return fut.status != running
+func (task *futureTask) IsDone() bool {
+	task.lock.RLock()
+	defer task.lock.RUnlock()
+	return task.status != running
 }
 
-func (fut *future) IsCanceled() bool {
-	fut.lock.RLock()
-	defer fut.lock.RUnlock()
-	return fut.status == canceled
+func (task *futureTask) IsCanceled() bool {
+	task.lock.RLock()
+	defer task.lock.RUnlock()
+	return task.status == canceled
 }
 
-func (fut *future) IsFailed() bool {
-	fut.lock.RLock()
-	defer fut.lock.RUnlock()
-	return fut.status == failed
+func (task *futureTask) IsFailed() bool {
+	task.lock.RLock()
+	defer task.lock.RUnlock()
+	return task.status == failed
 }
 
-func (fut *future) Complete(result any) {
-	fut.lock.Lock()
-	defer fut.lock.Unlock()
-	if fut.status != running {
+func (task *futureTask) Complete(result any) {
+	task.lock.Lock()
+	defer task.lock.Unlock()
+	if task.status != running {
 		return
 	}
-	fut.result = result
-	fut.status = completed
-	fut.await.Done()
+	task.result = result
+	task.status = completed
+	task.await.Done()
 }
 
-func (fut *future) Cancel() {
-	fut.lock.Lock()
-	defer fut.lock.Unlock()
-	if fut.status != running {
+func (task *futureTask) Cancel() {
+	task.lock.Lock()
+	defer task.lock.Unlock()
+	if task.status != running {
 		return
 	}
-	fut.error = NewRuntimeError("Task was canceled.")
-	fut.status = canceled
-	fut.await.Done()
+	task.error = NewRuntimeError("Task was canceled.")
+	task.status = canceled
+	task.await.Done()
 }
 
-func (fut *future) Fail(error any) {
-	fut.lock.Lock()
-	defer fut.lock.Unlock()
-	if fut.status != running {
+func (task *futureTask) Fail(error any) {
+	task.lock.Lock()
+	defer task.lock.Unlock()
+	if task.status != running {
 		return
 	}
 	runtimeErr, isRuntimeErr := error.(RuntimeError)
 	if !isRuntimeErr {
 		runtimeErr = NewRuntimeError(error)
 	}
-	fut.error = runtimeErr
-	fut.status = failed
-	fut.await.Done()
+	task.error = runtimeErr
+	task.status = failed
+	task.await.Done()
 }
 
-func (fut *future) Get() any {
-	fut.await.Wait()
-	if fut.status == completed {
-		return fut.result
+func (task *futureTask) Get() any {
+	task.await.Wait()
+	if task.status == completed {
+		return task.result
 	}
-	panic(fut.error)
+	panic(task.error)
 }
 
-func (fut *future) GetWithTimeout(timeout time.Duration) any {
+func (task *futureTask) GetWithTimeout(timeout time.Duration) any {
 	waitChan := make(chan struct{})
 	go func() {
-		fut.await.Wait()
+		task.await.Wait()
 		close(waitChan)
 	}()
 	timer := time.NewTimer(timeout)
 	defer timer.Stop()
 	select {
 	case <-waitChan:
-		if fut.status == completed {
-			return fut.result
+		if task.status == completed {
+			return task.result
 		}
-		panic(fut.error)
+		panic(task.error)
 	case <-timer.C:
-		fut.timeout(timeout)
-		fut.await.Wait()
-		if fut.status == completed {
-			return fut.result
+		task.timeout(timeout)
+		task.await.Wait()
+		if task.status == completed {
+			return task.result
 		}
-		panic(fut.error)
+		panic(task.error)
 	}
 }
 
-func (fut *future) timeout(timeout time.Duration) {
-	fut.lock.Lock()
-	defer fut.lock.Unlock()
-	if fut.status != running {
+func (task *futureTask) timeout(timeout time.Duration) {
+	task.lock.Lock()
+	defer task.lock.Unlock()
+	if task.status != running {
 		return
 	}
-	fut.error = NewRuntimeError(fmt.Sprintf("Task execution timeout after %v.", timeout))
-	fut.status = canceled
-	fut.await.Done()
+	task.error = NewRuntimeError(fmt.Sprintf("Task execution timeout after %v.", timeout))
+	task.status = canceled
+	task.await.Done()
 }

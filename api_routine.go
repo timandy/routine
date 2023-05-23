@@ -49,17 +49,17 @@ func Go(fun Runnable) {
 }
 
 // GoWait starts a new goroutine, and copy inheritableThreadLocals from current goroutine.
-// This function return a Future pointer, so we can wait by Future.Get or Future.GetWithTimeout method.
-// If panic occur in goroutine, The panic will be trigger again when calling Future.Get or Future.GetWithTimeout method.
-func GoWait(fun CancelRunnable) Future {
-	fut := NewFuture()
+// This function return a FutureTask pointer, so we can wait by FutureTask.Get or FutureTask.GetWithTimeout method.
+// If panic occur in goroutine, The panic will be trigger again when calling FutureTask.Get or FutureTask.GetWithTimeout method.
+func GoWait(fun CancelRunnable) FutureTask {
+	task := NewFutureTask()
 	// backup
 	copied := createInheritedMap()
 	go func() {
 		// catch
 		defer func() {
 			if cause := recover(); cause != nil {
-				fut.Fail(NewRuntimeError(cause))
+				task.Fail(NewRuntimeError(cause))
 			}
 		}()
 		// restore
@@ -73,8 +73,8 @@ func GoWait(fun CancelRunnable) Future {
 					t.inheritableThreadLocals = nil
 				}
 			}()
-			fun(fut)
-			fut.Complete(nil)
+			fun(task)
+			task.Complete(nil)
 		} else {
 			backup := t.inheritableThreadLocals
 			defer func() {
@@ -83,25 +83,25 @@ func GoWait(fun CancelRunnable) Future {
 			}()
 			t.threadLocals = nil
 			t.inheritableThreadLocals = copied
-			fun(fut)
-			fut.Complete(nil)
+			fun(task)
+			task.Complete(nil)
 		}
 	}()
-	return fut
+	return task
 }
 
 // GoWaitResult starts a new goroutine, and copy inheritableThreadLocals from current goroutine.
-// This function return a Future pointer, so we can wait and get result by Future.Get or Future.GetWithTimeout method.
-// If panic occur in goroutine, The panic will be trigger again when calling Future.Get or Future.GetWithTimeout method.
-func GoWaitResult(fun CancelCallable) Future {
-	fut := NewFuture()
+// This function return a FutureTask pointer, so we can wait and get result by FutureTask.Get or FutureTask.GetWithTimeout method.
+// If panic occur in goroutine, The panic will be trigger again when calling FutureTask.Get or FutureTask.GetWithTimeout method.
+func GoWaitResult(fun CancelCallable) FutureTask {
+	task := NewFutureTask()
 	// backup
 	copied := createInheritedMap()
 	go func() {
 		// catch
 		defer func() {
 			if cause := recover(); cause != nil {
-				fut.Fail(NewRuntimeError(cause))
+				task.Fail(NewRuntimeError(cause))
 			}
 		}()
 		// restore
@@ -115,7 +115,7 @@ func GoWaitResult(fun CancelCallable) Future {
 					t.inheritableThreadLocals = nil
 				}
 			}()
-			fut.Complete(fun(fut))
+			task.Complete(fun(task))
 		} else {
 			backup := t.inheritableThreadLocals
 			defer func() {
@@ -124,8 +124,8 @@ func GoWaitResult(fun CancelCallable) Future {
 			}()
 			t.threadLocals = nil
 			t.inheritableThreadLocals = copied
-			fut.Complete(fun(fut))
+			task.Complete(fun(task))
 		}
 	}()
-	return fut
+	return task
 }

@@ -71,16 +71,16 @@ func TestThreadGC(t *testing.T) {
 	heapInit, numInit := getMemStats()
 	printMemStats("Init", heapInit, numInit)
 	//
-	fut := GoWait(func(token CancelToken) {
+	task := GoWait(func(token CancelToken) {
 		tls.Set(make([]byte, allocSize))
 		tls2.Set(make([]byte, allocSize))
 		go func() {
 			gcWait.Wait()
 		}()
-		fut2 := GoWaitResult(func(token CancelToken) any {
+		task2 := GoWaitResult(func(token CancelToken) any {
 			return 1
 		})
-		assert.Equal(t, 1, fut2.Get())
+		assert.Equal(t, 1, task2.Get())
 		allocWait.Done()  //alloc ok, release main thread
 		gatherWait.Wait() //wait gather heap info
 	})
@@ -92,7 +92,7 @@ func TestThreadGC(t *testing.T) {
 	assert.Greater(t, numAlloc, numInit)
 	//=========GC
 	gatherWait.Done() //gather ok, release sub thread
-	fut.Get()         //wait sub thread finish
+	task.Get()        //wait sub thread finish
 	time.Sleep(500 * time.Millisecond)
 	heapGC, numGC := getMemStats()
 	printMemStats("AfterGC", heapGC, numGC)
