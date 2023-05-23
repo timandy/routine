@@ -6,6 +6,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestFutureCallable(t *testing.T) {
+	var futureCallable FutureCallable = func(task FutureTask) interface{} {
+		return "Hello"
+	}
+	assert.Equal(t, "Hello", futureCallable(nil))
+	//
+	var fun func(FutureTask) any = futureCallable
+	assert.Equal(t, "Hello", fun(nil))
+}
+
 func TestCancelToken(t *testing.T) {
 	task := NewFutureTask(func(task FutureTask) any { return nil })
 	token, ok := task.(CancelToken)
