@@ -11,8 +11,8 @@ type CancelToken interface {
 	Cancel()
 }
 
-// Future provide a way to wait for the sub-coroutine to finish executing, get the return value of the sub-coroutine, and catch the sub-coroutine panic.
-type Future interface {
+// FutureTask provide a way to wait for the sub-coroutine to finish executing, get the return value of the sub-coroutine, and catch the sub-coroutine panic.
+type FutureTask interface {
 	// IsDone returns true if completed in any fashion: normally, exceptionally or via cancellation.
 	IsDone() bool
 
@@ -43,9 +43,9 @@ type Future interface {
 	GetWithTimeout(timeout time.Duration) any
 }
 
-// NewFuture Create a new instance.
-func NewFuture() Future {
-	fut := &future{}
-	fut.await.Add(1)
-	return fut
+// NewFutureTask Create a new instance.
+func NewFutureTask() FutureTask {
+	task := &futureTask{}
+	task.await.Add(1)
+	return task
 }
