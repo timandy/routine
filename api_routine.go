@@ -25,9 +25,10 @@ func WrapTask(fun Runnable) FutureTask {
 		// catch
 		defer func() {
 			if cause := recover(); cause != nil {
-				err := NewRuntimeError(cause)
-				task.Fail(err)
-				fmt.Println(err.Error())
+				task.Fail(cause)
+				if err := task.(*futureTask).error; err != nil {
+					fmt.Println(err.Error())
+				}
 			}
 		}()
 		// restore
@@ -70,7 +71,7 @@ func WrapWaitTask(fun CancelRunnable) FutureTask {
 		// catch
 		defer func() {
 			if cause := recover(); cause != nil {
-				task.Fail(NewRuntimeError(cause))
+				task.Fail(cause)
 			}
 		}()
 		// restore
@@ -113,7 +114,7 @@ func WrapWaitResultTask(fun CancelCallable) FutureTask {
 		// catch
 		defer func() {
 			if cause := recover(); cause != nil {
-				task.Fail(NewRuntimeError(cause))
+				task.Fail(cause)
 			}
 		}()
 		// restore

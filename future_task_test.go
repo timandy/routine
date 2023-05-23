@@ -154,19 +154,8 @@ func TestFutureTask_Fail_Common(t *testing.T) {
 			assert.Equal(t, "RuntimeError: 1", line)
 			//
 			line = lines[1]
-			assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.(*futureTask).Fail() in "))
-			assert.True(t, strings.HasSuffix(line, "future_task.go:62"))
-			//
-			line = lines[2]
 			assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestFutureTask_Fail_Common."))
-			assert.True(t, strings.HasSuffix(line, "future_task_test.go:177"))
-			//
-			line = lines[3]
-			assert.True(t, strings.HasPrefix(line, "   at runtime.gopanic() in "))
-			//
-			line = lines[4]
-			assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestFutureTask_Fail_Common."))
-			assert.True(t, strings.HasSuffix(line, "future_task_test.go:180"))
+			assert.True(t, strings.HasSuffix(line, "future_task_test.go:169"))
 		}
 	}()
 	//
@@ -190,20 +179,21 @@ func TestFutureTask_Fail_RuntimeError(t *testing.T) {
 			assert.NotNil(t, err)
 			assert.Equal(t, "1", err.Message())
 			lines := strings.Split(err.Error(), newLine)
+			assert.Equal(t, 4, len(lines))
 			//
 			line := lines[0]
 			assert.Equal(t, "RuntimeError: 1", line)
 			//
 			line = lines[1]
 			assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestFutureTask_Fail_RuntimeError."))
-			assert.True(t, strings.HasSuffix(line, "future_task_test.go:214"))
+			assert.True(t, strings.HasSuffix(line, "future_task_test.go:207"))
 			//
 			line = lines[2]
-			assert.True(t, strings.HasPrefix(line, "   at runtime.gopanic() in "))
+			assert.Equal(t, "   --- End of error stack trace ---", line)
 			//
 			line = lines[3]
-			assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestFutureTask_Fail_RuntimeError."))
-			assert.True(t, strings.HasSuffix(line, "future_task_test.go:217"))
+			assert.True(t, strings.HasPrefix(line, "   created by github.com/timandy/routine.TestFutureTask_Fail_RuntimeError()"))
+			assert.True(t, strings.HasSuffix(line, "future_task_test.go:201"))
 		}
 	}()
 	//
@@ -420,14 +410,25 @@ func TestFutureTask_Run_Error(t *testing.T) {
 		err := cause.(RuntimeError)
 		assert.Equal(t, "1", err.Message())
 		lines := strings.Split(err.Error(), newLine)
-		assert.Equal(t, 7, len(lines))
+		assert.Equal(t, 5, len(lines))
 		//
 		line := lines[0]
 		assert.Equal(t, "RuntimeError: 1", line)
 		//
 		line = lines[1]
-		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.(*futureTask).Run."))
-		assert.True(t, strings.HasSuffix(line, "future_task.go:105"))
+		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestFutureTask_Run_Error."))
+		assert.True(t, strings.HasSuffix(line, "future_task_test.go:397"))
+		//
+		line = lines[2]
+		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.(*futureTask).Run()"))
+		assert.True(t, strings.HasSuffix(line, "future_task.go:108"))
+		//
+		line = lines[3]
+		assert.Equal(t, "   --- End of error stack trace ---", line)
+		//
+		line = lines[4]
+		assert.True(t, strings.HasPrefix(line, "   created by github.com/timandy/routine.TestFutureTask_Run_Error()"))
+		assert.True(t, strings.HasSuffix(line, "future_task_test.go:399"))
 	}()
 	task.Get()
 	assert.Fail(t, "should not be here")
@@ -454,19 +455,27 @@ func TestFutureTask_Run_RuntimeError(t *testing.T) {
 		assert.NotNil(t, cause)
 		assert.Implements(t, (*RuntimeError)(nil), cause)
 		err := cause.(RuntimeError)
-		assert.Equal(t, "", err.Message())
+		assert.Equal(t, "1", err.Message())
 		lines := strings.Split(err.Error(), newLine)
-		assert.Equal(t, 11, len(lines))
+		assert.Equal(t, 5, len(lines))
 		//
 		line := lines[0]
-		assert.Equal(t, "RuntimeError", line)
+		assert.Equal(t, "RuntimeError: 1", line)
 		//
 		line = lines[1]
-		assert.Equal(t, line, " ---> RuntimeError: 1")
+		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestFutureTask_Run_RuntimeError."))
+		assert.True(t, strings.HasSuffix(line, "future_task_test.go:443"))
 		//
 		line = lines[2]
-		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestFutureTask_Run_RuntimeError."))
-		assert.True(t, strings.HasSuffix(line, "future_task_test.go:442"))
+		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.(*futureTask).Run()"))
+		assert.True(t, strings.HasSuffix(line, "future_task.go:108"))
+		//
+		line = lines[3]
+		assert.Equal(t, "   --- End of error stack trace ---", line)
+		//
+		line = lines[4]
+		assert.True(t, strings.HasPrefix(line, "   created by github.com/timandy/routine.TestFutureTask_Run_RuntimeError()"))
+		assert.True(t, strings.HasSuffix(line, "future_task_test.go:446"))
 	}()
 	task.Get()
 	assert.Fail(t, "should not be here")
