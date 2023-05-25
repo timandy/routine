@@ -510,7 +510,7 @@ func assertGoidGopc(t *testing.T, err RuntimeError) {
 
 //===
 
-// BenchmarkDebugStack-4                             239652                 5305 ns/op         1024 B/op          1 allocs/op
+// BenchmarkDebugStack-8                             301474              3400 ns/op            1024 B/op          1 allocs/op
 func BenchmarkDebugStack(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -519,7 +519,7 @@ func BenchmarkDebugStack(b *testing.B) {
 	}
 }
 
-// BenchmarkRuntimeError-4                           300091                 4020 ns/op         2484 B/op         15 allocs/op
+// BenchmarkRuntimeError-8                           342477              3344 ns/op            2840 B/op         15 allocs/op
 func BenchmarkRuntimeError(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -528,7 +528,7 @@ func BenchmarkRuntimeError(b *testing.B) {
 	}
 }
 
-// BenchmarkRuntimeErrorWithMessage-4                302037                 3820 ns/op         2476 B/op         14 allocs/op
+// BenchmarkRuntimeErrorWithMessage-8                337117              3300 ns/op            2872 B/op         15 allocs/op
 func BenchmarkRuntimeErrorWithMessage(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -537,7 +537,7 @@ func BenchmarkRuntimeErrorWithMessage(b *testing.B) {
 	}
 }
 
-// BenchmarkRuntimeErrorWithMessageCause-4           326098                 3679 ns/op         2652 B/op         14 allocs/op
+// BenchmarkRuntimeErrorWithMessageCause-8           350422              3362 ns/op            2872 B/op         15 allocs/op
 func BenchmarkRuntimeErrorWithMessageCause(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
