@@ -13,7 +13,7 @@ func TestGoid(t *testing.T) {
 
 //===
 
-// BenchmarkGoid-4                                229975064                4.939 ns/op            0 B/op          0 allocs/op
+// BenchmarkGoid-8                                 331324310                3.589 ns/op           0 B/op          0 allocs/op
 func BenchmarkGoid(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
