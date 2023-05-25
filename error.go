@@ -146,12 +146,11 @@ func runtimeErrorPrintCreatedBy(re RuntimeError, builder *bytes.Buffer) {
 	if goid == 1 {
 		return
 	}
-	gopc := re.Gopc()
-	fn := runtime.FuncForPC(gopc)
-	if fn == nil {
+	pc := re.Gopc()
+	frame, _ := runtime.CallersFrames([]uintptr{pc}).Next()
+	if frame.Func == nil {
 		return
 	}
-	file, line := fn.FileLine(gopc - 1)
 	builder.WriteString(newLine)
 	builder.WriteString("   ")
 	builder.WriteString(endOfErrorStack)
@@ -159,13 +158,13 @@ func runtimeErrorPrintCreatedBy(re RuntimeError, builder *bytes.Buffer) {
 	builder.WriteString("   ")
 	builder.WriteString(wordCreatedBy)
 	builder.WriteString(" ")
-	builder.WriteString(fn.Name())
+	builder.WriteString(frame.Function)
 	builder.WriteString("() ")
 	builder.WriteString(wordIn)
 	builder.WriteString(" ")
-	builder.WriteString(file)
+	builder.WriteString(frame.File)
 	builder.WriteString(":")
-	builder.WriteString(strconv.Itoa(line))
+	builder.WriteString(strconv.Itoa(frame.Line))
 }
 
 func runtimeErrorTypeName(re RuntimeError) string {
