@@ -1,6 +1,10 @@
 package routine
 
 import (
+	"io"
+	"os"
+	"path"
+	"strconv"
 	"sync"
 	"testing"
 	"time"
@@ -130,6 +134,40 @@ func TestWrapTask_HasContext(t *testing.T) {
 	wg.Wait()
 	assert.True(t, wrappedRun)
 	assert.True(t, run)
+}
+
+func TestWrapTask_Complete_ThenFail(t *testing.T) {
+	newStdout, oldStdout := captureStdout()
+	defer restoreStdout(newStdout, oldStdout)
+	//
+	run := false
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	wg2 := &sync.WaitGroup{}
+	wg2.Add(1)
+	wg3 := &sync.WaitGroup{}
+	wg3.Add(1)
+	task := WrapTask(func() {
+		wg.Done()  //1
+		wg2.Wait() //4
+		run = true
+		wg3.Done() //5
+		panic(1)
+	})
+	go task.Run()
+	wg.Wait() //2
+	task.Complete(nil)
+	assert.Nil(t, task.Get())
+	wg2.Done() //3
+	wg3.Wait() //6
+	assert.True(t, task.IsDone())
+	assert.False(t, task.IsFailed())
+	assert.False(t, task.IsCanceled())
+	assert.True(t, run)
+	//
+	time.Sleep(10 * time.Millisecond)
+	output := readAll(newStdout)
+	assert.Equal(t, "", output)
 }
 
 func TestWrapWaitTask_NoContext(t *testing.T) {
@@ -314,6 +352,40 @@ func TestWrapWaitTask_HasContext_Cancel(t *testing.T) {
 	wg.Wait()
 	assert.False(t, wrappedRun)
 	assert.True(t, run)
+}
+
+func TestWrapWaitTask_Complete_ThenFail(t *testing.T) {
+	newStdout, oldStdout := captureStdout()
+	defer restoreStdout(newStdout, oldStdout)
+	//
+	run := false
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	wg2 := &sync.WaitGroup{}
+	wg2.Add(1)
+	wg3 := &sync.WaitGroup{}
+	wg3.Add(1)
+	task := WrapWaitTask(func(token CancelToken) {
+		wg.Done()  //1
+		wg2.Wait() //4
+		run = true
+		wg3.Done() //5
+		panic(1)
+	})
+	go task.Run()
+	wg.Wait() //2
+	task.Complete(nil)
+	assert.Nil(t, task.Get())
+	wg2.Done() //3
+	wg3.Wait() //6
+	assert.True(t, task.IsDone())
+	assert.False(t, task.IsFailed())
+	assert.False(t, task.IsCanceled())
+	assert.True(t, run)
+	//
+	time.Sleep(10 * time.Millisecond)
+	output := readAll(newStdout)
+	assert.Equal(t, "", output)
 }
 
 func TestWrapWaitResultTask_NoContext(t *testing.T) {
@@ -502,6 +574,40 @@ func TestWrapWaitResultTask_HasContext_Cancel(t *testing.T) {
 	wg.Wait()
 	assert.False(t, wrappedRun)
 	assert.True(t, run)
+}
+
+func TestWrapWaitResultTask_Complete_ThenFail(t *testing.T) {
+	newStdout, oldStdout := captureStdout()
+	defer restoreStdout(newStdout, oldStdout)
+	//
+	run := false
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	wg2 := &sync.WaitGroup{}
+	wg2.Add(1)
+	wg3 := &sync.WaitGroup{}
+	wg3.Add(1)
+	task := WrapWaitResultTask(func(token CancelToken) any {
+		wg.Done()  //1
+		wg2.Wait() //4
+		run = true
+		wg3.Done() //5
+		panic(1)
+	})
+	go task.Run()
+	wg.Wait() //2
+	task.Complete(nil)
+	assert.Nil(t, task.Get())
+	wg2.Done() //3
+	wg3.Wait() //6
+	assert.True(t, task.IsDone())
+	assert.False(t, task.IsFailed())
+	assert.False(t, task.IsCanceled())
+	assert.True(t, run)
+	//
+	time.Sleep(10 * time.Millisecond)
+	output := readAll(newStdout)
+	assert.Equal(t, "", output)
 }
 
 func TestGo_Error(t *testing.T) {
@@ -723,4 +829,46 @@ func TestGoWaitResult_Cross(t *testing.T) {
 		return tls.Get()
 	}).Get()
 	assert.Nil(t, result)
+}
+
+func captureStdout() (newStdout, oldStdout *os.File) {
+	oldStdout = os.Stdout
+	fileName := path.Join(os.TempDir(), "go_test_"+strconv.FormatInt(time.Now().UnixNano(), 10)+".txt")
+	file, err := os.Create(fileName)
+	if err != nil {
+		panic(err)
+	}
+	os.Stdout = file
+	newStdout = file
+	return
+}
+
+func restoreStdout(newStdout, oldStdout *os.File) {
+	os.Stdout = oldStdout
+	if err := newStdout.Close(); err != nil {
+		panic(err)
+	}
+	if err := os.Remove(newStdout.Name()); err != nil {
+		panic(err)
+	}
+}
+
+func readAll(rs io.ReadSeeker) string {
+	if _, err := rs.Seek(0, io.SeekStart); err != nil {
+		panic(err)
+	}
+	b := make([]byte, 0, 512)
+	for {
+		if len(b) == cap(b) {
+			b = append(b, 0)[:len(b)]
+		}
+		n, err := rs.Read(b[len(b):cap(b)])
+		b = b[:len(b)+n]
+		if err != nil {
+			if err == io.EOF {
+				return string(b)
+			}
+			panic(err)
+		}
+	}
 }
