@@ -94,11 +94,18 @@ func main() {
 		fmt.Println("inheritableThreadLocal in goroutine:", inheritableThreadLocal.Get())
 	}()
 
-	// 但是，可以通过 Go/GoWait/GoWaitResul 函数启动一个新的子协程，当前协程的所有可继承变量都可以自动传递。
+	// 但是，可以通过 Go/GoWait/GoWaitResult 函数启动一个新的子协程，当前协程的所有可继承变量都可以自动传递。
 	routine.Go(func() {
 		fmt.Println("threadLocal in goroutine by Go:", threadLocal.Get())
 		fmt.Println("inheritableThreadLocal in goroutine by Go:", inheritableThreadLocal.Get())
 	})
+
+	// 也可以通过 WrapTask/WrapWaitTask/WrapWaitResultTask 函数创建一个任务，当前协程的所有可继承变量都可以被自动捕获。
+	task := routine.WrapTask(func() {
+		fmt.Println("threadLocal in task by WrapTask:", threadLocal.Get())
+		fmt.Println("inheritableThreadLocal in task by WrapTask:", inheritableThreadLocal.Get())
+	})
+	go task.Run()
 
 	// 等待子协程执行完。
 	time.Sleep(time.Second)
@@ -114,6 +121,8 @@ threadLocal in goroutine: <nil>
 inheritableThreadLocal in goroutine: <nil>
 threadLocal in goroutine by Go: <nil>
 inheritableThreadLocal in goroutine by Go: Hello world2
+threadLocal in task by WrapTask: <nil>
+inheritableThreadLocal in task by WrapTask: Hello world2
 ```
 
 # API文档
@@ -128,31 +137,61 @@ inheritableThreadLocal in goroutine by Go: Hello world2
 
 ## `NewThreadLocal() ThreadLocal`
 
-创建一个新的`ThreadLocal`实例，其存储的默认值为`nil`。
+创建一个新的`ThreadLocal`实例，其存储的初始值为`nil`。
 
 ## `NewThreadLocalWithInitial(supplier Supplier) ThreadLocal`
 
-创建一个新的`ThreadLocal`实例，其存储的默认值会通过调用`supplier()`生成。
+创建一个新的`ThreadLocal`实例，其存储的初始值为方法`supplier()`的返回值。
 
 ## `NewInheritableThreadLocal() ThreadLocal`
 
-创建一个新的`ThreadLocal`实例，其存储的默认值为`nil`。当通过`Go()`、`GoWait()`或`GoWaitResult()`启动新协程时，当前协程的值会被复制到新协程。
+创建一个新的`ThreadLocal`实例，其存储的初始值为`nil`。
+当通过`Go()`、`GoWait()`或`GoWaitResult()`启动新协程时，当前协程的值会被复制到新协程。
+当通过`WrapTask()`、`WrapWaitTask()`或`WrapWaitResultTask()`创建任务时，当前协程的值会被捕获。
 
 ## `NewInheritableThreadLocalWithInitial(supplier Supplier) ThreadLocal`
 
-创建一个新的`ThreadLocal`实例，其存储的默认值会通过调用`supplier()`生成。当通过`Go()`、`GoWait()`或`GoWaitResult()`启动新协程时，当前协程的值会被复制到新协程。
+创建一个新的`ThreadLocal`实例，其存储的初始值为方法`supplier()`的返回值。
+当通过`Go()`、`GoWait()`或`GoWaitResult()`启动新协程时，当前协程的值会被复制到新协程。
+当通过`WrapTask()`、`WrapWaitTask()`或`WrapWaitResultTask()`创建任务时，当前协程的值会被捕获。
+
+## `WrapTask(fun Runnable) FutureTask`
+
+创建一个新任务，并捕获当前协程的`inheritableThreadLocals`。
+此函数返回一个`FutureTask`实例，但返回的任务不会自动运行。
+你可以通过`FutureTask.Run()`方法在子协程或协程池中运行它，通过`FutureTask.Get()`或`FutureTask.GetWithTimeout()`方法等待任务执行完毕。
+任务执行时的任何`panic`都会被捕获并打印错误堆栈，在调用`FutureTask.Get()`或`FutureTask.GetWithTimeout()`方法时`panic`会被再次抛出。
+
+## `WrapWaitTask(fun CancelRunnable) FutureTask`
+
+创建一个新任务，并捕获当前协程的`inheritableThreadLocals`。
+此函数返回一个`FutureTask`实例，但返回的任务不会自动运行。
+你可以通过`FutureTask.Run()`方法在子协程或协程池中运行它，通过`FutureTask.Get()`或`FutureTask.GetWithTimeout()`方法等待任务执行完毕。
+任务执行时的任何`panic`都会被捕获，在调用`FutureTask.Get()`或`FutureTask.GetWithTimeout()`方法时`panic`会被再次抛出。
+
+## `WrapWaitResultTask(fun CancelCallable) FutureTask`
+
+创建一个新任务，并捕获当前协程的`inheritableThreadLocals`。
+此函数返回一个`FutureTask`实例，但返回的任务不会自动运行。
+你可以通过`FutureTask.Run()`方法在子协程或协程池中运行它，通过`FutureTask.Get()`或`FutureTask.GetWithTimeout()`方法等待任务执行完毕并获取结果。
+任务执行时的任何`panic`都会被捕获，在调用`FutureTask.Get()`或`FutureTask.GetWithTimeout()`方法时`panic`会被再次抛出。
 
 ## `Go(fun Runnable)`
 
-启动一个新的协程，同时自动将当前协程的全部上下文`inheritableThreadLocals`数据复制至新协程。子协程执行时的任何`panic`都会被捕获并自动打印堆栈。
+启动一个新的协程，同时自动将当前协程的全部上下文`inheritableThreadLocals`数据复制至新协程。
+子协程执行时的任何`panic`都会被捕获并自动打印堆栈。
 
-## `GoWait(fun CancelRunnable) Future`
+## `GoWait(fun CancelRunnable) FutureTask`
 
-启动一个新的协程，同时自动将当前协程的全部上下文`inheritableThreadLocals`数据复制至新协程。可以通过返回值的`Future.Get()`或`Future.GetWithTimeout()`方法等待子协程执行完毕。子协程执行时的任何`panic`都会被捕获并在调用`Future.Get()`或`Future.GetWithTimeout()`时再次抛出。
+启动一个新的协程，同时自动将当前协程的全部上下文`inheritableThreadLocals`数据复制至新协程。
+可以通过返回值的`FutureTask.Get()`或`FutureTask.GetWithTimeout()`方法等待子协程执行完毕。
+子协程执行时的任何`panic`都会被捕获并在调用`FutureTask.Get()`或`FutureTask.GetWithTimeout()`时再次抛出。
 
-## `GoWaitResult(fun CancelCallable) Future`
+## `GoWaitResult(fun CancelCallable) FutureTask`
 
-启动一个新的协程，同时自动将当前协程的全部上下文`inheritableThreadLocals`数据复制至新协程。可以通过返回值的`Future.Get()`或`Future.GetWithTimeout()`方法等待子协程执行完毕并获取返回值。子协程执行时的任何`panic`都会被捕获并在调用`Future.Get()`或`Future.GetWithTimeout()`时再次抛出。
+启动一个新的协程，同时自动将当前协程的全部上下文`inheritableThreadLocals`数据复制至新协程。
+可以通过返回值的`FutureTask.Get()`或`FutureTask.GetWithTimeout()`方法等待子协程执行完毕并获取返回值。
+子协程执行时的任何`panic`都会被捕获并在调用`FutureTask.Get()`或`FutureTask.GetWithTimeout()`时再次抛出。
 
 [更多API文档](https://pkg.go.dev/github.com/timandy/routine#section-documentation)
 
