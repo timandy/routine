@@ -118,7 +118,7 @@ func setProfLabel(labels unsafe.Pointer)
 
 //===
 
-// BenchmarkGohack-8                              186637413                5.734 ns/op            0 B/op          0 allocs/op
+// BenchmarkGohack-8                               258425366                4.808 ns/op           0 B/op          0 allocs/op
 func BenchmarkGohack(b *testing.B) {
 	_ = getg()
 	b.ReportAllocs()
