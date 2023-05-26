@@ -1,7 +1,5 @@
 package routine
 
-import "fmt"
-
 // Runnable provides a function without return values.
 type Runnable func()
 
@@ -19,44 +17,8 @@ type CancelCallable func(token CancelToken) any
 // You can run it in a sub-goroutine or goroutine-pool by FutureTask.Run method, wait by FutureTask.Get or FutureTask.GetWithTimeout method.
 // When the returned task run panic will be caught and error stack will be printed, the panic will be trigger again when calling FutureTask.Get or FutureTask.GetWithTimeout method.
 func WrapTask(fun Runnable) FutureTask {
-	// backup
-	copied := createInheritedMap()
-	callable := func(task FutureTask) any {
-		// catch
-		defer func() {
-			if cause := recover(); cause != nil {
-				task.Fail(cause)
-				if err := task.(*futureTask).error; err != nil {
-					fmt.Println(err.Error())
-				}
-			}
-		}()
-		// restore
-		t := currentThread(copied != nil)
-		if t == nil {
-			//copied is nil
-			defer func() {
-				t = currentThread(false)
-				if t != nil {
-					t.threadLocals = nil
-					t.inheritableThreadLocals = nil
-				}
-			}()
-			fun()
-			return nil
-		} else {
-			threadLocalsBackup := t.threadLocals
-			inheritableThreadLocalsBackup := t.inheritableThreadLocals
-			defer func() {
-				t.threadLocals = threadLocalsBackup
-				t.inheritableThreadLocals = inheritableThreadLocalsBackup
-			}()
-			t.threadLocals = nil
-			t.inheritableThreadLocals = copied
-			fun()
-			return nil
-		}
-	}
+	ctx := createInheritedMap()
+	callable := inheritedTask{context: ctx, function: fun}.run
 	return NewFutureTask(callable)
 }
 
@@ -65,41 +27,8 @@ func WrapTask(fun Runnable) FutureTask {
 // You can run it in a sub-goroutine or goroutine-pool by FutureTask.Run method, wait by FutureTask.Get or FutureTask.GetWithTimeout method.
 // When the returned task run panic will be caught, the panic will be trigger again when calling FutureTask.Get or FutureTask.GetWithTimeout method.
 func WrapWaitTask(fun CancelRunnable) FutureTask {
-	// backup
-	copied := createInheritedMap()
-	callable := func(task FutureTask) any {
-		// catch
-		defer func() {
-			if cause := recover(); cause != nil {
-				task.Fail(cause)
-			}
-		}()
-		// restore
-		t := currentThread(copied != nil)
-		if t == nil {
-			//copied is nil
-			defer func() {
-				t = currentThread(false)
-				if t != nil {
-					t.threadLocals = nil
-					t.inheritableThreadLocals = nil
-				}
-			}()
-			fun(task)
-			return nil
-		} else {
-			threadLocalsBackup := t.threadLocals
-			inheritableThreadLocalsBackup := t.inheritableThreadLocals
-			defer func() {
-				t.threadLocals = threadLocalsBackup
-				t.inheritableThreadLocals = inheritableThreadLocalsBackup
-			}()
-			t.threadLocals = nil
-			t.inheritableThreadLocals = copied
-			fun(task)
-			return nil
-		}
-	}
+	ctx := createInheritedMap()
+	callable := inheritedWaitTask{context: ctx, function: fun}.run
 	return NewFutureTask(callable)
 }
 
@@ -108,39 +37,8 @@ func WrapWaitTask(fun CancelRunnable) FutureTask {
 // You can run it in a sub-goroutine or goroutine-pool by FutureTask.Run method, wait and get result by FutureTask.Get or FutureTask.GetWithTimeout method.
 // When the returned task run panic will be caught, the panic will be trigger again when calling FutureTask.Get or FutureTask.GetWithTimeout method.
 func WrapWaitResultTask(fun CancelCallable) FutureTask {
-	// backup
-	copied := createInheritedMap()
-	callable := func(task FutureTask) any {
-		// catch
-		defer func() {
-			if cause := recover(); cause != nil {
-				task.Fail(cause)
-			}
-		}()
-		// restore
-		t := currentThread(copied != nil)
-		if t == nil {
-			//copied is nil
-			defer func() {
-				t = currentThread(false)
-				if t != nil {
-					t.threadLocals = nil
-					t.inheritableThreadLocals = nil
-				}
-			}()
-			return fun(task)
-		} else {
-			threadLocalsBackup := t.threadLocals
-			inheritableThreadLocalsBackup := t.inheritableThreadLocals
-			defer func() {
-				t.threadLocals = threadLocalsBackup
-				t.inheritableThreadLocals = inheritableThreadLocalsBackup
-			}()
-			t.threadLocals = nil
-			t.inheritableThreadLocals = copied
-			return fun(task)
-		}
-	}
+	ctx := createInheritedMap()
+	callable := inheritedWaitResultTask{context: ctx, function: fun}.run
 	return NewFutureTask(callable)
 }
 
