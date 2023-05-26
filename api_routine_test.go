@@ -641,8 +641,8 @@ func TestGo_Error(t *testing.T) {
 	assert.True(t, strings.HasSuffix(line, "api_routine_test.go:625"))
 	//
 	line = lines[2]
-	assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.WrapTask."))
-	assert.True(t, strings.HasSuffix(line, "api_routine.go:44"))
+	assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.inheritedTask.run()"))
+	assert.True(t, strings.HasSuffix(line, "routine.go:31"))
 	//
 	line = lines[3]
 	assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.(*futureTask).Run()"))
@@ -653,7 +653,7 @@ func TestGo_Error(t *testing.T) {
 	//
 	line = lines[5]
 	assert.True(t, strings.HasPrefix(line, "   created by github.com/timandy/routine.Go()"))
-	assert.True(t, strings.HasSuffix(line, "api_routine.go:148"))
+	assert.True(t, strings.HasSuffix(line, "api_routine.go:46"))
 	//
 	line = lines[6]
 	assert.Equal(t, "", line)
@@ -726,14 +726,46 @@ func TestGo_Cross(t *testing.T) {
 
 func TestGoWait_Error(t *testing.T) {
 	run := false
+	task := GoWait(func(token CancelToken) {
+		run = true
+		panic("error")
+	})
 	assert.Panics(t, func() {
-		task := GoWait(func(token CancelToken) {
-			run = true
-			panic("error")
-		})
 		task.Get()
 	})
 	assert.True(t, run)
+	//
+	defer func() {
+		cause := recover()
+		assert.NotNil(t, cause)
+		assert.Implements(t, (*RuntimeError)(nil), cause)
+		err := cause.(RuntimeError)
+		lines := strings.Split(err.Error(), newLine)
+		assert.Equal(t, 6, len(lines))
+		//
+		line := lines[0]
+		assert.Equal(t, "RuntimeError: error", line)
+		//
+		line = lines[1]
+		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestGoWait_Error."))
+		assert.True(t, strings.HasSuffix(line, "api_routine_test.go:731"))
+		//
+		line = lines[2]
+		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.inheritedWaitTask.run()"))
+		assert.True(t, strings.HasSuffix(line, "routine.go:70"))
+		//
+		line = lines[3]
+		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.(*futureTask).Run()"))
+		assert.True(t, strings.HasSuffix(line, "future_task.go:108"))
+		//
+		line = lines[4]
+		assert.Equal(t, "   --- End of error stack trace ---", line)
+		//
+		line = lines[5]
+		assert.True(t, strings.HasPrefix(line, "   created by github.com/timandy/routine.GoWait()"))
+		assert.True(t, strings.HasSuffix(line, "api_routine.go:54"))
+	}()
+	task.Get()
 }
 
 func TestGoWait_Nil(t *testing.T) {
@@ -793,17 +825,49 @@ func TestGoWait_Cross(t *testing.T) {
 
 func TestGoWaitResult_Error(t *testing.T) {
 	run := false
+	task := GoWaitResult(func(token CancelToken) any {
+		run = true
+		if run {
+			panic("error")
+		}
+		return 1
+	})
 	assert.Panics(t, func() {
-		task := GoWaitResult(func(token CancelToken) any {
-			run = true
-			if run {
-				panic("error")
-			}
-			return 1
-		})
 		task.Get()
 	})
 	assert.True(t, run)
+	//
+	defer func() {
+		cause := recover()
+		assert.NotNil(t, cause)
+		assert.Implements(t, (*RuntimeError)(nil), cause)
+		err := cause.(RuntimeError)
+		lines := strings.Split(err.Error(), newLine)
+		assert.Equal(t, 6, len(lines))
+		//
+		line := lines[0]
+		assert.Equal(t, "RuntimeError: error", line)
+		//
+		line = lines[1]
+		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestGoWaitResult_Error."))
+		assert.True(t, strings.HasSuffix(line, "api_routine_test.go:831"))
+		//
+		line = lines[2]
+		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.inheritedWaitResultTask.run()"))
+		assert.True(t, strings.HasSuffix(line, "routine.go:109"))
+		//
+		line = lines[3]
+		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.(*futureTask).Run()"))
+		assert.True(t, strings.HasSuffix(line, "future_task.go:108"))
+		//
+		line = lines[4]
+		assert.Equal(t, "   --- End of error stack trace ---", line)
+		//
+		line = lines[5]
+		assert.True(t, strings.HasPrefix(line, "   created by github.com/timandy/routine.GoWaitResult()"))
+		assert.True(t, strings.HasSuffix(line, "api_routine.go:63"))
+	}()
+	task.Get()
 }
 
 func TestGoWaitResult_Nil(t *testing.T) {
