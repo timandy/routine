@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 	"strconv"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -587,6 +588,9 @@ func TestWrapWaitResultTask_Complete_ThenFail(t *testing.T) {
 }
 
 func TestGo_Error(t *testing.T) {
+	newStdout, oldStdout := captureStdout()
+	defer restoreStdout(newStdout, oldStdout)
+	//
 	run := false
 	assert.NotPanics(t, func() {
 		wg := &sync.WaitGroup{}
@@ -599,6 +603,36 @@ func TestGo_Error(t *testing.T) {
 		wg.Wait()
 	})
 	assert.True(t, run)
+	//
+	time.Sleep(10 * time.Millisecond)
+	output := readAll(newStdout)
+	lines := strings.Split(output, newLine)
+	assert.Equal(t, 7, len(lines))
+	//
+	line := lines[0]
+	assert.Equal(t, "RuntimeError: error", line)
+	//
+	line = lines[1]
+	assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestGo_Error."))
+	assert.True(t, strings.HasSuffix(line, "api_routine_test.go:601"))
+	//
+	line = lines[2]
+	assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.WrapTask."))
+	assert.True(t, strings.HasSuffix(line, "api_routine.go:45"))
+	//
+	line = lines[3]
+	assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.(*futureTask).Run()"))
+	assert.True(t, strings.HasSuffix(line, "future_task.go:108"))
+	//
+	line = lines[4]
+	assert.Equal(t, "   --- End of error stack trace ---", line)
+	//
+	line = lines[5]
+	assert.True(t, strings.HasPrefix(line, "   created by github.com/timandy/routine.Go()"))
+	assert.True(t, strings.HasSuffix(line, "api_routine.go:151"))
+	//
+	line = lines[6]
+	assert.Equal(t, "", line)
 }
 
 func TestGo_Nil(t *testing.T) {
