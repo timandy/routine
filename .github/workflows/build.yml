@@ -197,11 +197,11 @@ jobs:
           - os: darwin
             runs-on: macos-latest
           - os: linux
-            runs-on: ubuntu-22.04
+            runs-on: ubuntu-latest
           - os: windows
             runs-on: windows-latest
           - os: freebsd
-            runs-on: macos-12
+            runs-on: macos-latest
           - os: js
             runs-on: ubuntu-latest
 
