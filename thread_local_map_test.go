@@ -13,7 +13,7 @@ func TestObject(t *testing.T) {
 	assert.NotSame(t, unset, value)
 	//
 	var value2 any = &object{}
-	assert.Same(t, value2, value)
+	assert.NotSame(t, value2, value)
 }
 
 func TestCreateInheritedMap(t *testing.T) {
