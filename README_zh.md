@@ -79,8 +79,8 @@ import (
 	"github.com/timandy/routine"
 )
 
-var threadLocal = routine.NewThreadLocal()
-var inheritableThreadLocal = routine.NewInheritableThreadLocal()
+var threadLocal = routine.NewThreadLocal[string]()
+var inheritableThreadLocal = routine.NewInheritableThreadLocal[string]()
 
 func main() {
 	threadLocal.Set("hello world")
@@ -117,11 +117,11 @@ func main() {
 ```text
 threadLocal: hello world
 inheritableThreadLocal: Hello world2
-threadLocal in goroutine: <nil>
-inheritableThreadLocal in goroutine: <nil>
-threadLocal in goroutine by Go: <nil>
+threadLocal in goroutine:
+inheritableThreadLocal in goroutine:
+threadLocal in goroutine by Go:
 inheritableThreadLocal in goroutine by Go: Hello world2
-threadLocal in task by WrapTask: <nil>
+threadLocal in task by WrapTask:
 inheritableThreadLocal in task by WrapTask: Hello world2
 ```
 
@@ -135,41 +135,41 @@ inheritableThreadLocal in task by WrapTask: Hello world2
 
 在`386`、`amd64`、`armv6`、`armv7`、`arm64`、`loong64`、`mips`、`mipsle`、`mips64`、`mips64le`、`ppc64`、`ppc64le`、`riscv64`、`s390x`、`wasm`架构下通过汇编代码直接获取，此操作性能极高，耗时通常只相当于`rand.Int()`的五分之一。
 
-## `NewThreadLocal() ThreadLocal`
+## `NewThreadLocal[T any]() ThreadLocal[T]`
 
-创建一个新的`ThreadLocal`实例，其存储的初始值为`nil`。
+创建一个新的`ThreadLocal[T]`实例，其存储的初始值为类型`T`的默认值。
 
-## `NewThreadLocalWithInitial(supplier Supplier) ThreadLocal`
+## `NewThreadLocalWithInitial[T any](supplier Supplier[T]) ThreadLocal[T]`
 
-创建一个新的`ThreadLocal`实例，其存储的初始值为方法`supplier()`的返回值。
+创建一个新的`ThreadLocal[T]`实例，其存储的初始值为方法`supplier()`的返回值。
 
-## `NewInheritableThreadLocal() ThreadLocal`
+## `NewInheritableThreadLocal[T any]() ThreadLocal[T]`
 
-创建一个新的`ThreadLocal`实例，其存储的初始值为`nil`。
+创建一个新的`ThreadLocal[T]`实例，其存储的初始值为类型`T`的默认值。
 当通过`Go()`、`GoWait()`或`GoWaitResult()`启动新协程时，当前协程的值会被复制到新协程。
 当通过`WrapTask()`、`WrapWaitTask()`或`WrapWaitResultTask()`创建任务时，当前协程的值会被捕获。
 
-## `NewInheritableThreadLocalWithInitial(supplier Supplier) ThreadLocal`
+## `NewInheritableThreadLocalWithInitial[T any](supplier Supplier[T]) ThreadLocal[T]`
 
-创建一个新的`ThreadLocal`实例，其存储的初始值为方法`supplier()`的返回值。
+创建一个新的`ThreadLocal[T]`实例，其存储的初始值为方法`supplier()`的返回值。
 当通过`Go()`、`GoWait()`或`GoWaitResult()`启动新协程时，当前协程的值会被复制到新协程。
 当通过`WrapTask()`、`WrapWaitTask()`或`WrapWaitResultTask()`创建任务时，当前协程的值会被捕获。
 
-## `WrapTask(fun Runnable) FutureTask`
+## `WrapTask(fun Runnable) FutureTask[any]`
 
 创建一个新任务，并捕获当前协程的`inheritableThreadLocals`。
 此函数返回一个`FutureTask`实例，但返回的任务不会自动运行。
 你可以通过`FutureTask.Run()`方法在子协程或协程池中运行它，通过`FutureTask.Get()`或`FutureTask.GetWithTimeout()`方法等待任务执行完毕。
 任务执行时的任何`panic`都会被捕获并打印错误堆栈，在调用`FutureTask.Get()`或`FutureTask.GetWithTimeout()`方法时`panic`会被再次抛出。
 
-## `WrapWaitTask(fun CancelRunnable) FutureTask`
+## `WrapWaitTask(fun CancelRunnable) FutureTask[any]`
 
 创建一个新任务，并捕获当前协程的`inheritableThreadLocals`。
 此函数返回一个`FutureTask`实例，但返回的任务不会自动运行。
 你可以通过`FutureTask.Run()`方法在子协程或协程池中运行它，通过`FutureTask.Get()`或`FutureTask.GetWithTimeout()`方法等待任务执行完毕。
 任务执行时的任何`panic`都会被捕获，在调用`FutureTask.Get()`或`FutureTask.GetWithTimeout()`方法时`panic`会被再次抛出。
 
-## `WrapWaitResultTask(fun CancelCallable) FutureTask`
+## `WrapWaitResultTask[TResult any](fun CancelCallable[TResult]) FutureTask[TResult]`
 
 创建一个新任务，并捕获当前协程的`inheritableThreadLocals`。
 此函数返回一个`FutureTask`实例，但返回的任务不会自动运行。
@@ -181,13 +181,13 @@ inheritableThreadLocal in task by WrapTask: Hello world2
 启动一个新的协程，同时自动将当前协程的全部上下文`inheritableThreadLocals`数据复制至新协程。
 子协程执行时的任何`panic`都会被捕获并自动打印堆栈。
 
-## `GoWait(fun CancelRunnable) FutureTask`
+## `GoWait(fun CancelRunnable) FutureTask[any]`
 
 启动一个新的协程，同时自动将当前协程的全部上下文`inheritableThreadLocals`数据复制至新协程。
 可以通过返回值的`FutureTask.Get()`或`FutureTask.GetWithTimeout()`方法等待子协程执行完毕。
 子协程执行时的任何`panic`都会被捕获并在调用`FutureTask.Get()`或`FutureTask.GetWithTimeout()`时再次抛出。
 
-## `GoWaitResult(fun CancelCallable) FutureTask`
+## `GoWaitResult[TResult any](fun CancelCallable[TResult]) FutureTask[TResult]`
 
 启动一个新的协程，同时自动将当前协程的全部上下文`inheritableThreadLocals`数据复制至新协程。
 可以通过返回值的`FutureTask.Get()`或`FutureTask.GetWithTimeout()`方法等待子协程执行完毕并获取返回值。
