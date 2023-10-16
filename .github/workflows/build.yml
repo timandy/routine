@@ -239,7 +239,9 @@ jobs:
 
       - name: 'Setup qemu-user-static on [linux] arch [armv6, armv7, arm64, mips, mipsle, mips64, mips64le, ppc64, ppc64le, riscv64, s390x]'
         if: ${{ matrix.os == 'linux' && contains(fromJson('["armv6", "armv7", "arm64", "mips", "mipsle", "mips64", "mips64le", "ppc64", "ppc64le", "riscv64", "s390x"]'), matrix.arch) }}
-        run: sudo apt-get -y install qemu-user-static
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install qemu-user-static
 
       - name: 'Test on [linux] arch [armv6]'
         if: ${{ matrix.os == 'linux' && contains(fromJson('["armv6"]'), matrix.arch) }}
