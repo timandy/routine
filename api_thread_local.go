@@ -16,27 +16,29 @@ type ThreadLocal interface {
 type Supplier func() any
 
 // NewThreadLocal create and return a new ThreadLocal instance.
-// The initial value is nil.
+// The initial value stored with nil.
 func NewThreadLocal() ThreadLocal {
 	return &threadLocal{index: nextThreadLocalIndex()}
 }
 
 // NewThreadLocalWithInitial create and return a new ThreadLocal instance.
-// The initial value is determined by invoking the supplier method.
+// The initial value stored as the return value of the method supplier.
 func NewThreadLocalWithInitial(supplier Supplier) ThreadLocal {
 	return &threadLocal{index: nextThreadLocalIndex(), supplier: supplier}
 }
 
 // NewInheritableThreadLocal create and return a new ThreadLocal instance.
-// The initial value is nil.
+// The initial value stored with nil.
 // The value can be inherited to sub goroutines witch started by Go, GoWait, GoWaitResult methods.
+// The value can be captured to FutureTask which created by WrapTask, WrapWaitTask, WrapWaitResultTask methods.
 func NewInheritableThreadLocal() ThreadLocal {
 	return &inheritableThreadLocal{index: nextInheritableThreadLocalIndex()}
 }
 
 // NewInheritableThreadLocalWithInitial create and return a new ThreadLocal instance.
-// The initial value is determined by invoking the supplier method.
+// The initial value stored as the return value of the method supplier.
 // The value can be inherited to sub goroutines witch started by Go, GoWait, GoWaitResult methods.
+// The value can be captured to FutureTask which created by WrapTask, WrapWaitTask, WrapWaitResultTask methods.
 func NewInheritableThreadLocalWithInitial(supplier Supplier) ThreadLocal {
 	return &inheritableThreadLocal{index: nextInheritableThreadLocalIndex(), supplier: supplier}
 }
