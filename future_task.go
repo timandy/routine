@@ -17,28 +17,28 @@ const (
 	taskStateFailed
 )
 
-type futureTask struct {
+type futureTask[TResult any] struct {
 	await    sync.WaitGroup
 	state    taskState
-	callable FutureCallable
-	result   any
+	callable FutureCallable[TResult]
+	result   TResult
 	error    RuntimeError
 }
 
-func (task *futureTask) IsDone() bool {
+func (task *futureTask[TResult]) IsDone() bool {
 	state := atomic.LoadInt32(&task.state)
 	return state == taskStateCompleted || state == taskStateCanceled || state == taskStateFailed
 }
 
-func (task *futureTask) IsCanceled() bool {
+func (task *futureTask[TResult]) IsCanceled() bool {
 	return atomic.LoadInt32(&task.state) == taskStateCanceled
 }
 
-func (task *futureTask) IsFailed() bool {
+func (task *futureTask[TResult]) IsFailed() bool {
 	return atomic.LoadInt32(&task.state) == taskStateFailed
 }
 
-func (task *futureTask) Complete(result any) {
+func (task *futureTask[TResult]) Complete(result TResult) {
 	if atomic.CompareAndSwapInt32(&task.state, taskStateNew, taskStateCompleted) ||
 		atomic.CompareAndSwapInt32(&task.state, taskStateRunning, taskStateCompleted) {
 		task.result = result
@@ -46,7 +46,7 @@ func (task *futureTask) Complete(result any) {
 	}
 }
 
-func (task *futureTask) Cancel() {
+func (task *futureTask[TResult]) Cancel() {
 	if atomic.CompareAndSwapInt32(&task.state, taskStateNew, taskStateCanceled) ||
 		atomic.CompareAndSwapInt32(&task.state, taskStateRunning, taskStateCanceled) {
 		task.error = NewRuntimeError("Task was canceled.")
@@ -54,7 +54,7 @@ func (task *futureTask) Cancel() {
 	}
 }
 
-func (task *futureTask) Fail(error any) {
+func (task *futureTask[TResult]) Fail(error any) {
 	if atomic.CompareAndSwapInt32(&task.state, taskStateNew, taskStateFailed) ||
 		atomic.CompareAndSwapInt32(&task.state, taskStateRunning, taskStateFailed) {
 		runtimeErr, isRuntimeErr := error.(RuntimeError)
@@ -66,7 +66,7 @@ func (task *futureTask) Fail(error any) {
 	}
 }
 
-func (task *futureTask) Get() any {
+func (task *futureTask[TResult]) Get() TResult {
 	task.await.Wait()
 	if atomic.LoadInt32(&task.state) == taskStateCompleted {
 		return task.result
@@ -74,7 +74,7 @@ func (task *futureTask) Get() any {
 	panic(task.error)
 }
 
-func (task *futureTask) GetWithTimeout(timeout time.Duration) any {
+func (task *futureTask[TResult]) GetWithTimeout(timeout time.Duration) TResult {
 	waitChan := make(chan struct{})
 	go func() {
 		task.await.Wait()
@@ -98,7 +98,7 @@ func (task *futureTask) GetWithTimeout(timeout time.Duration) any {
 	}
 }
 
-func (task *futureTask) Run() {
+func (task *futureTask[TResult]) Run() {
 	if atomic.CompareAndSwapInt32(&task.state, taskStateNew, taskStateRunning) {
 		defer func() {
 			if cause := recover(); cause != nil {
@@ -110,7 +110,7 @@ func (task *futureTask) Run() {
 	}
 }
 
-func (task *futureTask) timeout(timeout time.Duration) {
+func (task *futureTask[TResult]) timeout(timeout time.Duration) {
 	if atomic.CompareAndSwapInt32(&task.state, taskStateNew, taskStateCanceled) ||
 		atomic.CompareAndSwapInt32(&task.state, taskStateRunning, taskStateCanceled) {
 		task.error = NewRuntimeError(fmt.Sprintf("Task execution timeout after %v.", timeout))
