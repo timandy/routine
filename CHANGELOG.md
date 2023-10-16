@@ -1,5 +1,25 @@
 <!--变更日志-->
 
+# v1.1.2 Release notes
+
+### Features
+
+- Support go version range `go1.13` ~ `go1.21`(New support `go1.21`).
+- Support capture values of `InheritableThreadLocal` by `WrapTask()`, `WrapWaitTask()` and `WrapWaitResultTask()` methods.
+- Support run `FutureTask` by `FutureTask.Run()` method.
+- Define function type `Runnable` and `FutureCallable`.
+
+### Changes
+
+- Rename type `Future` to `FutureTask`.
+- Skip first runtime panic stack automatically for `RuntimeError`.
+
+# Links
+
+- Source code [https://github.com/timandy/routine/tree/v1.1.2](https://github.com/timandy/routine/tree/v1.1.2)
+
+---
+
 # v1.1.1 Release notes
 
 ### Features
