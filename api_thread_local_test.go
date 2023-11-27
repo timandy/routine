@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	concurrency = 1000
+	concurrency = 500
 	loopTimes   = 200
 )
 
