@@ -7,12 +7,12 @@ type inheritedTask struct {
 	function Runnable
 }
 
-func (it inheritedTask) run(task FutureTask) any {
+func (it inheritedTask) run(task FutureTask[any]) any {
 	// catch
 	defer func() {
 		if cause := recover(); cause != nil {
 			task.Fail(cause)
-			if err := task.(*futureTask).error; err != nil {
+			if err := task.(*futureTask[any]).error; err != nil {
 				fmt.Println(err.Error())
 			}
 		}
@@ -49,7 +49,7 @@ type inheritedWaitTask struct {
 	function CancelRunnable
 }
 
-func (iwt inheritedWaitTask) run(task FutureTask) any {
+func (iwt inheritedWaitTask) run(task FutureTask[any]) any {
 	// catch
 	defer func() {
 		if cause := recover(); cause != nil {
@@ -83,12 +83,12 @@ func (iwt inheritedWaitTask) run(task FutureTask) any {
 	}
 }
 
-type inheritedWaitResultTask struct {
+type inheritedWaitResultTask[TResult any] struct {
 	context  *threadLocalMap
-	function CancelCallable
+	function CancelCallable[TResult]
 }
 
-func (iwrt inheritedWaitResultTask) run(task FutureTask) any {
+func (iwrt inheritedWaitResultTask[TResult]) run(task FutureTask[TResult]) TResult {
 	// catch
 	defer func() {
 		if cause := recover(); cause != nil {

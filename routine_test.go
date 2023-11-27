@@ -7,9 +7,9 @@ import (
 )
 
 func TestInheritedTask(t *testing.T) {
-	tls := NewInheritableThreadLocal()
+	tls := NewInheritableThreadLocal[string]()
 	it := inheritedTask{context: nil, function: func() {
-		assert.Nil(t, tls.Get())
+		assert.Equal(t, "", tls.Get())
 	}}
 	task := NewFutureTask(it.run)
 	go task.Run()
@@ -17,7 +17,7 @@ func TestInheritedTask(t *testing.T) {
 	assert.True(t, task.IsDone())
 	//
 	it2 := inheritedTask{context: nil, function: func() {
-		assert.Nil(t, tls.Get())
+		assert.Equal(t, "", tls.Get())
 	}}
 	task2 := NewFutureTask(it2.run)
 	go func() {
@@ -49,9 +49,9 @@ func TestInheritedTask(t *testing.T) {
 }
 
 func TestInheritedWaitTask(t *testing.T) {
-	tls := NewInheritableThreadLocal()
+	tls := NewInheritableThreadLocal[string]()
 	it := inheritedWaitTask{context: nil, function: func(token CancelToken) {
-		assert.Nil(t, tls.Get())
+		assert.Equal(t, "", tls.Get())
 	}}
 	task := NewFutureTask(it.run)
 	go task.Run()
@@ -59,7 +59,7 @@ func TestInheritedWaitTask(t *testing.T) {
 	assert.True(t, task.IsDone())
 	//
 	it2 := inheritedWaitTask{context: nil, function: func(token CancelToken) {
-		assert.Nil(t, tls.Get())
+		assert.Equal(t, "", tls.Get())
 	}}
 	task2 := NewFutureTask(it2.run)
 	go func() {
@@ -91,18 +91,18 @@ func TestInheritedWaitTask(t *testing.T) {
 }
 
 func TestInheritedWaitResultTask(t *testing.T) {
-	tls := NewInheritableThreadLocal()
-	it := inheritedWaitResultTask{context: nil, function: func(token CancelToken) any {
-		assert.Nil(t, tls.Get())
+	tls := NewInheritableThreadLocal[string]()
+	it := inheritedWaitResultTask[string]{context: nil, function: func(token CancelToken) string {
+		assert.Equal(t, "", tls.Get())
 		return tls.Get()
 	}}
 	task := NewFutureTask(it.run)
 	go task.Run()
-	assert.Nil(t, task.Get())
+	assert.Equal(t, "", task.Get())
 	assert.True(t, task.IsDone())
 	//
-	it2 := inheritedWaitResultTask{context: nil, function: func(token CancelToken) any {
-		assert.Nil(t, tls.Get())
+	it2 := inheritedWaitResultTask[string]{context: nil, function: func(token CancelToken) string {
+		assert.Equal(t, "", tls.Get())
 		return tls.Get()
 	}}
 	task2 := NewFutureTask(it2.run)
@@ -110,11 +110,11 @@ func TestInheritedWaitResultTask(t *testing.T) {
 		tls.Set("hello")
 		task2.Run()
 	}()
-	assert.Nil(t, task2.Get())
+	assert.Equal(t, "", task2.Get())
 	assert.True(t, task2.IsDone())
 	//
 	tls.Set("world")
-	it3 := inheritedWaitResultTask{context: createInheritedMap(), function: func(token CancelToken) any {
+	it3 := inheritedWaitResultTask[string]{context: createInheritedMap(), function: func(token CancelToken) string {
 		assert.Equal(t, "world", tls.Get())
 		return tls.Get()
 	}}
@@ -123,7 +123,7 @@ func TestInheritedWaitResultTask(t *testing.T) {
 	assert.Equal(t, "world", task3.Get())
 	assert.True(t, task3.IsDone())
 	//
-	it4 := inheritedWaitResultTask{context: createInheritedMap(), function: func(token CancelToken) any {
+	it4 := inheritedWaitResultTask[string]{context: createInheritedMap(), function: func(token CancelToken) string {
 		assert.Equal(t, "world", tls.Get())
 		return tls.Get()
 	}}

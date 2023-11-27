@@ -20,7 +20,7 @@ func TestCurrentThread(t *testing.T) {
 func TestPProf(t *testing.T) {
 	const concurrency = 10
 	const loopTimes = 10
-	tls := NewThreadLocal()
+	tls := NewThreadLocal[any]()
 	tls.Set("你好")
 	wg := &sync.WaitGroup{}
 	wg.Add(concurrency)
@@ -59,8 +59,8 @@ func TestPProf(t *testing.T) {
 
 func TestThreadGC(t *testing.T) {
 	const allocSize = 10_000_000
-	tls := NewThreadLocal()
-	tls2 := NewInheritableThreadLocal()
+	tls := NewThreadLocal[[]byte]()
+	tls2 := NewInheritableThreadLocal[[]byte]()
 	allocWait := &sync.WaitGroup{}
 	allocWait.Add(1)
 	gatherWait := &sync.WaitGroup{}
@@ -77,7 +77,7 @@ func TestThreadGC(t *testing.T) {
 		go func() {
 			gcWait.Wait()
 		}()
-		task2 := GoWaitResult(func(token CancelToken) any {
+		task2 := GoWaitResult(func(token CancelToken) int {
 			return 1
 		})
 		assert.Equal(t, 1, task2.Get())
