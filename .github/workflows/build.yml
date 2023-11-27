@@ -204,7 +204,7 @@ jobs:
           - os: windows
             runs-on: windows-latest
           - os: freebsd
-            runs-on: macos-latest
+            runs-on: ubuntu-latest
           - os: js
             runs-on: ubuntu-latest
 
