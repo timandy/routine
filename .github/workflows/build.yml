@@ -318,7 +318,7 @@ jobs:
 
       - name: 'Test on [freebsd] arch [386, amd64]'
         if: ${{ matrix.os == 'freebsd' && contains(fromJson('["386", "amd64"]'), matrix.arch) }}
-        uses: vmactions/freebsd-vm@v0
+        uses: vmactions/freebsd-vm@v1
         with:
           run: ./routine.test -test.v -test.coverprofile="coverage.txt"
 
