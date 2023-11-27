@@ -79,8 +79,8 @@ import (
 	"github.com/timandy/routine"
 )
 
-var threadLocal = routine.NewThreadLocal()
-var inheritableThreadLocal = routine.NewInheritableThreadLocal()
+var threadLocal = routine.NewThreadLocal[string]()
+var inheritableThreadLocal = routine.NewInheritableThreadLocal[string]()
 
 func main() {
 	threadLocal.Set("hello world")
@@ -117,11 +117,11 @@ The execution result is:
 ```text
 threadLocal: hello world
 inheritableThreadLocal: Hello world2
-threadLocal in goroutine: <nil>
-inheritableThreadLocal in goroutine: <nil>
-threadLocal in goroutine by Go: <nil>
+threadLocal in goroutine:
+inheritableThreadLocal in goroutine:
+threadLocal in goroutine by Go:
 inheritableThreadLocal in goroutine by Go: Hello world2
-threadLocal in task by WrapTask: <nil>
+threadLocal in task by WrapTask:
 inheritableThreadLocal in task by WrapTask: Hello world2
 ```
 
@@ -135,41 +135,41 @@ Get the `goid` of the current `goroutine`.
 
 It can be obtained directly through assembly code under `386`, `amd64`, `armv6`, `armv7`, `arm64`, `loong64`, `mips`, `mipsle`, `mips64`, `mips64le`, `ppc64`, `ppc64le`, `riscv64`, `s390x`, `wasm` architectures. This operation has extremely high performance and the time-consuming is usually only one-fifth of `rand.Int()`.
 
-## `NewThreadLocal() ThreadLocal`
+## `NewThreadLocal[T any]() ThreadLocal[T]`
 
-Create a new `ThreadLocal` instance with the initial value stored with `nil`.
+Create a new `ThreadLocal[T]` instance with the initial value stored with the default value of type `T`.
 
-## `NewThreadLocalWithInitial(supplier Supplier) ThreadLocal`
+## `NewThreadLocalWithInitial[T any](supplier Supplier[T]) ThreadLocal[T]`
 
-Create a new `ThreadLocal` instance with the initial value stored as the return value of the method `supplier()`.
+Create a new `ThreadLocal[T]` instance with the initial value stored as the return value of the method `supplier()`.
 
-## `NewInheritableThreadLocal() ThreadLocal`
+## `NewInheritableThreadLocal[T any]() ThreadLocal[T]`
 
-Create a new `ThreadLocal` instance with the initial value stored with `nil`.
+Create a new `ThreadLocal[T]` instance with the initial value stored with the default value of type `T`.
 When a new coroutine is started via `Go()`, `GoWait()` or `GoWaitResult()`, the value of the current coroutine is copied to the new coroutine.
 When a new task is created via `WrapTask()`, `WrapWaitTask()` or `WrapWaitResultTask()`, the value of the current coroutine is captured to the new task.
 
-## `NewInheritableThreadLocalWithInitial(supplier Supplier) ThreadLocal`
+## `NewInheritableThreadLocalWithInitial[T any](supplier Supplier[T]) ThreadLocal[T]`
 
-Create a new `ThreadLocal` instance with the initial value stored as the return value of the method `supplier()`.
+Create a new `ThreadLocal[T]` instance with the initial value stored as the return value of the method `supplier()`.
 When a new coroutine is started via `Go()`, `GoWait()` or `GoWaitResult()`, the value of the current coroutine is copied to the new coroutine.
 When a new task is created via `WrapTask()`, `WrapWaitTask()` or `WrapWaitResultTask()`, the value of the current coroutine is captured to the new task.
 
-## `WrapTask(fun Runnable) FutureTask`
+## `WrapTask(fun Runnable) FutureTask[any]`
 
 Create a new task and capture the `inheritableThreadLocals` from the current goroutine.
 This function returns a `FutureTask` instance, but the return task will not run automatically.
 You can run it in a sub-goroutine or goroutine-pool by `FutureTask.Run()` method, wait by `FutureTask.Get()` or `FutureTask.GetWithTimeout()` method.
 When the returned task run `panic` will be caught and error stack will be printed, the `panic` will be trigger again when calling `FutureTask.Get()` or `FutureTask.GetWithTimeout()` method.
 
-## `WrapWaitTask(fun CancelRunnable) FutureTask`
+## `WrapWaitTask(fun CancelRunnable) FutureTask[any]`
 
 Create a new task and capture the `inheritableThreadLocals` from the current goroutine.
 This function returns a `FutureTask` instance, but the return task will not run automatically.
 You can run it in a sub-goroutine or goroutine-pool by `FutureTask.Run()` method, wait by `FutureTask.Get()` or `FutureTask.GetWithTimeout()` method.
 When the returned task run `panic` will be caught, the `panic` will be trigger again when calling `FutureTask.Get()` or `FutureTask.GetWithTimeout()` method.
 
-## `WrapWaitResultTask(fun CancelCallable) FutureTask`
+## `WrapWaitResultTask[TResult any](fun CancelCallable[TResult]) FutureTask[TResult]`
 
 Create a new task and capture the `inheritableThreadLocals` from the current goroutine.
 This function returns a `FutureTask` instance, but the return task will not run automatically.
@@ -181,13 +181,13 @@ When the returned task run `panic` will be caught, the `panic` will be trigger a
 Start a new coroutine and automatically copy all contextual `inheritableThreadLocals` data of the current coroutine to the new coroutine.
 Any `panic` while the child coroutine is executing will be caught and the stack automatically printed.
 
-## `GoWait(fun CancelRunnable) FutureTask`
+## `GoWait(fun CancelRunnable) FutureTask[any]`
 
 Start a new coroutine and automatically copy all contextual `inheritableThreadLocals` data of the current coroutine to the new coroutine.
 You can wait for the sub-coroutine to finish executing through the `FutureTask.Get()` or `FutureTask.GetWithTimeout()` method that returns a value.
 Any `panic` while the child coroutine is executing will be caught and thrown again when `FutureTask.Get()` or `FutureTask.GetWithTimeout()` is called.
 
-## `GoWaitResult(fun CancelCallable) FutureTask`
+## `GoWaitResult[TResult any](fun CancelCallable[TResult]) FutureTask[TResult]`
 
 Start a new coroutine and automatically copy all contextual `inheritableThreadLocals` data of the current coroutine to the new coroutine.
 You can wait for the sub-coroutine to finish executing and get the return value through the `FutureTask.Get()` or `FutureTask.GetWithTimeout()` method of the return value.
