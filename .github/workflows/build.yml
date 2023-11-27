@@ -327,7 +327,7 @@ jobs:
         if: ${{ matrix.os == 'js' && contains(fromJson('["wasm"]'), matrix.arch) }}
         uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          node-version: 18
 
       - name: 'Test on [js] arch [wasm]'
         if: ${{ matrix.os == 'js' && contains(fromJson('["wasm"]'), matrix.arch) }}
