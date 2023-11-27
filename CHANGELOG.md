@@ -1,5 +1,18 @@
 <!--变更日志-->
 
+# v1.1.3 Release notes
+
+### Features
+
+- Support go version range `go1.18` ~ `go1.21`.
+- Support `generic` programming.
+
+# Links
+
+- Source code [https://github.com/timandy/routine/tree/v1.1.3](https://github.com/timandy/routine/tree/v1.1.3)
+
+---
+
 # v1.1.2 Release notes
 
 ### Features
