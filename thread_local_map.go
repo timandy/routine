@@ -1,16 +1,16 @@
 package routine
 
-var unset any = &object{}
+var unset entry = &object{}
 
 type object struct {
 	none bool //nolint:unused
 }
 
 type threadLocalMap struct {
-	table []any
+	table []entry
 }
 
-func (mp *threadLocalMap) get(index int) any {
+func (mp *threadLocalMap) get(index int) entry {
 	lookup := mp.table
 	if index < len(lookup) {
 		return lookup[index]
@@ -18,7 +18,7 @@ func (mp *threadLocalMap) get(index int) any {
 	return unset
 }
 
-func (mp *threadLocalMap) set(index int, value any) {
+func (mp *threadLocalMap) set(index int, value entry) {
 	lookup := mp.table
 	if index < len(lookup) {
 		lookup[index] = value
@@ -34,7 +34,7 @@ func (mp *threadLocalMap) remove(index int) {
 	}
 }
 
-func (mp *threadLocalMap) expandAndSet(index int, value any) {
+func (mp *threadLocalMap) expandAndSet(index int, value entry) {
 	oldArray := mp.table
 	oldCapacity := len(oldArray)
 	newCapacity := index
@@ -45,7 +45,7 @@ func (mp *threadLocalMap) expandAndSet(index int, value any) {
 	newCapacity |= newCapacity >> 16
 	newCapacity++
 
-	newArray := make([]any, newCapacity)
+	newArray := make([]entry, newCapacity)
 	copy(newArray, oldArray)
 	fill(newArray, oldCapacity, newCapacity, unset)
 	newArray[index] = value
@@ -65,11 +65,11 @@ func createInheritedMap() *threadLocalMap {
 	if lookup == nil {
 		return nil
 	}
-	table := make([]any, len(lookup))
+	table := make([]entry, len(lookup))
 	copy(table, lookup)
 	for i := 0; i < len(table); i++ {
-		if c, ok := table[i].(Cloneable); ok {
-			table[i] = c.Clone()
+		if c, ok := entryAssert[Cloneable](table[i]); ok {
+			table[i] = entry(c.Clone())
 		}
 	}
 	return &threadLocalMap{table: table}

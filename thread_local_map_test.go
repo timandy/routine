@@ -9,11 +9,14 @@ import (
 )
 
 func TestObject(t *testing.T) {
-	var value any = &object{}
+	var value entry = &object{}
 	assert.NotSame(t, unset, value)
 	//
-	var value2 any = &object{}
-	assert.NotSame(t, value2, value)
+	var value2 entry = &object{}
+	assert.NotSame(t, value, value2)
+	//
+	var value3 any = unset
+	assert.Same(t, unset, value3)
 }
 
 func TestCreateInheritedMap(t *testing.T) {
@@ -41,14 +44,14 @@ func TestCreateInheritedMap_Nil(t *testing.T) {
 
 	mp := createInheritedMap()
 	assert.NotNil(t, mp)
-	getValue := mp.get(tls.(*inheritableThreadLocal[string]).index)
+	getValue := entryValue[string](mp.get(tls.(*inheritableThreadLocal[string]).index))
 	assert.Equal(t, "", getValue)
 	assert.True(t, getValue == "")
 
 	mp2 := createInheritedMap()
 	assert.NotNil(t, mp2)
 	assert.NotSame(t, mp, mp2)
-	getValue2 := mp2.get(tls.(*inheritableThreadLocal[string]).index)
+	getValue2 := entryValue[string](mp2.get(tls.(*inheritableThreadLocal[string]).index))
 	assert.Equal(t, "", getValue2)
 	assert.True(t, getValue2 == "")
 }
@@ -63,14 +66,14 @@ func TestCreateInheritedMap_Value(t *testing.T) {
 
 	mp := createInheritedMap()
 	assert.NotNil(t, mp)
-	getValue := mp.get(tls.(*inheritableThreadLocal[uint64]).index)
+	getValue := entryValue[uint64](mp.get(tls.(*inheritableThreadLocal[uint64]).index))
 	assert.NotSame(t, &value, &getValue)
 	assert.Equal(t, value, getValue)
 
 	mp2 := createInheritedMap()
 	assert.NotNil(t, mp2)
 	assert.NotSame(t, mp, mp2)
-	getValue2 := mp2.get(tls.(*inheritableThreadLocal[uint64]).index)
+	getValue2 := entryValue[uint64](mp2.get(tls.(*inheritableThreadLocal[uint64]).index))
 	assert.NotSame(t, &value, &getValue2)
 	assert.Equal(t, value, getValue2)
 }
@@ -85,14 +88,14 @@ func TestCreateInheritedMap_Struct(t *testing.T) {
 
 	mp := createInheritedMap()
 	assert.NotNil(t, mp)
-	getValue := mp.get(tls.(*inheritableThreadLocal[personCloneable]).index)
+	getValue := entryValue[personCloneable](mp.get(tls.(*inheritableThreadLocal[personCloneable]).index))
 	assert.NotSame(t, &value, &getValue)
 	assert.Equal(t, value, getValue)
 
 	mp2 := createInheritedMap()
 	assert.NotNil(t, mp2)
 	assert.NotSame(t, mp, mp2)
-	getValue2 := mp2.get(tls.(*inheritableThreadLocal[personCloneable]).index)
+	getValue2 := entryValue[personCloneable](mp2.get(tls.(*inheritableThreadLocal[personCloneable]).index))
 	assert.NotSame(t, &value, &getValue2)
 	assert.Equal(t, value, getValue2)
 }
@@ -107,14 +110,14 @@ func TestCreateInheritedMap_Pointer(t *testing.T) {
 
 	mp := createInheritedMap()
 	assert.NotNil(t, mp)
-	getValue := mp.get(tls.(*inheritableThreadLocal[*person]).index).(*person)
+	getValue := entryValue[*person](mp.get(tls.(*inheritableThreadLocal[*person]).index))
 	assert.Same(t, value, getValue)
 	assert.Equal(t, *value, *getValue)
 
 	mp2 := createInheritedMap()
 	assert.NotNil(t, mp2)
 	assert.NotSame(t, mp, mp2)
-	getValue2 := mp2.get(tls.(*inheritableThreadLocal[*person]).index).(*person)
+	getValue2 := entryValue[*person](mp2.get(tls.(*inheritableThreadLocal[*person]).index))
 	assert.Same(t, value, getValue2)
 	assert.Equal(t, *value, *getValue2)
 }
@@ -129,20 +132,20 @@ func TestCreateInheritedMap_Cloneable(t *testing.T) {
 
 	mp := createInheritedMap()
 	assert.NotNil(t, mp)
-	getValue := mp.get(tls.(*inheritableThreadLocal[*personCloneable]).index).(*personCloneable)
+	getValue := entryValue[*personCloneable](mp.get(tls.(*inheritableThreadLocal[*personCloneable]).index))
 	assert.NotSame(t, value, getValue)
 	assert.Equal(t, *value, *getValue)
 
 	mp2 := createInheritedMap()
 	assert.NotNil(t, mp2)
 	assert.NotSame(t, mp, mp2)
-	getValue2 := mp2.get(tls.(*inheritableThreadLocal[*personCloneable]).index).(*personCloneable)
+	getValue2 := entryValue[*personCloneable](mp2.get(tls.(*inheritableThreadLocal[*personCloneable]).index))
 	assert.NotSame(t, value, getValue2)
 	assert.Equal(t, *value, *getValue2)
 }
 
 func TestFill(t *testing.T) {
-	a := make([]any, 6)
+	a := make([]entry, 6)
 	fill(a, 4, 5, unset)
 	for i := 0; i < 6; i++ {
 		if i == 4 {
