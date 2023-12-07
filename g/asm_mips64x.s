@@ -1,4 +1,4 @@
-// Copyright 2023 TimAndy. All rights reserved.
+// Copyright 2021-2024 TimAndy. All rights reserved.
 // Licensed under the Apache-2.0 license that can be found in the LICENSE file.
 
 //go:build mips64 || mips64le
