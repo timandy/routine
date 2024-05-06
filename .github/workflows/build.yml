@@ -25,9 +25,6 @@ jobs:
 
       - name: Lint
         uses: golangci/golangci-lint-action@v5
-        with:
-          skip-pkg-cache: true
-          skip-build-cache: true
 
   CodeQL:
     needs: Lint
