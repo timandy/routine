@@ -222,6 +222,7 @@ jobs:
           GOARCH: ${{ matrix.arch }}
         run: |
           echo ${CGO_ENABLED}
+          go env CGO_ENABLED
           go test -v -race -coverprofile="coverage.txt" -covermode=atomic ./...
 
       # linux
@@ -239,6 +240,7 @@ jobs:
           GOARCH: ${{ matrix.arch }}
         run: |
           echo ${CGO_ENABLED}
+          go env CGO_ENABLED
           go test -v -race -coverprofile="coverage.txt" -covermode=atomic ./...
 
       - name: 'Setup qemu-user-static on [linux] arch [armv6, armv7, arm64, mips, mipsle, mips64, mips64le, ppc64, ppc64le, riscv64, s390x]'
@@ -309,6 +311,7 @@ jobs:
           GOARCH: ${{ matrix.arch }}
         run: |
           echo %CGO_ENABLED%
+          go env CGO_ENABLED
           go test -v -race -coverprofile="coverage.txt" -covermode=atomic ./...
 
       # freebsd
