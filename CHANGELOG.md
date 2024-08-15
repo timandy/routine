@@ -1,5 +1,22 @@
 <!--变更日志-->
 
+# v1.1.4 Release notes
+
+### Features
+
+- Support go version range `go1.18` ~ `go1.23`(New support `go1.23`).
+
+### Changes
+
+- Fix interface conversion error: getting nil value from ThreadLocal[T], where T is interface type.
+- Update copyright.
+
+# Links
+
+- Source code [https://github.com/timandy/routine/tree/v1.1.4](https://github.com/timandy/routine/tree/v1.1.4)
+
+---
+
 # v1.1.3 Release notes
 
 ### Features
