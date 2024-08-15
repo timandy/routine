@@ -8,9 +8,13 @@ import (
 	"sync"
 	"sync/atomic"
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/assert"
 )
+
+//go:linkname packEface github.com/timandy/routine/g.packEface
+func packEface(typ reflect.Type, p unsafe.Pointer) (i any)
 
 func TestGetgp(t *testing.T) {
 	gp0 := getgp()
@@ -22,15 +26,6 @@ func TestGetgp(t *testing.T) {
 		runtime.GC()
 		assert.NotNil(t, gp)
 		assert.NotEqual(t, gp0, gp)
-	})
-}
-
-func TestGetg0(t *testing.T) {
-	runTest(t, func() {
-		g0 := getg0()
-		runtime.GC()
-		stackguard0 := reflect.ValueOf(g0).FieldByName("stackguard0")
-		assert.Greater(t, stackguard0.Uint(), uint64(0))
 	})
 }
 
@@ -70,6 +65,15 @@ func TestGetgt(t *testing.T) {
 		assert.Equal(t, offsetPaniconfault, offset(tt, "paniconfault"))
 		assert.Equal(t, offsetGopc, offset(tt, "gopc"))
 		assert.Equal(t, offsetLabels, offset(tt, "labels"))
+	})
+}
+
+func TestGetg(t *testing.T) {
+	runTest(t, func() {
+		g0 := packEface(getgt(), getgp())
+		runtime.GC()
+		stackguard0 := reflect.ValueOf(g0).FieldByName("stackguard0")
+		assert.Greater(t, stackguard0.Uint(), uint64(0))
 	})
 }
 

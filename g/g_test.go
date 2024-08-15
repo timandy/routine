@@ -1,4 +1,4 @@
-// Copyright 2023 TimAndy. All rights reserved.
+// Copyright 2021-2024 TimAndy. All rights reserved.
 // Licensed under the Apache-2.0 license that can be found in the LICENSE file.
 
 package g
@@ -25,15 +25,6 @@ func TestGetgp(t *testing.T) {
 	})
 }
 
-func TestGetg0(t *testing.T) {
-	runTest(t, func() {
-		g := getg0()
-		runtime.GC()
-		stackguard0 := reflect.ValueOf(g).FieldByName("stackguard0")
-		assert.Greater(t, stackguard0.Uint(), uint64(0))
-	})
-}
-
 func TestGetgt(t *testing.T) {
 	runTest(t, func() {
 		gt := getgt()
@@ -41,6 +32,15 @@ func TestGetgt(t *testing.T) {
 		assert.Equal(t, "g", gt.Name())
 		//
 		assert.Greater(t, gt.NumField(), 20)
+	})
+}
+
+func TestGetg(t *testing.T) {
+	runTest(t, func() {
+		g := packEface(getgt(), getgp())
+		runtime.GC()
+		stackguard0 := reflect.ValueOf(g).FieldByName("stackguard0")
+		assert.Greater(t, stackguard0.Uint(), uint64(0))
 	})
 }
 

@@ -1,13 +1,18 @@
 package routine
 
 import (
+	"bytes"
+	"fmt"
 	"reflect"
 	"runtime"
+	"strconv"
 	"testing"
 	"unsafe"
 
 	"github.com/stretchr/testify/assert"
 )
+
+var goroutineSpace = []byte("goroutine ")
 
 func TestG_Goid(t *testing.T) {
 	runTest(t, func() {
@@ -97,9 +102,22 @@ func TestOffset(t *testing.T) {
 }
 
 // curGoroutineID parse the current g's goid from caller stack.
-//
-//go:linkname curGoroutineID net/http.http2curGoroutineID
-func curGoroutineID() int64
+func curGoroutineID() int64 {
+	b := make([]byte, 64)
+	b = b[:runtime.Stack(b, false)]
+	// Parse the 4707 out of "goroutine 4707 ["
+	b = bytes.TrimPrefix(b, goroutineSpace)
+	i := bytes.IndexByte(b, ' ')
+	if i < 0 {
+		panic(fmt.Sprintf("No space found in %q", b))
+	}
+	b = b[:i]
+	n, err := strconv.ParseInt(string(b), 10, 64)
+	if err != nil {
+		panic(fmt.Sprintf("Failed to parse goroutine ID out of %q: %v", b, err))
+	}
+	return n
+}
 
 // setPanicOnFault controls the runtime's behavior when a program faults at an unexpected (non-nil) address.
 //

@@ -1,4 +1,4 @@
-// Copyright 2023 TimAndy. All rights reserved.
+// Copyright 2021-2024 TimAndy. All rights reserved.
 // Licensed under the Apache-2.0 license that can be found in the LICENSE file.
 
 package g
@@ -31,7 +31,7 @@ func typelinks() (sections []unsafe.Pointer, offset [][]int32)
 func resolveTypeOff(rtype unsafe.Pointer, off int32) unsafe.Pointer
 
 // packEface returns an empty interface representing a value of the specified type, using p as the pointer to the data.
-func packEface(typ reflect.Type, p unsafe.Pointer) (i interface{}) {
+func packEface(typ reflect.Type, p unsafe.Pointer) (i any) {
 	t := (*iface)(unsafe.Pointer(&typ))
 	e := (*eface)(unsafe.Pointer(&i))
 	e._type = t.data
