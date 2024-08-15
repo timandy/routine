@@ -22,6 +22,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+          cache: false
 
       - name: Lint
         uses: golangci/golangci-lint-action@v6
@@ -40,6 +41,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+          cache: false
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
@@ -216,6 +218,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
+          cache: false
 
       # darwin
       - name: 'Test on [darwin] arch [amd64]'
