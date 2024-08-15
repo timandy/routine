@@ -8,11 +8,11 @@ import (
 
 func TestCloneable(t *testing.T) {
 	//struct can not be cast to interface
-	var value interface{} = personCloneable{Id: 1, Name: "Hello"}
+	var value any = personCloneable{Id: 1, Name: "Hello"}
 	_, ok := value.(Cloneable)
 	assert.False(t, ok)
 	//pointer can be cast to interface
-	var pointer interface{} = &personCloneable{Id: 1, Name: "Hello"}
+	var pointer any = &personCloneable{Id: 1, Name: "Hello"}
 	_, ok2 := pointer.(Cloneable)
 	assert.True(t, ok2)
 }
