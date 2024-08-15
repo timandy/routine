@@ -24,7 +24,7 @@ func (tls *threadLocal[T]) Get() T {
 	if mp != nil {
 		v := mp.get(tls.index)
 		if v != unset {
-			return v.(T)
+			return entryValue[T](v)
 		}
 	}
 	return tls.setInitialValue(t)
@@ -34,7 +34,7 @@ func (tls *threadLocal[T]) Set(value T) {
 	t := currentThread(true)
 	mp := tls.getMap(t)
 	if mp != nil {
-		mp.set(tls.index, value)
+		mp.set(tls.index, entry(value))
 	} else {
 		tls.createMap(t, value)
 	}
@@ -57,7 +57,7 @@ func (tls *threadLocal[T]) getMap(t *thread) *threadLocalMap {
 
 func (tls *threadLocal[T]) createMap(t *thread, firstValue T) {
 	mp := &threadLocalMap{}
-	mp.set(tls.index, firstValue)
+	mp.set(tls.index, entry(firstValue))
 	t.threadLocals = mp
 }
 
@@ -65,7 +65,7 @@ func (tls *threadLocal[T]) setInitialValue(t *thread) T {
 	value := tls.initialValue()
 	mp := tls.getMap(t)
 	if mp != nil {
-		mp.set(tls.index, value)
+		mp.set(tls.index, entry(value))
 	} else {
 		tls.createMap(t, value)
 	}

@@ -101,6 +101,52 @@ func TestNewThreadLocal_Concurrency(t *testing.T) {
 	task.Get()
 }
 
+func TestNewThreadLocal_Interface(t *testing.T) {
+	tls := NewThreadLocal[Cloneable]()
+	tls2 := NewThreadLocal[Cloneable]()
+	//
+	assert.Nil(t, tls.Get())
+	assert.Nil(t, tls2.Get())
+	//
+	tls.Set(nil)
+	tls2.Set(nil)
+	assert.Nil(t, tls.Get())
+	assert.Nil(t, tls2.Get())
+	//
+	tls.Set(&personCloneable{Id: 1, Name: "Hello"})
+	tls2.Set(&personCloneable{Id: 1, Name: "Hello"})
+	assert.NotNil(t, tls.Get())
+	assert.NotNil(t, tls2.Get())
+	//
+	tls.Remove()
+	tls2.Remove()
+	assert.Nil(t, tls.Get())
+	assert.Nil(t, tls2.Get())
+}
+
+func TestNewThreadLocal_Pointer(t *testing.T) {
+	tls := NewThreadLocal[*personCloneable]()
+	tls2 := NewThreadLocal[*personCloneable]()
+	//
+	assert.Nil(t, tls.Get())
+	assert.Nil(t, tls2.Get())
+	//
+	tls.Set(nil)
+	tls2.Set(nil)
+	assert.Nil(t, tls.Get())
+	assert.Nil(t, tls2.Get())
+	//
+	tls.Set(&personCloneable{Id: 1, Name: "Hello"})
+	tls2.Set(&personCloneable{Id: 1, Name: "Hello"})
+	assert.NotNil(t, tls.Get())
+	assert.NotNil(t, tls2.Get())
+	//
+	tls.Remove()
+	tls2.Remove()
+	assert.Nil(t, tls.Get())
+	assert.Nil(t, tls2.Get())
+}
+
 //===
 
 func TestNewThreadLocalWithInitial_Single(t *testing.T) {
@@ -189,6 +235,60 @@ func TestNewThreadLocalWithInitial_Concurrency(t *testing.T) {
 	task.Get()
 }
 
+func TestNewThreadLocalWithInitial_Interface(t *testing.T) {
+	tls := NewThreadLocalWithInitial[Cloneable](func() Cloneable {
+		return nil
+	})
+	tls2 := NewThreadLocalWithInitial[Cloneable](func() Cloneable {
+		return nil
+	})
+	//
+	assert.Nil(t, tls.Get())
+	assert.Nil(t, tls2.Get())
+	//
+	tls.Set(nil)
+	tls2.Set(nil)
+	assert.Nil(t, tls.Get())
+	assert.Nil(t, tls2.Get())
+	//
+	tls.Set(&personCloneable{Id: 1, Name: "Hello"})
+	tls2.Set(&personCloneable{Id: 1, Name: "Hello"})
+	assert.NotNil(t, tls.Get())
+	assert.NotNil(t, tls2.Get())
+	//
+	tls.Remove()
+	tls2.Remove()
+	assert.Nil(t, tls.Get())
+	assert.Nil(t, tls2.Get())
+}
+
+func TestNewThreadLocalWithInitial_Pointer(t *testing.T) {
+	tls := NewThreadLocalWithInitial[*personCloneable](func() *personCloneable {
+		return nil
+	})
+	tls2 := NewThreadLocalWithInitial[*personCloneable](func() *personCloneable {
+		return nil
+	})
+	//
+	assert.Nil(t, tls.Get())
+	assert.Nil(t, tls2.Get())
+	//
+	tls.Set(nil)
+	tls2.Set(nil)
+	assert.Nil(t, tls.Get())
+	assert.Nil(t, tls2.Get())
+	//
+	tls.Set(&personCloneable{Id: 1, Name: "Hello"})
+	tls2.Set(&personCloneable{Id: 1, Name: "Hello"})
+	assert.NotNil(t, tls.Get())
+	assert.NotNil(t, tls2.Get())
+	//
+	tls.Remove()
+	tls2.Remove()
+	assert.Nil(t, tls.Get())
+	assert.Nil(t, tls2.Get())
+}
+
 //===
 
 func TestNewInheritableThreadLocal_Single(t *testing.T) {
@@ -265,6 +365,52 @@ func TestNewInheritableThreadLocal_Concurrency(t *testing.T) {
 		assert.Equal(t, uint64(33), tls2.Get())
 	})
 	task.Get()
+}
+
+func TestNewInheritableThreadLocal_Interface(t *testing.T) {
+	tls := NewInheritableThreadLocal[Cloneable]()
+	tls2 := NewInheritableThreadLocal[Cloneable]()
+	//
+	assert.Nil(t, tls.Get())
+	assert.Nil(t, tls2.Get())
+	//
+	tls.Set(nil)
+	tls2.Set(nil)
+	assert.Nil(t, tls.Get())
+	assert.Nil(t, tls2.Get())
+	//
+	tls.Set(&personCloneable{Id: 1, Name: "Hello"})
+	tls2.Set(&personCloneable{Id: 1, Name: "Hello"})
+	assert.NotNil(t, tls.Get())
+	assert.NotNil(t, tls2.Get())
+	//
+	tls.Remove()
+	tls2.Remove()
+	assert.Nil(t, tls.Get())
+	assert.Nil(t, tls2.Get())
+}
+
+func TestNewInheritableThreadLocal_Pointer(t *testing.T) {
+	tls := NewInheritableThreadLocal[*personCloneable]()
+	tls2 := NewInheritableThreadLocal[*personCloneable]()
+	//
+	assert.Nil(t, tls.Get())
+	assert.Nil(t, tls2.Get())
+	//
+	tls.Set(nil)
+	tls2.Set(nil)
+	assert.Nil(t, tls.Get())
+	assert.Nil(t, tls2.Get())
+	//
+	tls.Set(&personCloneable{Id: 1, Name: "Hello"})
+	tls2.Set(&personCloneable{Id: 1, Name: "Hello"})
+	assert.NotNil(t, tls.Get())
+	assert.NotNil(t, tls2.Get())
+	//
+	tls.Remove()
+	tls2.Remove()
+	assert.Nil(t, tls.Get())
+	assert.Nil(t, tls2.Get())
 }
 
 //===
@@ -353,6 +499,60 @@ func TestNewInheritableThreadLocalWithInitial_Concurrency(t *testing.T) {
 		assert.Equal(t, uint64(33), tls2.Get())
 	})
 	task.Get()
+}
+
+func TestNewInheritableThreadLocalWithInitial_Interface(t *testing.T) {
+	tls := NewInheritableThreadLocalWithInitial[Cloneable](func() Cloneable {
+		return nil
+	})
+	tls2 := NewInheritableThreadLocalWithInitial[Cloneable](func() Cloneable {
+		return nil
+	})
+	//
+	assert.Nil(t, tls.Get())
+	assert.Nil(t, tls2.Get())
+	//
+	tls.Set(nil)
+	tls2.Set(nil)
+	assert.Nil(t, tls.Get())
+	assert.Nil(t, tls2.Get())
+	//
+	tls.Set(&personCloneable{Id: 1, Name: "Hello"})
+	tls2.Set(&personCloneable{Id: 1, Name: "Hello"})
+	assert.NotNil(t, tls.Get())
+	assert.NotNil(t, tls2.Get())
+	//
+	tls.Remove()
+	tls2.Remove()
+	assert.Nil(t, tls.Get())
+	assert.Nil(t, tls2.Get())
+}
+
+func TestNewInheritableThreadLocalWithInitial_Pointer(t *testing.T) {
+	tls := NewInheritableThreadLocalWithInitial[*personCloneable](func() *personCloneable {
+		return nil
+	})
+	tls2 := NewInheritableThreadLocalWithInitial[*personCloneable](func() *personCloneable {
+		return nil
+	})
+	//
+	assert.Nil(t, tls.Get())
+	assert.Nil(t, tls2.Get())
+	//
+	tls.Set(nil)
+	tls2.Set(nil)
+	assert.Nil(t, tls.Get())
+	assert.Nil(t, tls2.Get())
+	//
+	tls.Set(&personCloneable{Id: 1, Name: "Hello"})
+	tls2.Set(&personCloneable{Id: 1, Name: "Hello"})
+	assert.NotNil(t, tls.Get())
+	assert.NotNil(t, tls2.Get())
+	//
+	tls.Remove()
+	tls2.Remove()
+	assert.Nil(t, tls.Get())
+	assert.Nil(t, tls2.Get())
 }
 
 //===
