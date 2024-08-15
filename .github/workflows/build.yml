@@ -67,6 +67,10 @@ jobs:
             arch: armv7
           - os: darwin
             arch: arm64
+            go: 1.18
+          - os: darwin
+            arch: arm64
+            go: 1.19
           - os: darwin
             arch: loong64
           - os: darwin
@@ -197,6 +201,9 @@ jobs:
         include:
           # combine runs on
           - os: darwin
+            runs-on: macos-13
+          - os: darwin
+            arch: arm64
             runs-on: macos-latest
           - os: linux
             runs-on: ubuntu-latest
@@ -220,6 +227,13 @@ jobs:
       # darwin
       - name: 'Test on [darwin] arch [amd64]'
         if: ${{ matrix.os == 'darwin' && contains(fromJson('["amd64"]'), matrix.arch) }}
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+        run: go test -v -race -coverprofile="coverage.txt" -covermode=atomic ./...
+
+      - name: 'Test on [darwin] arch [arm64]'
+        if: ${{ matrix.os == 'darwin' && contains(fromJson('["arm64"]'), matrix.arch) }}
         env:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
