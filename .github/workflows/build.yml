@@ -66,12 +66,6 @@ jobs:
           - os: darwin
             arch: armv7
           - os: darwin
-            arch: arm64
-            go: 1.18
-          - os: darwin
-            arch: arm64
-            go: 1.19
-          - os: darwin
             arch: loong64
           - os: darwin
             arch: mips
@@ -94,25 +88,7 @@ jobs:
           # linux excludes
           - os: linux
             arch: loong64
-            go: 1.13
-          - os: linux
-            arch: loong64
-            go: 1.14
-          - os: linux
-            arch: loong64
-            go: 1.15
-          - os: linux
-            arch: loong64
-            go: 1.16
-          - os: linux
-            arch: loong64
-            go: 1.17
-          - os: linux
-            arch: loong64
             go: 1.18
-          - os: linux
-            arch: riscv64
-            go: 1.13
           - os: linux
             arch: wasm
           # windows excludes
