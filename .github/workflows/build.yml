@@ -335,7 +335,7 @@ jobs:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
         run: |
-          eval "$(go env | grep GOROOT)"
+          GOROOT=$(go env GOROOT)
           PATH=$PATH:"${GOROOT}/misc/wasm"
           go test -v -coverprofile="coverage.txt" -covermode=atomic ./...
 
