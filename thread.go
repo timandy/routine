@@ -5,18 +5,18 @@ import (
 	"unsafe"
 )
 
-const threadMagic = int64('r')<<48 |
-	int64('o')<<40 |
-	int64('u')<<32 |
-	int64('t')<<24 |
-	int64('i')<<16 |
-	int64('n')<<8 |
-	int64('e')
+const threadMagic = uint64('r')<<48 |
+	uint64('o')<<40 |
+	uint64('u')<<32 |
+	uint64('t')<<24 |
+	uint64('i')<<16 |
+	uint64('n')<<8 |
+	uint64('e')
 
 type thread struct {
 	labels                  map[string]string //pprof
-	magic                   int64             //mark
-	id                      int64             //goid
+	magic                   uint64            //mark
+	id                      uint64            //goid
 	threadLocals            *threadLocalMap
 	inheritableThreadLocals *threadLocalMap
 }
@@ -79,7 +79,7 @@ func currentThread(create bool) *thread {
 //
 //go:norace
 //go:nocheckptr
-func extractThread(gp *g, label unsafe.Pointer) (t *thread, magic int64, id int64) {
+func extractThread(gp *g, label unsafe.Pointer) (t *thread, magic uint64, id uint64) {
 	old := gp.setPanicOnFault(true)
 	defer func() {
 		gp.setPanicOnFault(old)

@@ -25,8 +25,8 @@ type g struct {
 }
 
 //go:norace
-func (g *g) goid() int64 {
-	return *(*int64)(add(unsafe.Pointer(g), offsetGoid))
+func (g *g) goid() uint64 {
+	return *(*uint64)(add(unsafe.Pointer(g), offsetGoid))
 }
 
 //go:norace
