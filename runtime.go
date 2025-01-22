@@ -2,7 +2,7 @@ package routine
 
 import (
 	"reflect"
-	"unsafe"
+	_ "unsafe"
 
 	_ "github.com/timandy/routine/g"
 )
@@ -10,7 +10,7 @@ import (
 // getgp returns the pointer to the current runtime.g.
 //
 //go:linkname getgp github.com/timandy/routine/g.getgp
-func getgp() unsafe.Pointer
+func getgp() *g
 
 // getgt returns the type of runtime.g.
 //

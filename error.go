@@ -61,12 +61,12 @@ func runtimeErrorNew(cause any) (goid int64, gopc uintptr, msg string, stackTrac
 		}
 	}
 	gp := getg()
-	return gp.goid, *gp.gopc, msg, captureStackTrace(2, 100), runtimeErr
+	return gp.goid(), gp.gopc(), msg, captureStackTrace(2, 100), runtimeErr
 }
 
 func runtimeErrorNewWithMessage(message string) (goid int64, gopc uintptr, msg string, stackTrace []uintptr, innerErr RuntimeError) {
 	gp := getg()
-	return gp.goid, *gp.gopc, message, captureStackTrace(2, 100), nil
+	return gp.goid(), gp.gopc(), message, captureStackTrace(2, 100), nil
 }
 
 func runtimeErrorNewWithMessageCause(message string, cause any) (goid int64, gopc uintptr, msg string, stackTrace []uintptr, innerErr RuntimeError) {
@@ -85,7 +85,7 @@ func runtimeErrorNewWithMessageCause(message string, cause any) (goid int64, gop
 		}
 	}
 	gp := getg()
-	return gp.goid, *gp.gopc, message, captureStackTrace(2, 100), runtimeErr
+	return gp.goid(), gp.gopc(), message, captureStackTrace(2, 100), runtimeErr
 }
 
 func runtimeErrorError(re RuntimeError) string {

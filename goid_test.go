@@ -18,7 +18,7 @@ func TestG_Goid(t *testing.T) {
 	runTest(t, func() {
 		gp := getg()
 		runtime.GC()
-		assert.Equal(t, curGoroutineID(), gp.goid)
+		assert.Equal(t, curGoroutineID(), gp.goid())
 	})
 }
 
@@ -53,7 +53,7 @@ func TestG_Gopc(t *testing.T) {
 	runTest(t, func() {
 		gp := getg()
 		runtime.GC()
-		assert.Greater(t, int64(*gp.gopc), int64(0))
+		assert.Greater(t, int64(gp.gopc()), int64(0))
 	})
 }
 
@@ -143,8 +143,8 @@ func BenchmarkGohack(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		gp := getg()
-		_ = gp.goid
-		_ = gp.gopc
+		_ = gp.goid()
+		_ = gp.gopc()
 		_ = gp.getLabels()
 		_ = gp.getPanicOnFault()
 		gp.setLabels(nil)

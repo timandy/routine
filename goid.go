@@ -22,46 +22,48 @@ func init() {
 }
 
 type g struct {
-	goid         int64
-	paniconfault *bool
-	gopc         *uintptr
-	labels       *unsafe.Pointer
 }
 
 //go:norace
-func (gp g) getPanicOnFault() bool {
-	return *gp.paniconfault
+func (g *g) goid() int64 {
+	return *(*int64)(add(unsafe.Pointer(g), offsetGoid))
 }
 
 //go:norace
-func (gp g) setPanicOnFault(new bool) (old bool) {
-	old = *gp.paniconfault
-	*gp.paniconfault = new
+func (g *g) gopc() uintptr {
+	return *(*uintptr)(add(unsafe.Pointer(g), offsetGopc))
+}
+
+//go:norace
+func (g *g) getPanicOnFault() bool {
+	return *(*bool)(add(unsafe.Pointer(g), offsetPaniconfault))
+}
+
+//go:norace
+func (g *g) setPanicOnFault(new bool) (old bool) {
+	panicOnFault := (*bool)(add(unsafe.Pointer(g), offsetPaniconfault))
+	old = *panicOnFault
+	*panicOnFault = new
 	return old
 }
 
 //go:norace
-func (gp g) getLabels() unsafe.Pointer {
-	return *gp.labels
+func (g *g) getLabels() unsafe.Pointer {
+	return *(*unsafe.Pointer)(add(unsafe.Pointer(g), offsetLabels))
 }
 
 //go:norace
-func (gp g) setLabels(labels unsafe.Pointer) {
-	*gp.labels = labels
+func (g *g) setLabels(labels unsafe.Pointer) {
+	*(*unsafe.Pointer)(add(unsafe.Pointer(g), offsetLabels)) = labels
 }
 
 // getg returns current coroutine struct.
-func getg() g {
+func getg() *g {
 	gp := getgp()
 	if gp == nil {
 		panic("Failed to get gp from runtime natively.")
 	}
-	return g{
-		goid:         *(*int64)(add(gp, offsetGoid)),
-		paniconfault: (*bool)(add(gp, offsetPaniconfault)),
-		gopc:         (*uintptr)(add(gp, offsetGopc)),
-		labels:       (*unsafe.Pointer)(add(gp, offsetLabels)),
-	}
+	return gp
 }
 
 // offset returns the offset of the specified field.

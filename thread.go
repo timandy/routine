@@ -36,7 +36,7 @@ func (t *thread) finalize() {
 //go:nocheckptr
 func currentThread(create bool) *thread {
 	gp := getg()
-	goid := gp.goid
+	goid := gp.goid()
 	label := gp.getLabels()
 	//nothing inherited
 	if label == nil {
@@ -79,7 +79,7 @@ func currentThread(create bool) *thread {
 //
 //go:norace
 //go:nocheckptr
-func extractThread(gp g, label unsafe.Pointer) (t *thread, magic int64, id int64) {
+func extractThread(gp *g, label unsafe.Pointer) (t *thread, magic int64, id int64) {
 	old := gp.setPanicOnFault(true)
 	defer func() {
 		gp.setPanicOnFault(old)
