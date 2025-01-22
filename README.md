@@ -129,7 +129,7 @@ inheritableThreadLocal in task by WrapTask: Hello world2
 
 This chapter introduces in detail all the interfaces encapsulated by the `routine` library, as well as their core functions and implementation methods.
 
-## `Goid() int64`
+## `Goid() uint64`
 
 Get the `goid` of the current `goroutine`.
 
