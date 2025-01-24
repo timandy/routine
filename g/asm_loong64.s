@@ -8,7 +8,7 @@
 #include "go_asm.h"
 #include "textflag.h"
 
-TEXT ·getgp(SB), NOSPLIT, $0-8
+TEXT ·getg(SB), NOSPLIT, $0-8
     MOVV    g, R8
     MOVV    R8, ret+0(FP)
     RET

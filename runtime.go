@@ -9,10 +9,10 @@ import (
 
 // getgp returns the pointer to the current runtime.g.
 //
-//go:linkname getgp github.com/timandy/routine/g.getgp
+//go:linkname getgp runtime.getgp
 func getgp() *g
 
 // getgt returns the type of runtime.g.
 //
-//go:linkname getgt github.com/timandy/routine/g.getgt
+//go:linkname getgt runtime.getgt
 func getgt() reflect.Type
