@@ -22,7 +22,15 @@ func TestG_Goid(t *testing.T) {
 	})
 }
 
-func TestG_Paniconfault(t *testing.T) {
+func TestG_Gopc(t *testing.T) {
+	runTest(t, func() {
+		gp := getg()
+		runtime.GC()
+		assert.Greater(t, int64(gp.gopc()), int64(0))
+	})
+}
+
+func TestG_PanicOnFault(t *testing.T) {
 	runTest(t, func() {
 		gp := getg()
 		runtime.GC()
@@ -46,14 +54,6 @@ func TestG_Paniconfault(t *testing.T) {
 		assert.True(t, gp.getPanicOnFault())
 		//restore
 		gp.setPanicOnFault(false)
-	})
-}
-
-func TestG_Gopc(t *testing.T) {
-	runTest(t, func() {
-		gp := getg()
-		runtime.GC()
-		assert.Greater(t, int64(gp.gopc()), int64(0))
 	})
 }
 
