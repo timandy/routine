@@ -618,7 +618,11 @@ func TestGo_Error(t *testing.T) {
 	//
 	line = lines[2]
 	assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.inheritedTask.run()"))
-	assert.True(t, strings.HasSuffix(line, "routine.go:31"))
+	if routinexEnabled {
+		assert.True(t, strings.HasSuffix(line, "routine.go:42"))
+	} else {
+		assert.True(t, strings.HasSuffix(line, "routine.go:31"))
+	}
 	//
 	line = lines[3]
 	assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.(*futureTask[...]).Run()"))
@@ -724,11 +728,15 @@ func TestGoWait_Error(t *testing.T) {
 		//
 		line = lines[1]
 		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestGoWait_Error."))
-		assert.True(t, strings.HasSuffix(line, "api_routine_test.go:707"))
+		assert.True(t, strings.HasSuffix(line, "api_routine_test.go:711"))
 		//
 		line = lines[2]
 		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.inheritedWaitTask.run()"))
-		assert.True(t, strings.HasSuffix(line, "routine.go:70"))
+		if routinexEnabled {
+			assert.True(t, strings.HasSuffix(line, "routine.go:81"))
+		} else {
+			assert.True(t, strings.HasSuffix(line, "routine.go:70"))
+		}
 		//
 		line = lines[3]
 		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.(*futureTask[...]).Run()"))
@@ -826,11 +834,15 @@ func TestGoWaitResult_Error(t *testing.T) {
 		//
 		line = lines[1]
 		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestGoWaitResult_Error."))
-		assert.True(t, strings.HasSuffix(line, "api_routine_test.go:807"))
+		assert.True(t, strings.HasSuffix(line, "api_routine_test.go:815"))
 		//
 		line = lines[2]
 		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.inheritedWaitResultTask[...].run()"))
-		assert.True(t, strings.HasSuffix(line, "routine.go:109"))
+		if routinexEnabled {
+			assert.True(t, strings.HasSuffix(line, "routine.go:119"))
+		} else {
+			assert.True(t, strings.HasSuffix(line, "routine.go:109"))
+		}
 		//
 		lineOffset := 0
 		if len(lines) == 7 {

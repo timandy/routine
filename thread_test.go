@@ -32,8 +32,12 @@ func TestPProf(t *testing.T) {
 				tls.Set(tmp)
 				assert.Equal(t, tmp, tls.Get())
 				pprof.Do(context.Background(), pprof.Labels("key", "value"), func(ctx context.Context) {
-					assert.Nil(t, currentThread(false))
-					assert.Nil(t, tls.Get())
+					if routinexEnabled {
+						assert.Equal(t, tmp, tls.Get())
+					} else {
+						assert.Nil(t, currentThread(false))
+						assert.Nil(t, tls.Get())
+					}
 					tls.Set("hi")
 					//
 					label, find := pprof.Label(ctx, "key")
@@ -46,7 +50,11 @@ func TestPProf(t *testing.T) {
 					assert.True(t, find2)
 					assert.Equal(t, "value", label2)
 				})
-				assert.Nil(t, tls.Get())
+				if routinexEnabled {
+					assert.Equal(t, "hi", tls.Get())
+				} else {
+					assert.Nil(t, tls.Get())
+				}
 			}
 			wg.Done()
 		}()
