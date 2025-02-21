@@ -13,9 +13,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-//go:linkname packEface github.com/timandy/routine/g.packEface
-func packEface(typ reflect.Type, p unsafe.Pointer) (i any)
-
 func TestGetgp(t *testing.T) {
 	gp0 := getgp()
 	runtime.GC()

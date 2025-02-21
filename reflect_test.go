@@ -1,7 +1,4 @@
-// Copyright 2021-2025 TimAndy. All rights reserved.
-// Licensed under the Apache-2.0 license that can be found in the LICENSE file.
-
-package g
+package routine
 
 import (
 	"reflect"
