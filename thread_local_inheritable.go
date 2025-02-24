@@ -51,10 +51,12 @@ func (tls *inheritableThreadLocal[T]) Remove() {
 	}
 }
 
+//go:norace
 func (tls *inheritableThreadLocal[T]) getMap(t *thread) *threadLocalMap {
 	return t.inheritableThreadLocals
 }
 
+//go:norace
 func (tls *inheritableThreadLocal[T]) createMap(t *thread, firstValue T) {
 	mp := &threadLocalMap{}
 	mp.set(tls.index, entry(firstValue))

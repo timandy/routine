@@ -52,6 +52,7 @@ func (mp *threadLocalMap) expandAndSet(index int, value entry) {
 	mp.table = newArray
 }
 
+//go:norace
 func createInheritedMap() *threadLocalMap {
 	parent := currentThread(false)
 	if parent == nil {
