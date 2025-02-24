@@ -122,6 +122,12 @@ func TestNewThreadLocal_Interface(t *testing.T) {
 	tls2.Remove()
 	assert.Nil(t, tls.Get())
 	assert.Nil(t, tls2.Get())
+	//
+	task := GoWait(func(token CancelToken) {
+		assert.Nil(t, tls.Get())
+		assert.Nil(t, tls2.Get())
+	})
+	task.Get()
 }
 
 func TestNewThreadLocal_Pointer(t *testing.T) {
@@ -145,6 +151,12 @@ func TestNewThreadLocal_Pointer(t *testing.T) {
 	tls2.Remove()
 	assert.Nil(t, tls.Get())
 	assert.Nil(t, tls2.Get())
+	//
+	task := GoWait(func(token CancelToken) {
+		assert.Nil(t, tls.Get())
+		assert.Nil(t, tls2.Get())
+	})
+	task.Get()
 }
 
 //===
@@ -260,6 +272,12 @@ func TestNewThreadLocalWithInitial_Interface(t *testing.T) {
 	tls2.Remove()
 	assert.Nil(t, tls.Get())
 	assert.Nil(t, tls2.Get())
+	//
+	task := GoWait(func(token CancelToken) {
+		assert.Nil(t, tls.Get())
+		assert.Nil(t, tls2.Get())
+	})
+	task.Get()
 }
 
 func TestNewThreadLocalWithInitial_Pointer(t *testing.T) {
@@ -287,6 +305,12 @@ func TestNewThreadLocalWithInitial_Pointer(t *testing.T) {
 	tls2.Remove()
 	assert.Nil(t, tls.Get())
 	assert.Nil(t, tls2.Get())
+	//
+	task := GoWait(func(token CancelToken) {
+		assert.Nil(t, tls.Get())
+		assert.Nil(t, tls2.Get())
+	})
+	task.Get()
 }
 
 //===
@@ -388,6 +412,12 @@ func TestNewInheritableThreadLocal_Interface(t *testing.T) {
 	tls2.Remove()
 	assert.Nil(t, tls.Get())
 	assert.Nil(t, tls2.Get())
+	//
+	task := GoWait(func(token CancelToken) {
+		assert.Nil(t, tls.Get())
+		assert.Nil(t, tls2.Get())
+	})
+	task.Get()
 }
 
 func TestNewInheritableThreadLocal_Pointer(t *testing.T) {
@@ -411,6 +441,12 @@ func TestNewInheritableThreadLocal_Pointer(t *testing.T) {
 	tls2.Remove()
 	assert.Nil(t, tls.Get())
 	assert.Nil(t, tls2.Get())
+	//
+	task := GoWait(func(token CancelToken) {
+		assert.Nil(t, tls.Get())
+		assert.Nil(t, tls2.Get())
+	})
+	task.Get()
 }
 
 //===
@@ -526,6 +562,12 @@ func TestNewInheritableThreadLocalWithInitial_Interface(t *testing.T) {
 	tls2.Remove()
 	assert.Nil(t, tls.Get())
 	assert.Nil(t, tls2.Get())
+	//
+	task := GoWait(func(token CancelToken) {
+		assert.Nil(t, tls.Get())
+		assert.Nil(t, tls2.Get())
+	})
+	task.Get()
 }
 
 func TestNewInheritableThreadLocalWithInitial_Pointer(t *testing.T) {
@@ -553,6 +595,12 @@ func TestNewInheritableThreadLocalWithInitial_Pointer(t *testing.T) {
 	tls2.Remove()
 	assert.Nil(t, tls.Get())
 	assert.Nil(t, tls2.Get())
+	//
+	task := GoWait(func(token CancelToken) {
+		assert.Nil(t, tls.Get())
+		assert.Nil(t, tls2.Get())
+	})
+	task.Get()
 }
 
 //===
