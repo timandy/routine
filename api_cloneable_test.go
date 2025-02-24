@@ -15,6 +15,11 @@ func TestCloneable(t *testing.T) {
 	var pointer any = &personCloneable{Id: 1, Name: "Hello"}
 	_, ok2 := pointer.(Cloneable)
 	assert.True(t, ok2)
+	//nil pointer can be cast to interface
+	pointer = (*personCloneable)(nil)
+	cloneable, ok3 := pointer.(Cloneable)
+	assert.True(t, ok3)
+	assert.True(t, cloneable != nil)
 }
 
 func TestCloneable_Clone(t *testing.T) {
@@ -28,6 +33,21 @@ func TestCloneable_Clone(t *testing.T) {
 	pcs2 := make([]*personCloneable, 1)
 	copy(pcs2, pcs)
 	assert.Same(t, pc, pcs2[0])
+	//clone nil panic
+	panicked := cloneNil()
+	assert.True(t, panicked)
+}
+
+func cloneNil() (panicked bool) {
+	pc := (*personCloneable)(nil)
+	panicked = false
+	defer func() {
+		if r := recover(); r != nil {
+			panicked = true
+		}
+	}()
+	pc.Clone()
+	return
 }
 
 type personCloneable struct {
