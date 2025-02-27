@@ -1,10 +1,9 @@
 package routine
 
 import (
+	"fmt"
 	"io"
 	"os"
-	"path"
-	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -138,8 +137,9 @@ func TestWrapTask_HasContext(t *testing.T) {
 }
 
 func TestWrapTask_Complete_ThenFail(t *testing.T) {
-	newStdout, oldStdout := captureStdout()
-	defer restoreStdout(newStdout, oldStdout)
+	tracker := NewFileTracker(&os.Stdout)
+	tracker.Begin()
+	defer tracker.End()
 	//
 	run := false
 	wg := &sync.WaitGroup{}
@@ -167,8 +167,7 @@ func TestWrapTask_Complete_ThenFail(t *testing.T) {
 	assert.True(t, run)
 	//
 	time.Sleep(10 * time.Millisecond)
-	output := readAll(newStdout)
-	assert.Equal(t, "", output)
+	assert.Equal(t, "", tracker.Value())
 }
 
 func TestWrapWaitTask_NoContext(t *testing.T) {
@@ -344,8 +343,9 @@ func TestWrapWaitTask_HasContext_Cancel(t *testing.T) {
 }
 
 func TestWrapWaitTask_Complete_ThenFail(t *testing.T) {
-	newStdout, oldStdout := captureStdout()
-	defer restoreStdout(newStdout, oldStdout)
+	tracker := NewFileTracker(&os.Stdout)
+	tracker.Begin()
+	defer tracker.End()
 	//
 	run := false
 	wg := &sync.WaitGroup{}
@@ -373,8 +373,7 @@ func TestWrapWaitTask_Complete_ThenFail(t *testing.T) {
 	assert.True(t, run)
 	//
 	time.Sleep(10 * time.Millisecond)
-	output := readAll(newStdout)
-	assert.Equal(t, "", output)
+	assert.Equal(t, "", tracker.Value())
 }
 
 func TestWrapWaitResultTask_NoContext(t *testing.T) {
@@ -554,8 +553,9 @@ func TestWrapWaitResultTask_HasContext_Cancel(t *testing.T) {
 }
 
 func TestWrapWaitResultTask_Complete_ThenFail(t *testing.T) {
-	newStdout, oldStdout := captureStdout()
-	defer restoreStdout(newStdout, oldStdout)
+	tracker := NewFileTracker(&os.Stdout)
+	tracker.Begin()
+	defer tracker.End()
 	//
 	run := false
 	wg := &sync.WaitGroup{}
@@ -583,13 +583,13 @@ func TestWrapWaitResultTask_Complete_ThenFail(t *testing.T) {
 	assert.True(t, run)
 	//
 	time.Sleep(10 * time.Millisecond)
-	output := readAll(newStdout)
-	assert.Equal(t, "", output)
+	assert.Equal(t, "", tracker.Value())
 }
 
 func TestGo_Error(t *testing.T) {
-	newStdout, oldStdout := captureStdout()
-	defer restoreStdout(newStdout, oldStdout)
+	tracker := NewFileTracker(&os.Stdout)
+	tracker.Begin()
+	defer tracker.End()
 	//
 	run := false
 	assert.NotPanics(t, func() {
@@ -605,8 +605,7 @@ func TestGo_Error(t *testing.T) {
 	assert.True(t, run)
 	//
 	time.Sleep(10 * time.Millisecond)
-	output := readAll(newStdout)
-	lines := strings.Split(output, newLine)
+	lines := strings.Split(tracker.Value(), newLine)
 	assert.Equal(t, 7, len(lines))
 	//
 	line := lines[0]
@@ -728,7 +727,7 @@ func TestGoWait_Error(t *testing.T) {
 		//
 		line = lines[1]
 		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestGoWait_Error."))
-		assert.True(t, strings.HasSuffix(line, "api_routine_test.go:711"))
+		assert.True(t, strings.HasSuffix(line, "api_routine_test.go:710"))
 		//
 		line = lines[2]
 		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.inheritedWaitTask.run()"))
@@ -834,7 +833,7 @@ func TestGoWaitResult_Error(t *testing.T) {
 		//
 		line = lines[1]
 		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestGoWaitResult_Error."))
-		assert.True(t, strings.HasSuffix(line, "api_routine_test.go:815"))
+		assert.True(t, strings.HasSuffix(line, "api_routine_test.go:814"))
 		//
 		line = lines[2]
 		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.inheritedWaitResultTask[...].run()"))
@@ -925,44 +924,54 @@ func TestGoWaitResult_Cross(t *testing.T) {
 	assert.Equal(t, "", result)
 }
 
-func captureStdout() (newStdout, oldStdout *os.File) {
-	oldStdout = os.Stdout
-	fileName := path.Join(os.TempDir(), "go_test_"+strconv.FormatInt(time.Now().UnixNano(), 10)+".txt")
-	file, err := os.Create(fileName)
+//===
+
+type FileTracker struct {
+	target    **os.File
+	oldValue  *os.File
+	tempValue *os.File
+}
+
+func NewFileTracker(target **os.File) *FileTracker {
+	return &FileTracker{target: target, oldValue: *target}
+}
+
+func (f *FileTracker) Begin() {
+	file, err := os.CreateTemp("", "go_test_*.txt")
 	if err != nil {
 		panic(err)
 	}
-	os.Stdout = file
-	newStdout = file
-	return
+	*f.target = file
+	f.tempValue = file
 }
 
-func restoreStdout(newStdout, oldStdout *os.File) {
-	os.Stdout = oldStdout
-	if err := newStdout.Close(); err != nil {
+func (f *FileTracker) End() {
+	*f.target = f.oldValue
+	if err := f.tempValue.Close(); err != nil {
 		panic(err)
 	}
-	if err := os.Remove(newStdout.Name()); err != nil {
+	if err := os.Remove(f.tempValue.Name()); err != nil {
 		panic(err)
 	}
 }
 
-func readAll(rs io.ReadSeeker) string {
-	if _, err := rs.Seek(0, io.SeekStart); err != nil {
+func (f *FileTracker) Value() string {
+	if _, err := f.tempValue.Seek(0, io.SeekStart); err != nil {
 		panic(err)
 	}
-	b := make([]byte, 0, 512)
-	for {
-		if len(b) == cap(b) {
-			b = append(b, 0)[:len(b)]
-		}
-		n, err := rs.Read(b[len(b):cap(b)])
-		b = b[:len(b)+n]
-		if err != nil {
-			if err == io.EOF {
-				return string(b)
-			}
-			panic(err)
-		}
+	buff, err := io.ReadAll(f.tempValue)
+	if err != nil {
+		panic(err)
 	}
+	return string(buff)
+}
+
+func TestFileTracker(t *testing.T) {
+	origin := os.Stdout
+	tracker := NewFileTracker(&os.Stdout)
+	tracker.Begin()
+	fmt.Println("hello world")
+	assert.Equal(t, "hello world\n", tracker.Value())
+	tracker.End()
+	assert.Same(t, origin, os.Stdout)
 }
