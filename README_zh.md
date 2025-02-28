@@ -11,7 +11,7 @@
 
 `routine`封装并提供了一些易用、无竞争、高性能的`goroutine`上下文访问接口，它可以帮助你更优雅地访问协程上下文信息。
 
-# 介绍
+# :house:介绍
 
 `Golang`语言从设计之初，就一直在不遗余力地向开发者屏蔽协程上下文的概念，包括协程`goid`的获取、进程内部协程状态、协程上下文存储等。
 
@@ -21,7 +21,19 @@
 
 而`routine`的核心目标就是开辟另一条路：将`goroutine local storage`引入`Golang`世界。
 
-# 使用演示
+# :loudspeaker:更新提示
+
+:fire:**`1.1.5`版本引入了全新的静态模式。**
+
+- :rocket:性能提升超过`20%`。
+
+- :rocket:内存访问变得更加安全。
+
+- :exclamation:编译命令需要额外的参数`-a -toolexec='routinex -v'`。
+
+详细信息，请访问：[RoutineX 编译器](https://github.com/timandy/routinex)
+
+# :hammer_and_wrench:使用演示
 
 此章节简要介绍如何安装与使用`routine`库。
 
@@ -125,7 +137,7 @@ threadLocal in task by WrapTask:
 inheritableThreadLocal in task by WrapTask: Hello world2
 ```
 
-# API文档
+# :books:API文档
 
 此章节详细介绍了`routine`库封装的全部接口，以及它们的核心功能、实现方式等。
 
@@ -195,7 +207,7 @@ inheritableThreadLocal in task by WrapTask: Hello world2
 
 [更多API文档](https://pkg.go.dev/github.com/timandy/routine#section-documentation)
 
-# 垃圾回收
+# :wastebasket:垃圾回收
 
 `routine`为每个协程分配了一个`thread`结构，它存储了协程相关的上下文变量信息。
 
@@ -207,7 +219,7 @@ inheritableThreadLocal in task by WrapTask: Hello world2
 
 如果`thread`中存储的数据也没有额外被引用，这些数据将被一并回收。
 
-# 支持网格
+# :globe_with_meridians:支持网格
 
 |                | **`darwin`** | **`linux`** | **`windows`** | **`freebsd`** | **`js`** |                |
 |---------------:|:------------:|:-----------:|:-------------:|:-------------:|:--------:|:---------------|
@@ -230,11 +242,11 @@ inheritableThreadLocal in task by WrapTask: Hello world2
 
 ✅：支持
 
-# 鸣谢
+# :pray:鸣谢
 
 感谢所有[贡献者](https://github.com/timandy/routine/graphs/contributors)的贡献！
 
-# *许可证*
+# :scroll:*许可证*
 
 `routine`是在 [Apache License 2.0](LICENSE) 下发布的。
 
