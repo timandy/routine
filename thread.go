@@ -16,16 +16,16 @@ const threadMagic = uint64('r')<<48 |
 	uint64('e')
 
 type thread struct {
-	labels                  map[string]string //pprof
-	magic                   uint64            //mark
-	id                      uint64            //goid
+	labels                  labelMap //pprof
+	magic                   uint64   //mark
+	id                      uint64   //goid
 	threadLocals            *threadLocalMap
 	inheritableThreadLocals *threadLocalMap
 }
 
 // finalize reset thread's memory.
 func (t *thread) finalize() {
-	t.labels = nil
+	t.labels = defaultLabels()
 	t.magic = 0
 	t.id = 0
 	t.threadLocals = nil
@@ -43,7 +43,7 @@ func currentThread(create bool) *thread {
 	//nothing inherited
 	if label == nil {
 		if create {
-			newt := &thread{labels: nil, magic: threadMagic, id: goid}
+			newt := &thread{labels: defaultLabels(), magic: threadMagic, id: goid}
 			runtime.SetFinalizer(newt, (*thread).finalize)
 			gp.setLabels(unsafe.Pointer(newt))
 			return newt
@@ -54,7 +54,7 @@ func currentThread(create bool) *thread {
 	t, magic, id := extractThread(gp, label)
 	if magic != threadMagic {
 		if create {
-			mp := *(*map[string]string)(label)
+			mp := *(*labelMap)(label)
 			newt := &thread{labels: mp, magic: threadMagic, id: goid}
 			runtime.SetFinalizer(newt, (*thread).finalize)
 			gp.setLabels(unsafe.Pointer(newt))
@@ -64,7 +64,7 @@ func currentThread(create bool) *thread {
 	}
 	//inherited thread then recreate
 	if id != goid {
-		if create || t.labels != nil {
+		if create || !t.labels.isEmpty() {
 			newt := &thread{labels: t.labels, magic: threadMagic, id: goid}
 			runtime.SetFinalizer(newt, (*thread).finalize)
 			gp.setLabels(unsafe.Pointer(newt))
