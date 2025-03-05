@@ -16,9 +16,9 @@ const threadMagic = uint64('r')<<48 |
 	uint64('e')
 
 type thread struct {
-	labels                  map[string]string //pprof
-	magic                   uint64            //mark
-	id                      uint64            //goid
+	labels                  labelMap //pprof
+	magic                   uint64   //mark
+	id                      uint64   //goid
 	threadLocals            *threadLocalMap
 	inheritableThreadLocals *threadLocalMap
 }
@@ -54,7 +54,7 @@ func currentThread(create bool) *thread {
 	t, magic, id := extractThread(gp, label)
 	if magic != threadMagic {
 		if create {
-			mp := *(*map[string]string)(label)
+			mp := *(*labelMap)(label)
 			newt := &thread{labels: mp, magic: threadMagic, id: goid}
 			runtime.SetFinalizer(newt, (*thread).finalize)
 			gp.setLabels(unsafe.Pointer(newt))
