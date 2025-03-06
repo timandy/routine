@@ -9,5 +9,5 @@ func (m labelMap) isEmpty() bool {
 }
 
 func defaultLabels() labelMap {
-	return labelMap{}
+	return nil
 }
