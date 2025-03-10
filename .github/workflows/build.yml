@@ -183,6 +183,12 @@ jobs:
             runs-on: macos-latest
           - os: linux
             runs-on: ubuntu-latest
+          - os: linux
+            arch: mips64
+            runs-on: ubuntu-22.04
+          - os: linux
+            arch: mips64le
+            runs-on: ubuntu-22.04
           - os: windows
             runs-on: windows-latest
           - os: freebsd
@@ -294,6 +300,10 @@ jobs:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
         run: go test -v -coverprofile='coverage.txt' -covermode=atomic -a -toolexec='routinex -v' ./...
+
+      - name: 'Install mingw64-8.x'
+        if: ${{ matrix.os == 'windows' && contains(fromJson('["amd64"]'), matrix.arch) && matrix.os == '1.18' }}
+        run: choco install mingw --version=8.5.0
 
       - name: 'Test on [windows] arch [amd64]'
         if: ${{ matrix.os == 'windows' && contains(fromJson('["amd64"]'), matrix.arch) }}
