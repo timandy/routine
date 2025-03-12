@@ -1,5 +1,27 @@
 <!--变更日志-->
 
+# v1.1.5 Release notes
+
+### Bugs
+
+- Fix missing nil check for the underlying data when copying the context of `InheritableThreadLocal`.
+
+### Features
+
+- Support go version range `go1.18` ~ `go1.24`(New support `go1.24`).
+- Add a new `static mode`, which improves performance by over `20%` and provides higher memory safety by adding the compilation parameter `-a -toolexec='routinex -v'`.
+
+### Changes
+
+- Modify the `goid` type to `uint64`.
+- Update copyright.
+
+# Links
+
+- Source code [https://github.com/timandy/routine/tree/v1.1.5](https://github.com/timandy/routine/tree/v1.1.5)
+
+---
+
 # v1.1.4 Release notes
 
 ### Features
