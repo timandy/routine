@@ -6,7 +6,7 @@
 #include "go_tls.h"
 #include "textflag.h"
 
-TEXT ·getgp(SB), NOSPLIT, $0-8
+TEXT ·getg(SB), NOSPLIT, $0-8
     get_tls(CX)
     MOVQ    g(CX), AX
     MOVQ    AX, ret+0(FP)
