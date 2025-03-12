@@ -3,7 +3,7 @@ package routine
 // RuntimeError runtime error with stack info.
 type RuntimeError interface {
 	// Goid returns the goid of the coroutine that created the current error.
-	Goid() int64
+	Goid() uint64
 
 	// Gopc returns the pc of go statement that created the current error coroutine.
 	Gopc() uintptr

@@ -403,7 +403,7 @@ func TestArgumentNilError_ParamName(t *testing.T) {
 }
 
 type ArgumentNilError struct {
-	goid       int64
+	goid       uint64
 	gopc       uintptr
 	message    string
 	stackTrace []uintptr
@@ -411,7 +411,7 @@ type ArgumentNilError struct {
 	paramName  string
 }
 
-func (ae *ArgumentNilError) Goid() int64 {
+func (ae *ArgumentNilError) Goid() uint64 {
 	return ae.goid
 }
 

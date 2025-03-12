@@ -20,14 +20,14 @@ const (
 )
 
 type runtimeError struct {
-	goid       int64
+	goid       uint64
 	gopc       uintptr
 	message    string
 	stackTrace []uintptr
 	cause      RuntimeError
 }
 
-func (re *runtimeError) Goid() int64 {
+func (re *runtimeError) Goid() uint64 {
 	return re.goid
 }
 
@@ -51,7 +51,7 @@ func (re *runtimeError) Error() string {
 	return runtimeErrorError(re)
 }
 
-func runtimeErrorNew(cause any) (goid int64, gopc uintptr, msg string, stackTrace []uintptr, innerErr RuntimeError) {
+func runtimeErrorNew(cause any) (goid uint64, gopc uintptr, msg string, stackTrace []uintptr, innerErr RuntimeError) {
 	runtimeErr, isRuntimeErr := cause.(RuntimeError)
 	if !isRuntimeErr {
 		if err, isErr := cause.(error); isErr {
@@ -64,12 +64,12 @@ func runtimeErrorNew(cause any) (goid int64, gopc uintptr, msg string, stackTrac
 	return gp.goid(), gp.gopc(), msg, captureStackTrace(2, 100), runtimeErr
 }
 
-func runtimeErrorNewWithMessage(message string) (goid int64, gopc uintptr, msg string, stackTrace []uintptr, innerErr RuntimeError) {
+func runtimeErrorNewWithMessage(message string) (goid uint64, gopc uintptr, msg string, stackTrace []uintptr, innerErr RuntimeError) {
 	gp := getg()
 	return gp.goid(), gp.gopc(), message, captureStackTrace(2, 100), nil
 }
 
-func runtimeErrorNewWithMessageCause(message string, cause any) (goid int64, gopc uintptr, msg string, stackTrace []uintptr, innerErr RuntimeError) {
+func runtimeErrorNewWithMessageCause(message string, cause any) (goid uint64, gopc uintptr, msg string, stackTrace []uintptr, innerErr RuntimeError) {
 	runtimeErr, isRuntimeErr := cause.(RuntimeError)
 	if !isRuntimeErr {
 		causeMsg := ""

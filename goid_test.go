@@ -102,7 +102,7 @@ func TestOffset(t *testing.T) {
 }
 
 // curGoroutineID parse the current g's goid from caller stack.
-func curGoroutineID() int64 {
+func curGoroutineID() uint64 {
 	b := make([]byte, 64)
 	b = b[:runtime.Stack(b, false)]
 	// Parse the 4707 out of "goroutine 4707 ["
@@ -112,7 +112,7 @@ func curGoroutineID() int64 {
 		panic(fmt.Sprintf("No space found in %q", b))
 	}
 	b = b[:i]
-	n, err := strconv.ParseInt(string(b), 10, 64)
+	n, err := strconv.ParseUint(string(b), 10, 64)
 	if err != nil {
 		panic(fmt.Sprintf("Failed to parse goroutine ID out of %q: %v", b, err))
 	}

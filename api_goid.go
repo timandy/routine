@@ -1,6 +1,6 @@
 package routine
 
 // Goid return the current goroutine's unique id.
-func Goid() int64 {
+func Goid() uint64 {
 	return getg().goid()
 }
