@@ -51,10 +51,12 @@ func (tls *threadLocal[T]) Remove() {
 	}
 }
 
+//go:norace
 func (tls *threadLocal[T]) getMap(t *thread) *threadLocalMap {
 	return t.threadLocals
 }
 
+//go:norace
 func (tls *threadLocal[T]) createMap(t *thread, firstValue T) {
 	mp := &threadLocalMap{}
 	mp.set(tls.index, entry(firstValue))

@@ -619,9 +619,9 @@ func TestGo_Error(t *testing.T) {
 	line = lines[2]
 	assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.inheritedTask.run()"))
 	if routinexEnabled {
-		assert.True(t, strings.HasSuffix(line, "routine.go:42"))
+		assert.True(t, strings.HasSuffix(line, "routine.go:53"))
 	} else {
-		assert.True(t, strings.HasSuffix(line, "routine.go:31"))
+		assert.True(t, strings.HasSuffix(line, "routine.go:45"))
 	}
 	//
 	line = lines[3]
@@ -733,9 +733,9 @@ func TestGoWait_Error(t *testing.T) {
 		line = lines[2]
 		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.inheritedWaitTask.run()"))
 		if routinexEnabled {
-			assert.True(t, strings.HasSuffix(line, "routine.go:81"))
+			assert.True(t, strings.HasSuffix(line, "routine.go:85"))
 		} else {
-			assert.True(t, strings.HasSuffix(line, "routine.go:70"))
+			assert.True(t, strings.HasSuffix(line, "routine.go:77"))
 		}
 		//
 		line = lines[3]
@@ -839,7 +839,7 @@ func TestGoWaitResult_Error(t *testing.T) {
 		line = lines[2]
 		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.inheritedWaitResultTask[...].run()"))
 		if routinexEnabled {
-			assert.True(t, strings.HasSuffix(line, "routine.go:119"))
+			assert.True(t, strings.HasSuffix(line, "routine.go:116"))
 		} else {
 			assert.True(t, strings.HasSuffix(line, "routine.go:109"))
 		}
