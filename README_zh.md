@@ -129,7 +129,7 @@ inheritableThreadLocal in task by WrapTask: Hello world2
 
 此章节详细介绍了`routine`库封装的全部接口，以及它们的核心功能、实现方式等。
 
-## `Goid() int64`
+## `Goid() uint64`
 
 获取当前`goroutine`的`goid`。
 
