@@ -270,7 +270,7 @@ jobs:
       - name: 'Setup qemu-loongarch64-static on [linux] arch [loong64]'
         if: ${{ matrix.os == 'linux' && contains(fromJson('["loong64"]'), matrix.arch) }}
         run: |
-          sudo wget -O /usr/bin/qemu-loongarch64-static https://github.com/loongson/build-tools/releases/download/2022.09.06/qemu-loongarch64
+          sudo wget -O /usr/bin/qemu-loongarch64-static https://github.com/loongson/build-tools/releases/download/2025.02.21/qemu-loongarch64
           sudo chmod +x /usr/bin/qemu-loongarch64-static
           sudo mkdir -p /usr/libexec/qemu-binfmt
           sudo ln -s /usr/bin/qemu-loongarch64-static /usr/libexec/qemu-binfmt/loongarch64-binfmt-P
