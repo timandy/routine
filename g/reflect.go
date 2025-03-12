@@ -32,6 +32,13 @@ func typelinks() (sections []unsafe.Pointer, offset [][]int32)
 //go:linkname resolveTypeOff reflect.resolveTypeOff
 func resolveTypeOff(rtype unsafe.Pointer, off int32) unsafe.Pointer
 
+// isNil returns the data field of eface value is nil or not.
+//
+//go:linkname isNil routine.isNil
+func isNil(i any) bool {
+	return (*eface)(unsafe.Pointer(&i)).data == nil
+}
+
 // packEface returns an empty interface representing a value of the specified type,
 // using p as the pointer to the data.
 //

@@ -5,6 +5,11 @@ import (
 	"unsafe"
 )
 
+// isNil returns the data field of eface value is nil or not.
+//
+//go:linkname isNil routine.isNil
+func isNil(i any) bool
+
 // packEface returns an empty interface representing a value of the specified type,
 // using p as the pointer to the data.
 //

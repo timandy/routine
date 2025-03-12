@@ -1,12 +1,28 @@
 package routine
 
 import (
+	"fmt"
 	"reflect"
+	"strings"
 	"testing"
 	"unsafe"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func TestIsNil(t *testing.T) {
+	var value fmt.Stringer
+	assert.True(t, value == nil)
+	assert.True(t, isNil(value))
+	//
+	value = (*strings.Builder)(nil) //nolint:staticcheck
+	assert.True(t, value != nil)    //nolint:staticcheck
+	assert.True(t, isNil(value))
+	//
+	value = &strings.Builder{}   //nolint:staticcheck
+	assert.True(t, value != nil) //nolint:staticcheck
+	assert.True(t, !isNil(value))
+}
 
 func TestPackEface(t *testing.T) {
 	value := 1
