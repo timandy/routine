@@ -11,7 +11,7 @@
 
 `routine` encapsulates and provides some easy-to-use, non-competitive, high-performance `goroutine` context access interfaces, which can help you access coroutine context information more gracefully.
 
-# Introduce
+# :house:Introduce
 
 From the very beginning of its design, the `Golang` language has spared no effort to shield the concept of coroutine context from developers, including the acquisition of coroutine `goid`, the state of coroutine within the process, and the storage of coroutine context.
 
@@ -21,7 +21,19 @@ Of course, you can choose to use `Context`, which carries all the context inform
 
 And the core goal of `routine` is to open up another way: Introduce `goroutine local storage` to the `Golang` world.
 
-# Usage & Demo
+# :loudspeaker:Update Notice
+
+:fire:**Version `1.1.5` introduces a new static mode.**
+
+- :rocket:Performance improved by over `20%`.
+
+- :rocket:Memory access is now safer.
+
+- :exclamation:The compile command requires additional parameters `-a -toolexec='routinex -v'`.
+
+For more details, visit: [RoutineX Compiler](https://github.com/timandy/routinex)
+
+# :hammer_and_wrench:Usage & Demo
 
 This chapter briefly introduces how to install and use the `routine` library.
 
@@ -125,7 +137,7 @@ threadLocal in task by WrapTask:
 inheritableThreadLocal in task by WrapTask: Hello world2
 ```
 
-# API
+# :books:API
 
 This chapter introduces in detail all the interfaces encapsulated by the `routine` library, as well as their core functions and implementation methods.
 
@@ -195,7 +207,7 @@ Any `panic` while the child coroutine is executing will be caught and thrown aga
 
 [More API Documentation](https://pkg.go.dev/github.com/timandy/routine#section-documentation)
 
-# Garbage Collection
+# :wastebasket:Garbage Collection
 
 `routine` allocates a `thread` structure for each coroutine, which stores context variable information related to the coroutine.
 
@@ -207,7 +219,7 @@ The `thread` structure will be collected at the next `GC`.
 
 If the data stored in `thread` is not additionally referenced, these data will be collected together.
 
-# Support Grid
+# :globe_with_meridians:Support Grid
 
 |                | **`darwin`** | **`linux`** | **`windows`** | **`freebsd`** | **`js`** |                |
 |---------------:|:------------:|:-----------:|:-------------:|:-------------:|:--------:|:---------------|
@@ -230,11 +242,11 @@ If the data stored in `thread` is not additionally referenced, these data will b
 
 ✅: Supported
 
-# Thanks
+# :pray:Thanks
 
 Thanks to all [contributors](https://github.com/timandy/routine/graphs/contributors) for their contributions!
 
-# *License*
+# :scroll:*License*
 
 `routine` is released under the [Apache License 2.0](LICENSE).
 
