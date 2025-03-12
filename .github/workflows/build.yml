@@ -90,6 +90,12 @@ jobs:
             arch: loong64
             go: 1.18
           - os: linux
+            arch: mips64
+            go: 1.22
+          - os: linux
+            arch: mips64le
+            go: 1.22
+          - os: linux
             arch: wasm
           # windows excludes
           - os: windows
@@ -185,6 +191,9 @@ jobs:
             runs-on: ubuntu-latest
           - os: windows
             runs-on: windows-latest
+          - os: windows
+            go: 1.18
+            runs-on: windows-2019
           - os: freebsd
             runs-on: ubuntu-latest
           - os: js
