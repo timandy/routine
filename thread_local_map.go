@@ -68,7 +68,7 @@ func createInheritedMap() *threadLocalMap {
 	table := make([]entry, len(lookup))
 	copy(table, lookup)
 	for i := 0; i < len(table); i++ {
-		if c, ok := entryAssert[Cloneable](table[i]); ok {
+		if c, ok := entryAssert[Cloneable](table[i]); ok && !isNil(c) {
 			table[i] = entry(c.Clone())
 		}
 	}
