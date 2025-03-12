@@ -20,7 +20,9 @@ type iface struct {
 	data unsafe.Pointer
 }
 
-// typelinks returns a slice of the sections in each module, and a slice of *rtype offsets in each module. The types in each module are sorted by string.
+// typelinks returns a slice of the sections in each module,
+// and a slice of *rtype offsets in each module.
+// The types in each module are sorted by string.
 //
 //go:linkname typelinks reflect.typelinks
 func typelinks() (sections []unsafe.Pointer, offset [][]int32)
@@ -30,7 +32,10 @@ func typelinks() (sections []unsafe.Pointer, offset [][]int32)
 //go:linkname resolveTypeOff reflect.resolveTypeOff
 func resolveTypeOff(rtype unsafe.Pointer, off int32) unsafe.Pointer
 
-// packEface returns an empty interface representing a value of the specified type, using p as the pointer to the data.
+// packEface returns an empty interface representing a value of the specified type,
+// using p as the pointer to the data.
+//
+//go:linkname packEface routine.packEface
 func packEface(typ reflect.Type, p unsafe.Pointer) (i any) {
 	t := (*iface)(unsafe.Pointer(&typ))
 	e := (*eface)(unsafe.Pointer(&i))
@@ -39,7 +44,10 @@ func packEface(typ reflect.Type, p unsafe.Pointer) (i any) {
 	return
 }
 
-// typeByString returns the type whose 'String' property equals to the given string, or nil if not found.
+// typeByString returns the type whose 'String' property equals to the given string,
+// or nil if not found.
+//
+//go:linkname typeByString routine.typeByString
 func typeByString(str string) reflect.Type {
 	// The s is search target
 	s := str
