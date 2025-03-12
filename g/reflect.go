@@ -57,7 +57,7 @@ func typeByString(str string) reflect.Type {
 		// This is a copy of sort.Search, with f(h) replaced by (*typ[h].String() >= s).
 		i, j := 0, len(offs)
 		for i < j {
-			h := i + (j-i)/2 // avoid overflow when computing h
+			h := int(uint(i+j) >> 1) // avoid overflow when computing h
 			// i ≤ h < j
 			face.data = resolveTypeOff(section, offs[h])
 			if !(typ.String() >= s) {
