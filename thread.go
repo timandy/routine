@@ -1,3 +1,5 @@
+//go:build !routinex
+
 package routine
 
 import (
