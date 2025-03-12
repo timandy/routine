@@ -25,7 +25,7 @@ func TestGetgp(t *testing.T) {
 		gp := getgp()
 		runtime.GC()
 		assert.NotNil(t, gp)
-		assert.NotEqual(t, gp0, gp)
+		assert.NotEqual(t, unsafe.Pointer(gp0), unsafe.Pointer(gp))
 	})
 }
 
@@ -70,7 +70,7 @@ func TestGetgt(t *testing.T) {
 
 func TestGetg(t *testing.T) {
 	runTest(t, func() {
-		g0 := packEface(getgt(), getgp())
+		g0 := packEface(getgt(), unsafe.Pointer(getgp()))
 		runtime.GC()
 		stackguard0 := reflect.ValueOf(g0).FieldByName("stackguard0")
 		assert.Greater(t, stackguard0.Uint(), uint64(0))
