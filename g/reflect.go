@@ -75,7 +75,7 @@ func typeByString(str string) reflect.Type {
 			h := int(uint(i+j) >> 1) // avoid overflow when computing h
 			// i ≤ h < j
 			face.data = resolveTypeOff(section, offs[h])
-			if !(typ.String() >= s) {
+			if !(typ.String() >= s) { //nolint:staticcheck
 				i = h + 1 // preserves f(i-1) == false
 			} else {
 				j = h // preserves f(j) == true
