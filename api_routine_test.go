@@ -137,7 +137,7 @@ func TestWrapTask_HasContext(t *testing.T) {
 }
 
 func TestWrapTask_Complete_ThenFail(t *testing.T) {
-	tracker := NewFileTracker(&os.Stdout)
+	tracker := NewFileTracker(os.Stdout)
 	tracker.Begin()
 	defer tracker.End()
 	//
@@ -343,7 +343,7 @@ func TestWrapWaitTask_HasContext_Cancel(t *testing.T) {
 }
 
 func TestWrapWaitTask_Complete_ThenFail(t *testing.T) {
-	tracker := NewFileTracker(&os.Stdout)
+	tracker := NewFileTracker(os.Stdout)
 	tracker.Begin()
 	defer tracker.End()
 	//
@@ -553,7 +553,7 @@ func TestWrapWaitResultTask_HasContext_Cancel(t *testing.T) {
 }
 
 func TestWrapWaitResultTask_Complete_ThenFail(t *testing.T) {
-	tracker := NewFileTracker(&os.Stdout)
+	tracker := NewFileTracker(os.Stdout)
 	tracker.Begin()
 	defer tracker.End()
 	//
@@ -587,7 +587,7 @@ func TestWrapWaitResultTask_Complete_ThenFail(t *testing.T) {
 }
 
 func TestGo_Error(t *testing.T) {
-	tracker := NewFileTracker(&os.Stdout)
+	tracker := NewFileTracker(os.Stdout)
 	tracker.Begin()
 	defer tracker.End()
 	//
@@ -927,12 +927,12 @@ func TestGoWaitResult_Cross(t *testing.T) {
 //===
 
 type FileTracker struct {
-	target    **os.File
-	oldValue  *os.File
-	tempValue *os.File
+	target    *os.File
+	oldValue  os.File
+	tempValue os.File
 }
 
-func NewFileTracker(target **os.File) *FileTracker {
+func NewFileTracker(target *os.File) *FileTracker {
 	return &FileTracker{target: target, oldValue: *target}
 }
 
@@ -941,8 +941,8 @@ func (f *FileTracker) Begin() {
 	if err != nil {
 		panic(err)
 	}
-	*f.target = file
-	f.tempValue = file
+	*f.target = *file
+	f.tempValue = *file
 }
 
 func (f *FileTracker) End() {
@@ -959,7 +959,7 @@ func (f *FileTracker) Value() string {
 	if _, err := f.tempValue.Seek(0, io.SeekStart); err != nil {
 		panic(err)
 	}
-	buff, err := io.ReadAll(f.tempValue)
+	buff, err := io.ReadAll(&f.tempValue)
 	if err != nil {
 		panic(err)
 	}
@@ -968,10 +968,22 @@ func (f *FileTracker) Value() string {
 
 func TestFileTracker(t *testing.T) {
 	origin := os.Stdout
-	tracker := NewFileTracker(&os.Stdout)
+	tracker := NewFileTracker(os.Stdout)
 	tracker.Begin()
-	fmt.Println("hello world")
+	_, _ = fmt.Fprintln(os.Stdout, "hello world")
 	assert.Equal(t, "hello world\n", tracker.Value())
 	tracker.End()
+	assert.Equal(t, "/dev/stdout", origin.Name())
+	assert.Same(t, origin, os.Stdout)
+}
+
+func TestFileTrackerRef(t *testing.T) {
+	origin := os.Stdout
+	tracker := NewFileTracker(os.Stdout)
+	tracker.Begin()
+	_, _ = fmt.Fprintln(origin, "hello world")
+	assert.Equal(t, "hello world\n", tracker.Value())
+	tracker.End()
+	assert.Equal(t, "/dev/stdout", origin.Name())
 	assert.Same(t, origin, os.Stdout)
 }
