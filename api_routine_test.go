@@ -617,11 +617,7 @@ func TestGo_Error(t *testing.T) {
 	//
 	line = lines[2]
 	assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.inheritedTask.run()"))
-	if routinexEnabled {
-		assert.True(t, strings.HasSuffix(line, "routine.go:53"))
-	} else {
-		assert.True(t, strings.HasSuffix(line, "routine.go:45"))
-	}
+	assert.True(t, strings.HasSuffix(line, "routine.go:24"))
 	//
 	line = lines[3]
 	assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.(*futureTask[...]).Run()"))
@@ -727,15 +723,11 @@ func TestGoWait_Error(t *testing.T) {
 		//
 		line = lines[1]
 		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestGoWait_Error."))
-		assert.True(t, strings.HasSuffix(line, "api_routine_test.go:710"))
+		assert.True(t, strings.HasSuffix(line, "api_routine_test.go:706"))
 		//
 		line = lines[2]
 		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.inheritedWaitTask.run()"))
-		if routinexEnabled {
-			assert.True(t, strings.HasSuffix(line, "routine.go:85"))
-		} else {
-			assert.True(t, strings.HasSuffix(line, "routine.go:77"))
-		}
+		assert.True(t, strings.HasSuffix(line, "routine.go:44"))
 		//
 		line = lines[3]
 		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.(*futureTask[...]).Run()"))
@@ -833,15 +825,11 @@ func TestGoWaitResult_Error(t *testing.T) {
 		//
 		line = lines[1]
 		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.TestGoWaitResult_Error."))
-		assert.True(t, strings.HasSuffix(line, "api_routine_test.go:814"))
+		assert.True(t, strings.HasSuffix(line, "api_routine_test.go:806"))
 		//
 		line = lines[2]
 		assert.True(t, strings.HasPrefix(line, "   at github.com/timandy/routine.inheritedWaitResultTask[...].run()"))
-		if routinexEnabled {
-			assert.True(t, strings.HasSuffix(line, "routine.go:116"))
-		} else {
-			assert.True(t, strings.HasSuffix(line, "routine.go:109"))
-		}
+		assert.True(t, strings.HasSuffix(line, "routine.go:64"))
 		//
 		lineOffset := 0
 		if len(lines) == 7 {
