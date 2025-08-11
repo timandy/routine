@@ -191,9 +191,6 @@ jobs:
             runs-on: ubuntu-latest
           - os: windows
             runs-on: windows-latest
-          - os: windows
-            go: 1.18
-            runs-on: windows-2019
           - os: freebsd
             runs-on: ubuntu-latest
           - os: js
@@ -303,6 +300,14 @@ jobs:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
         run: go test -v -coverprofile='coverage.txt' -covermode=atomic -a -toolexec='routinex -v' ./...
+
+      - name: 'Downgrade gcc for go1.18 on [windows] arch [amd64]'
+        if: ${{ matrix.os == 'windows' && contains(fromJson('["amd64"]'), matrix.arch) && matrix.go == '1.18' }}
+        run: |
+          Invoke-WebRequest -Uri 'https://jaist.dl.sourceforge.net/project/mingw-w64/Toolchains%20targetting%20Win64/Personal%20Builds/mingw-builds/8.1.0/threads-win32/sjlj/x86_64-8.1.0-release-win32-sjlj-rt_v6-rev0.7z?viasf=1' -OutFile gcc8.7z
+          Remove-Item 'C:\mingw64' -Recurse -Force
+          7z x gcc8.7z -oC:\ -y
+          gcc --version
 
       - name: 'Test on [windows] arch [amd64]'
         if: ${{ matrix.os == 'windows' && contains(fromJson('["amd64"]'), matrix.arch) }}
