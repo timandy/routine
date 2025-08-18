@@ -76,6 +76,37 @@ func createInheritedMap() *threadLocalMap {
 	return &threadLocalMap{table: table}
 }
 
+//go:norace
+func restoreInheritedMap(mp *threadLocalMap) func() {
+	t := currentThread(mp != nil)
+	if t == nil {
+		// mp and t are nil
+		return clearThread
+	}
+	threadLocalsBackup := t.threadLocals
+	inheritableThreadLocalsBackup := t.inheritableThreadLocals
+	t.threadLocals = nil
+	t.inheritableThreadLocals = mp
+	return func() {
+		resetThread(t, threadLocalsBackup, inheritableThreadLocalsBackup)
+	}
+}
+
+//go:norace
+func clearThread() {
+	t := currentThread(false)
+	if t != nil {
+		t.threadLocals = nil
+		t.inheritableThreadLocals = nil
+	}
+}
+
+//go:norace
+func resetThread(t *thread, threadLocals, inheritableThreadLocals *threadLocalMap) {
+	t.threadLocals = threadLocals
+	t.inheritableThreadLocals = inheritableThreadLocals
+}
+
 func fill[T any](a []T, fromIndex int, toIndex int, val T) {
 	for i := fromIndex; i < toIndex; i++ {
 		a[i] = val
