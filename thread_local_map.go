@@ -1,5 +1,7 @@
 package routine
 
+import _ "unsafe"
+
 var unset entry = &object{}
 
 type object struct {
@@ -53,6 +55,7 @@ func (mp *threadLocalMap) expandAndSet(index int, value entry) {
 }
 
 //go:norace
+//go:linkname createInheritedMap routine.createInheritedMap
 func createInheritedMap() *threadLocalMap {
 	parent := currentThread(false)
 	if parent == nil {
@@ -77,6 +80,7 @@ func createInheritedMap() *threadLocalMap {
 }
 
 //go:norace
+//go:linkname restoreInheritedMap routine.restoreInheritedMap
 func restoreInheritedMap(mp *threadLocalMap) func() {
 	t := currentThread(mp != nil)
 	if t == nil {

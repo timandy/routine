@@ -4,9 +4,16 @@ import (
 	"math/rand"
 	"sync"
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/assert"
 )
+
+//go:linkname createInheritedMapExport routine.createInheritedMap
+func createInheritedMapExport() unsafe.Pointer
+
+//go:linkname restoreInheritedMapExport routine.restoreInheritedMap
+func restoreInheritedMapExport(mp unsafe.Pointer) func()
 
 func TestObject(t *testing.T) {
 	var value entry = &object{}
@@ -207,6 +214,80 @@ func TestRestoreInheritedMap(t *testing.T) {
 			tls.Set(value2)
 			assert.Same(t, value2, tls.Get())
 			defer restoreInheritedMap(mp)()
+			result := tls.Get()
+			assert.NotNil(t, result)
+			assert.NotSame(t, value, result)
+			assert.NotSame(t, value2, result)
+			assert.Equal(t, *value, *result)
+		}()
+		wg3.Done()
+	}()
+	wg3.Wait()
+}
+
+func TestRestoreInheritedMap_Export(t *testing.T) {
+	tls := NewInheritableThreadLocal[*personCloneable]()
+	value := &personCloneable{Id: 1, Name: "Hello"}
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+	go func() {
+		mp := createInheritedMapExport()
+		assert.Nil(t, mp)
+		//
+		go func() {
+			defer func() {
+				if routinexEnabled {
+					assert.NotNil(t, currentThread(false))
+				} else {
+					assert.Nil(t, currentThread(false))
+				}
+				assert.Nil(t, tls.Get())
+				wg.Done()
+			}()
+			defer restoreInheritedMapExport(mp)()
+		}()
+		wg.Done()
+	}()
+	wg.Wait()
+	//
+	wg2 := sync.WaitGroup{}
+	wg2.Add(2)
+	go func() {
+		mp := createInheritedMapExport()
+		assert.Nil(t, mp)
+		//
+		go func() {
+			defer func() {
+				assert.NotNil(t, currentThread(false))
+				assert.Nil(t, tls.Get())
+				wg2.Done()
+			}()
+			defer restoreInheritedMapExport(mp)()
+			tls.Set(value)
+			assert.Same(t, value, tls.Get())
+		}()
+		wg2.Done()
+	}()
+	wg2.Wait()
+	//
+	value2 := &personCloneable{Id: 2, Name: "World"}
+	wg3 := sync.WaitGroup{}
+	wg3.Add(2)
+	go func() {
+		tls.Set(value)
+		assert.Same(t, value, tls.Get())
+		mp := createInheritedMapExport()
+		assert.NotNil(t, mp)
+		//
+		go func() {
+			defer func() {
+				assert.NotNil(t, currentThread(false))
+				assert.Same(t, value2, tls.Get())
+				wg3.Done()
+			}()
+			tls.Set(value2)
+			assert.Same(t, value2, tls.Get())
+			defer restoreInheritedMapExport(mp)()
 			result := tls.Get()
 			assert.NotNil(t, result)
 			assert.NotSame(t, value, result)
