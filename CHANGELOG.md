@@ -1,5 +1,17 @@
 <!--变更日志-->
 
+# v1.1.6 Release notes
+
+### Features
+
+- Support capture and restore goroutine's context by `createInheritedMap()` and `restoreInheritedMap()` methods.
+
+# Links
+
+- Source code [https://github.com/timandy/routine/tree/v1.1.6](https://github.com/timandy/routine/tree/v1.1.6)
+
+---
+
 # v1.1.5 Release notes
 
 ### Bugs
@@ -8,7 +20,7 @@
 
 ### Features
 
-- Support go version range `go1.18` ~ `go1.24`(New support `go1.24`).
+- Support go version range `go1.18` ~ `go1.25`(New support `go1.24` and `go1.25`).
 - Add a new `static mode`, which improves performance by over `20%` and provides higher memory safety by adding the compilation parameter `-a -toolexec='routinex -v'`.
 
 ### Changes
