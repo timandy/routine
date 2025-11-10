@@ -25,7 +25,7 @@ jobs:
           cache: false
 
       - name: Lint
-        uses: golangci/golangci-lint-action@v8
+        uses: golangci/golangci-lint-action@v9
 
   CodeQL:
     needs: Lint
