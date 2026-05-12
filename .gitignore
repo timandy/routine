@@ -16,3 +16,6 @@
 
 # IntelliJ
 .idea
+
+# Oh-My-ClaudeCode
+.omc/
