@@ -304,7 +304,7 @@ jobs:
       - name: 'Downgrade gcc for go1.18 on [windows] arch [amd64]'
         if: ${{ matrix.os == 'windows' && contains(fromJson('["amd64"]'), matrix.arch) && matrix.go == '1.18' }}
         run: |
-          Invoke-WebRequest -Uri 'https://jaist.dl.sourceforge.net/project/mingw-w64/Toolchains%20targetting%20Win64/Personal%20Builds/mingw-builds/8.1.0/threads-win32/sjlj/x86_64-8.1.0-release-win32-sjlj-rt_v6-rev0.7z?viasf=1' -OutFile gcc8.7z
+          Invoke-WebRequest -Uri 'https://github.com/timandy/mingw-builds-binaries/releases/download/8.1.0-rt_v6-rev0/x86_64-8.1.0-release-win32-sjlj-rt_v6-rev0.7z' -OutFile gcc8.7z
           Remove-Item 'C:\mingw64' -Recurse -Force
           7z x gcc8.7z -oC:\ -y
           gcc --version
