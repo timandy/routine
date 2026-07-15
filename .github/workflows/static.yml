@@ -333,7 +333,7 @@ jobs:
       # js
       - name: 'Setup Node.js on [js] arch [wasm]'
         if: ${{ matrix.os == 'js' && contains(fromJson('["wasm"]'), matrix.arch) }}
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 18
 
